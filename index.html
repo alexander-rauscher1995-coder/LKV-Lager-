@@ -379,6 +379,38 @@ button:active{transform:translateY(1px)}
 </style>
 <style>/* V102 CARDIO EXPERIENCE */
 .cardio-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}.cardio-type-card,.zone-card{border:1px solid #303d45;background:#111a20;color:#fff;border-radius:15px;padding:14px 10px;cursor:pointer;text-align:left;transition:.18s}.cardio-type-card span{font-size:24px;display:block;margin-bottom:8px}.cardio-type-card b,.cardio-type-card small,.zone-card b,.zone-card small{display:block}.cardio-type-card small,.zone-card small{color:#83919a;font-size:11px;margin-top:4px}.cardio-type-card.active,.zone-card.active{border-color:var(--accent);background:rgba(99,245,154,.09);box-shadow:0 0 0 1px rgba(99,245,154,.10)}.cardio-zone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}.zone-card{text-align:center;padding:12px 8px}.zone-card.active b{color:var(--accent)}.cardio-history-item{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #27333a}.cardio-history-item:last-child{border-bottom:0}.cardio-history-icon{width:40px;height:40px;border-radius:12px;background:rgba(99,245,154,.08);display:grid;place-items:center;font-size:20px}.cardio-history-main span{display:block;color:#83919a;font-size:12px;margin-top:3px}@media(max-width:700px){.cardio-type-grid,.cardio-zone-grid{grid-template-columns:repeat(2,1fr)}.cardio-history-item{grid-template-columns:40px 1fr auto}.cardio-history-item strong{font-size:13px}}
+</style><style>
+/* V104 DISTINCT PAGE DESIGNS */
+#home{background:linear-gradient(180deg,rgba(72,233,133,.035),transparent 360px)}
+#home .calculator-hero{grid-column:span 7;border:1px solid rgba(72,233,133,.22);background:linear-gradient(135deg,rgba(72,233,133,.10),rgba(20,30,36,.96))}
+#home .dashboard-hero{grid-column:span 5;background:linear-gradient(145deg,#162229,#10181d)}
+#home .home-action,#home .home-stat{transition:transform .18s ease,border-color .18s ease}
+#home .home-action:hover,#home .home-stat:hover{transform:translateY(-2px);border-color:rgba(72,233,133,.3)}
+.top{border-bottom:1px solid rgba(72,233,133,.12)}
+.top .week{gap:7px}
+.top .day{width:48px}
+.top .day .circle{width:40px;height:40px}
+.top .day.done .circle{box-shadow:0 0 0 3px rgba(72,233,133,.08)}
+.top .day.today .circle{background:rgba(72,233,133,.12);border-color:var(--green);color:var(--green);font-weight:800}
+#training{background:#0a1116}
+#training .training-page{max-width:1180px;margin:auto}
+#training .training-header{padding:20px 0 16px;position:sticky;top:0;z-index:8;background:rgba(10,17,22,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}
+#training .training-header h1{font-size:30px;margin:5px 0 0}
+#training .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#training .pill{min-height:40px;padding:9px 16px}
+#training .exercise{border-radius:18px;background:linear-gradient(145deg,#121d23,#0e171c);border:1px solid #26343c;margin-bottom:12px}
+#training .actions{position:sticky;bottom:0;z-index:7;padding:12px;background:rgba(10,17,22,.94);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.07)}
+.module-calories{background:linear-gradient(180deg,rgba(72,233,133,.035),transparent 500px)}
+.module-calories .module-head{border-bottom-color:rgba(72,233,133,.18)}
+.module-calories .module-head h2{font-size:27px}
+.module-calories .calorie-summary{display:grid;grid-template-columns:1.35fr .65fr}
+.module-calories .calorie-summary .module-card:first-child{background:linear-gradient(145deg,rgba(72,233,133,.09),#111a20)}
+.module-calories .calorie-summary .module-card:last-child{display:grid;place-items:center}
+.module-calories .module-card h3{margin-top:0}
+@media(max-width:900px){
+ #home .calculator-hero,#home .dashboard-hero{grid-column:span 12}
+ .module-calories .calorie-summary{grid-template-columns:1fr}
+}
 </style></head>
 <body>
 <div class="app">
@@ -1085,6 +1117,7 @@ function openModule(type){
     <button class="module-card" onclick="accountOpen()"><h3>👤 Konto</h3><div class="muted">Anmelden & Datenverwaltung</div></button>
    </div>`;
  }
+ sheet.className='module-sheet module-'+type;
  sheet.innerHTML=content;
  if(type==='settings') updateAccountUI();
  if(type==='bodycheck'){
