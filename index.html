@@ -592,7 +592,7 @@ function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
-  const adjustments={lose:-500,kfa:-300,maintain:0,bulk:250};
+  const adjustments={lose:-500,kfa:-500,maintain:0,bulk:250};
   return Math.max(1000,Math.round(maintenance+(adjustments[calorieState.goal]??0)));
 }
 function goalLabel(){
