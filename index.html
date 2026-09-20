@@ -372,7 +372,7 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.55, training: 'rest', goal: 'maintain', goalAdjustment: 300,
+  activity: 1.55, training: 'rest', goal: 'lose', goalAdjustment: 300,
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
@@ -388,15 +388,25 @@ function calcMaintenance(){
   const trainingAdj=calorieState.training==='train'?200:0;
   return Math.round(b*activity+trainingAdj);
 }
+function dietMacroTargets(){
+  return calorieState.training==='train'
+    ? {protein:200,carbs:235,fat:52}
+    : {protein:200,carbs:175,fat:60};
+}
+function macroCalories(m){
+  return m.protein*4+m.carbs*4+m.fat*9;
+}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
   const goal=calorieState.goal||'maintain';
-  const adjustment=goal==='lose'?-Math.abs(Number(calorieState.goalAdjustment)||300):goal==='gain'?Math.abs(Number(calorieState.goalAdjustment)||300):0;
+  if(goal==='lose') return macroCalories(dietMacroTargets());
+  const adjustment=goal==='gain'?Math.abs(Number(calorieState.goalAdjustment)||300):0;
   return Math.max(1200,Math.round(maintenance+adjustment));
 }
 function goalLabel(){return calorieState.goal==='lose'?'Abnehmen':calorieState.goal==='gain'?'Zunehmen':'Halten'}
 function proteinPerKg(){return calorieState.goal==='lose'?2.5:2}
 function macroTargets(){
+ if(calorieState.goal==='lose') return dietMacroTargets();
  const target=calcTarget(), w=Number(calorieState.weight)||0;
  const protein=Math.round(w*proteinPerKg());
  const fat=Math.round((target*0.25)/9);
@@ -558,11 +568,13 @@ function openModule(type){
       <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
       <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
     </div>
-    <div style="margin-top:10px"><div class="muted" style="margin-bottom:7px">Defizit / Überschuss selbst wählen</div>
-    <div class="segmented">
+    <div style="margin-top:10px"><div class="muted" style="margin-bottom:7px">${calorieState.goal==='lose'?'Deine Diät-Makros':'Defizit / Überschuss selbst wählen'}</div>
+    ${calorieState.goal==='lose'
+      ? '<div class="mini-note">Ruhetag: <b>200 P / 175 KH / 60 F</b> · 2.040 kcal<br>Trainingstag: <b>200 P / 235 KH / 52 F</b> · 2.208 kcal</div>'
+      : `<div class="segmented">
       <button class="${Number(calorieState.goalAdjustment)===300||!calorieState.goalAdjustment?'active':''}" onclick="setGoalAdjustment(300)">300 kcal</button>
       <button class="${Number(calorieState.goalAdjustment)===500?'active':''}" onclick="setGoalAdjustment(500)">500 kcal</button>
-    </div></div>
+    </div>`}</div>
    </div>`
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
@@ -776,7 +788,6 @@ function saveCalorieSettings(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
  calorieState.age=a;calorieState.height=h;calorieState.weight=w;calorieState.sex=s==='f'?'f':'m';
- if(g) calorieState.goalAdjustment=Math.abs(Number(g))||300;
  saveCalories();openModule('calories');toast('Berechnung aktualisiert ✓');
 }
 function saveCalorieDay(){
