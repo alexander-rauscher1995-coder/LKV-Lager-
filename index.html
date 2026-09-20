@@ -372,7 +372,7 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.55, training: 'rest',
+  activity: 1.55, training: 'rest', goal: 'maintain',
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
@@ -382,12 +382,19 @@ function calcBMR(){
   if(![w,h,a].every(Number.isFinite) || w<=0 || h<=0 || a<=0)return 0;
   return Math.round(10*w + 6.25*h - 5*a + (calorieState.sex==='m'?5:-161));
 }
-function calcTarget(){
+function calcMaintenance(){
   const b=calcBMR(); if(!b)return 0;
   const activity=Number(calorieState.activity)||1.2;
   const trainingAdj=calorieState.training==='train'?200:0;
   return Math.round(b*activity+trainingAdj);
 }
+function calcTarget(){
+  const maintenance=calcMaintenance(); if(!maintenance)return 0;
+  const goal=calorieState.goal||'maintain';
+  const adjustment=goal==='lose'?-300:goal==='gain'?300:0;
+  return Math.max(1200,Math.round(maintenance+adjustment));
+}
+function goalLabel(){return calorieState.goal==='lose'?'Abnehmen':calorieState.goal==='gain'?'Zunehmen':'Halten'}
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
 
 
@@ -538,7 +545,7 @@ function openModule(type){
    const hist=(calorieState.history||[]).slice().reverse().slice(0,7);
    content=`<div class="module-head"><div><div class="muted">KALORIEN & ERNÄHRUNG</div><h2>Tagesübersicht</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="calorie-summary">
-    <div class="module-card"><div class="muted">Tagesbedarf</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
+    <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
       <div class="progress-line"><div class="bar"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>
       <div class="muted" style="margin-top:10px">${calorieState.training==='train'?'Trainingstag':'Ruhetag'} · noch ${remaining.toLocaleString('de-DE')} kcal</div>
     </div>
@@ -575,6 +582,12 @@ function openModule(type){
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
       <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('train')">Trainingstag</button>
     </div></div>
+    <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
+      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
+      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
+      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
+    </div>
+    <div class="mini-note">Das Ziel verändert die errechnete Tagesmenge um ca. 300 kcal: Abnehmen −300 · Halten ±0 · Zunehmen +300.</div></div>
     <div class="mini-note">Grundumsatz: ${bmr.toLocaleString('de-DE')} kcal · Bedarf wird aus Grundumsatz, Aktivitätsfaktor und Trainingstag berechnet.</div>
     <button class="module-action secondary" onclick="saveCalorieSettings()">Daten übernehmen & neu berechnen</button>
    </div>
@@ -742,6 +755,7 @@ function importData(event){
 }
 function setActivity(v){calorieState.activity=v;saveCalories();openModule('calories')}
 function setTrainingDay(v){calorieState.training=v;saveCalories();openModule('calories')}
+function setCalorieGoal(v){calorieState.goal=v;saveCalories();openModule('calories')}
 function saveCalorieSettings(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
