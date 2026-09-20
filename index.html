@@ -372,7 +372,7 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.55, training: 'rest', goal: 'lose', goalAdjustment: 300,
+  activity: 1.55, training: 'rest', goal: 'maintain',
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
@@ -388,30 +388,23 @@ function calcMaintenance(){
   const trainingAdj=calorieState.training==='train'?200:0;
   return Math.round(b*activity+trainingAdj);
 }
-function dietMacroTargets(){
-  return calorieState.training==='train'
-    ? {protein:200,carbs:235,fat:52}
-    : {protein:200,carbs:175,fat:60};
-}
-function macroCalories(m){
-  return m.protein*4+m.carbs*4+m.fat*9;
-}
+function dietMacroTargets(){return calorieState.training==='train'?{protein:200,carbs:235,fat:52}:{protein:200,carbs:175,fat:60};}
+function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
   const goal=calorieState.goal||'maintain';
-  if(goal==='lose') return macroCalories(dietMacroTargets());
+  if(goal==='lose')return macroCalories(dietMacroTargets());
   const adjustment=goal==='gain'?Math.abs(Number(calorieState.goalAdjustment)||300):0;
   return Math.max(1200,Math.round(maintenance+adjustment));
 }
 function goalLabel(){return calorieState.goal==='lose'?'Abnehmen':calorieState.goal==='gain'?'Zunehmen':'Halten'}
-function proteinPerKg(){return calorieState.goal==='lose'?2.5:2}
 function macroTargets(){
- if(calorieState.goal==='lose') return dietMacroTargets();
- const target=calcTarget(), w=Number(calorieState.weight)||0;
- const protein=Math.round(w*proteinPerKg());
- const fat=Math.round((target*0.25)/9);
- const carbs=Math.max(0,Math.round((target-protein*4-fat*9)/4));
- return {protein,carbs,fat};
+  if(calorieState.goal==='lose')return dietMacroTargets();
+  const target=calcTarget(), w=Number(calorieState.weight)||0;
+  const protein=Math.round(w*(goalLabel()==='Abnehmen'?2.5:2));
+  const fat=Math.round((target*0.25)/9);
+  const carbs=Math.max(0,Math.round((target-protein*4-fat*9)/4));
+  return {protein,carbs,fat};
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
 
@@ -556,23 +549,20 @@ function openModule(type){
    <div class="module-card" style="margin-top:12px"><h3>Letzte Cardio-Einheiten</h3>${sessions.length?sessions.map(x=>`<div class="setting-row"><div><b>🏃 ${x.type}</b><div class="muted">${new Date(x.date+'T12:00:00').toLocaleDateString('de-DE')}</div></div><b>${x.minutes} min${x.distance?` · ${x.distance} km`:''}</b></div>`).join(''):'<div class="muted">Noch keine Cardio-Einheit gespeichert.</div>'}</div>`;
  } else if(type==='calories'){
    const target=calcTarget(), bmr=calcBMR(), pct=caloriePct(), remaining=Math.max(0,target-(Number(calorieState.intake)||0));
-   const macro=macroTargets(), proteinTarget=macro.protein, carbTarget=macro.carbs, fatTarget=macro.fat;
+   const proteinTarget=Math.round(target*0.25/4), carbTarget=Math.round(target*0.45/4), fatTarget=Math.round(target*0.30/9);
    const pPct=proteinTarget?Math.min(100,Math.round((calorieState.protein||0)/proteinTarget*100)):0;
    const cPct=carbTarget?Math.min(100,Math.round((calorieState.carbs||0)/carbTarget*100)):0;
    const fPct=fatTarget?Math.min(100,Math.round((calorieState.fat||0)/fatTarget*100)):0;
    const hist=(calorieState.history||[]).slice().reverse().slice(0,7);
    content=`<div class="module-head"><div><div class="muted">KALORIEN & ERNÄHRUNG</div><h2>Tagesübersicht</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
-   <div class="module-card" style="margin-bottom:12px"><h3>Ziel festlegen</h3>
+   <div class="module-card" style="margin-bottom:12px"><h3>Ziel</h3>
     <div class="segmented">
       <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
       <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
       <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
     </div>
-    <div style="margin-top:10px"><div class="muted" style="margin-bottom:7px">${calorieState.goal==='lose'?'Deine Diät-Makros':'Defizit / Überschuss selbst wählen'}</div>
-    ${calorieState.goal==='lose'
-      ? '<div class="mini-note">Ruhetag: <b>200 P / 175 KH / 60 F</b> · 2.040 kcal<br>Trainingstag: <b>200 P / 235 KH / 52 F</b> · 2.208 kcal</div>'
-      : '<div class="segmented"><button class="' + (Number(calorieState.goalAdjustment)===300||!calorieState.goalAdjustment?'active':'') + '" onclick="setGoalAdjustment(300)">300 kcal</button><button class="' + (Number(calorieState.goalAdjustment)===500?'active':'') + '" onclick="setGoalAdjustment(500)">500 kcal</button></div>'}</div></div>
-   </div>`
+    <div class="mini-note">Diät: Ruhetag <b>200 P / 175 KH / 60 F</b> · Trainingstag <b>200 P / 235 KH / 52 F</b></div>
+   </div>
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
       <div class="progress-line"><div class="bar"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>
@@ -611,7 +601,12 @@ function openModule(type){
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
       <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('train')">Trainingstag</button>
     </div></div>
-
+    <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
+      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
+      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
+      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
+    </div>
+    <div class="mini-note">Das Ziel verändert die errechnete Tagesmenge um ca. 300 kcal: Abnehmen −300 · Halten ±0 · Zunehmen +300.</div></div>
     <div class="mini-note">Grundumsatz: ${bmr.toLocaleString('de-DE')} kcal · Bedarf wird aus Grundumsatz, Aktivitätsfaktor und Trainingstag berechnet.</div>
     <button class="module-action secondary" onclick="saveCalorieSettings()">Daten übernehmen & neu berechnen</button>
    </div>
@@ -780,7 +775,6 @@ function importData(event){
 function setActivity(v){calorieState.activity=v;saveCalories();openModule('calories')}
 function setTrainingDay(v){calorieState.training=v;saveCalories();openModule('calories')}
 function setCalorieGoal(v){calorieState.goal=v;saveCalories();openModule('calories')}
-function setGoalAdjustment(v){calorieState.goalAdjustment=Math.abs(Number(v)||300);saveCalories();openModule('calories')}
 function saveCalorieSettings(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
