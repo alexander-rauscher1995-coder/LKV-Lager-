@@ -226,6 +226,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .training-header h1{letter-spacing:-.8px}.exercise{background:linear-gradient(145deg,rgba(20,30,36,.96),rgba(12,19,24,.96))!important;border:1px solid var(--stroke)!important;border-radius:18px!important;box-shadow:0 12px 35px rgba(0,0,0,.18)}.pill{border-color:var(--stroke);background:#111c22}.pill.active{background:var(--accent-dim);border-color:var(--accent)}
 @media(max-width:900px){.hero{grid-template-columns:1fr}.datebox{min-width:0;text-align:left}.week{justify-content:flex-start}.name{font-size:40px}.quick{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.top{padding:30px 20px 32px;min-height:235px}.name{font-size:34px}.shell{padding:0 12px 165px}.card{border-radius:17px;padding:17px}.quick{grid-template-columns:repeat(2,1fr)}.quick button{min-height:82px}.module-sheet{width:100%;border-radius:22px 22px 0 0}.module-card{padding:15px}}
+
+/* V106 CALCULATOR GOALS */
+.goal-segmented{display:grid;grid-template-columns:repeat(4,1fr)}
+.goal-segmented button{min-height:52px;font-weight:750}
+@media(max-width:650px){.goal-segmented{grid-template-columns:repeat(2,1fr)}}
 </style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -587,10 +592,11 @@ function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
-  return Math.round(maintenance);
+  const adjustments={lose:-500,kfa:-300,maintain:0,bulk:250};
+  return Math.max(1000,Math.round(maintenance+(adjustments[calorieState.goal]??0)));
 }
 function goalLabel(){
-  const labels={maintain:'Gewicht & Energie halten',strength:'Kraft & Leistung',muscle:'Muskelaufbau',fitness:'Allgemeine Fitness',recovery:'Erholung & Regeneration'};
+  const labels={lose:'Abnehmen',kfa:'KFA senken',maintain:'Erhalt',bulk:'Aufbau'};
   return labels[calorieState.goal]||labels.maintain;
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
@@ -833,11 +839,10 @@ function openModule(type){
     <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Training</button></div>
     <div class="section-kicker" style="margin-top:18px">ZIEL</div>
     <div class="segmented goal-segmented">
-      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;,'calculator')">Gewicht halten</button>
-      <button class="${calorieState.goal==="strength"?"active":""}" onclick="setCalorieGoal(&quot;strength&quot;,'calculator')">Kraft & Leistung</button>
-      <button class="${calorieState.goal==="muscle"?"active":""}" onclick="setCalorieGoal(&quot;muscle&quot;,'calculator')">Muskelaufbau</button>
-      <button class="${calorieState.goal==="fitness"?"active":""}" onclick="setCalorieGoal(&quot;fitness&quot;,'calculator')">Allgemeine Fitness</button>
-      <button class="${calorieState.goal==="recovery"?"active":""}" onclick="setCalorieGoal(&quot;recovery&quot;,'calculator')">Erholung</button>
+      <button class="${calorieState.goal==="lose"?"active":""}" onclick="setCalorieGoal(&quot;lose&quot;,'calculator')">Abnehmen</button>
+      <button class="${calorieState.goal==="kfa"?"active":""}" onclick="setCalorieGoal(&quot;kfa&quot;,'calculator')">KFA senken</button>
+      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;,'calculator')">Erhalt</button>
+      <button class="${calorieState.goal==="bulk"?"active":""}" onclick="setCalorieGoal(&quot;bulk&quot;,'calculator')">Aufbau</button>
     </div>
     <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
    </div>
