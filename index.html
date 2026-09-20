@@ -198,7 +198,7 @@ button{font:inherit;color:inherit}
           <div class="card span12"><div class="row"><h3>⚡ Schnellzugriff</h3><button class="close-btn" onclick="openModule('more')">Alles anzeigen ›</button></div>
             <div class="quick">
               <button onclick="showView('training')"><span class="qicon">🏋️</span><span>Training<br>starten</span></button>
-              <button onclick="openModule('calories')"><span class="qicon">🍴</span><span>Ernährung<br>loggen</span></button>
+              <button type="button" onclick="openModule('nutrition')"><span class="qicon">🍴</span><span>Ernährung<br>loggen</span></button>
               <button onclick="openModule('recovery')"><span class="qicon">🌙</span><span>Schlaf<br>eintragen</span></button>
               <button onclick="openModule('cardio')"><span class="qicon">👟</span><span>Schritte<br>+ Cardio</span></button>
               <button onclick="openModule('progress')"><span class="qicon">📊</span><span>Fortschritt<br>ansehen</span></button>
@@ -230,7 +230,7 @@ button{font:inherit;color:inherit}
   <nav class="bottom">
     <button type="button" class="nav active" data-view="home" onclick="showView('home')"><span class="nicon">⌂</span><span>Home</span></button>
     <button type="button" class="nav" data-view="training" onclick="showView('training')"><span class="nicon">🏋️</span><span>Training</span></button>
-    <button type="button" class="nav" onclick="openModule('calories')"><span class="nicon">🍴</span><span>Ernährung</span></button>
+    <button type="button" class="nav" data-module="nutrition" onclick="openModule('nutrition')"><span class="nicon">🍴</span><span>Ernährung</span></button>
     <button class="nav" onclick="openModule('progress')"><span class="nicon">▥</span><span>Fortschritt</span></button>
     <button class="nav" onclick="openModule('coach')"><span class="nicon">🧠</span><span>Coach</span></button>
     <button class="nav" onclick="openModule('more')"><span class="nicon">•••</span><span>Mehr</span></button>
@@ -348,7 +348,7 @@ function closeSheet(){document.getElementById('modal').classList.remove('open')}
 const ACCOUNT_USERS_KEY='fitness_v97_accounts';
 const ACCOUNT_CURRENT_KEY='fitness_v97_current';
 const ACCOUNT_PREFIX='fitness_v97_account_';
-const ACCOUNT_DATA_KEYS=['fitness_v85_sessions','fitness_v85_training_data','fitness_v84_hydration','fitness_v84_sleep','fitness_v84_compact','fitness_v86_calories','fitness_v87_cardio','fitness_v90_coach','fitness_v94_plans','fitness_v97_bodycheck'];
+const ACCOUNT_DATA_KEYS=['fitness_v85_sessions','fitness_v85_training_data','fitness_v84_hydration','fitness_v84_sleep','fitness_v84_compact','fitness_v86_calories','fitness_v87_cardio','fitness_v90_coach','fitness_v94_plans','fitness_v97_bodycheck','fitness_v98_nutrition'];
 let accountUsers=JSON.parse(localStorage.getItem(ACCOUNT_USERS_KEY)||'{}');
 let currentAccount=localStorage.getItem(ACCOUNT_CURRENT_KEY)||'';
 function accountSnapshot(){const out={}; ACCOUNT_DATA_KEYS.forEach(k=>{const v=localStorage.getItem(k); if(v!==null)out[k]=v;}); return out;}
@@ -410,6 +410,20 @@ function macroTargets(){
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
 
+
+const nutritionKey='fitness_v98_nutrition';
+let nutritionState=JSON.parse(localStorage.getItem(nutritionKey)||'null')||{meals:[]};
+nutritionState.meals=Array.isArray(nutritionState.meals)?nutritionState.meals:[];
+function saveNutrition(){localStorage.setItem(nutritionKey,JSON.stringify(nutritionState))}
+function saveMeal(){
+ const type=document.getElementById('mealType')?.value||'Mahlzeit';
+ const name=(document.getElementById('mealName')?.value||'').trim();
+ const note=(document.getElementById('mealNote')?.value||'').trim();
+ if(!name){toast('Bitte eine Mahlzeit eintragen.');return;}
+ nutritionState.meals.push({date:todayISO(),type,name,note,time:new Date().toISOString()});
+ saveNutrition(); openModule('nutrition'); toast('Mahlzeit gespeichert ✓');
+}
+function deleteMeal(time){nutritionState.meals=nutritionState.meals.filter(x=>x.time!==time);saveNutrition();openModule('nutrition');toast('Mahlzeit gelöscht');}
 
 const bodyCheckKey='fitness_v97_bodycheck';
 let bodyCheckState=JSON.parse(localStorage.getItem(bodyCheckKey)||'null')||{history:[]};
@@ -668,10 +682,24 @@ function openModule(type){
    ${['A','B','C','D'].map(p=>`<div class="metric-row"><span>GK ${p}</span><b>${plansCount[p]||0}</b><div class="bar"><div class="fill" style="width:${count?Math.min(100,((plansCount[p]||0)/count)*100):0}%"></div></div></div>`).join('')}
    </div></div>`;
  } else if(type==='nutrition'){
+   const meals=(nutritionState.meals||[]).filter(x=>x.date===todayISO()).slice().reverse();
    content=`<div class="module-head"><div><div class="muted">ERNÄHRUNG</div><h2>Heute</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-grid">
     <div class="module-card"><h3>Wasser</h3><div class="module-value"><span id="waterValue">${moduleState.hydration.toFixed(1).replace('.',',')}</span> L</div><div class="muted">Hydration protokollieren</div><button class="module-action" onclick="addWater()">+ 0,25 L</button></div>
-    <div class="module-card"><h3>Mahlzeit</h3><div class="module-value">✓</div><div class="muted">Einfach festhalten, was du gegessen hast.</div><button class="module-action secondary" onclick="toast('Mahlzeit gespeichert ✓')">Mahlzeit speichern</button></div>
+    <div class="module-card"><h3>Heute gegessen</h3><div class="module-value">${meals.length}</div><div class="muted">gespeicherte Mahlzeiten</div></div>
+   </div>
+   <div class="module-card" style="margin-top:12px"><h3>Mahlzeit eintragen</h3>
+    <div class="calorie-inputs">
+      <div class="field"><label>Art</label><select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></div>
+      <div class="field"><label>Mahlzeit</label><input id="mealName" placeholder="z. B. Haferflocken mit Joghurt"></div>
+    </div>
+    <div class="field" style="margin-top:10px"><label>Notiz (optional)</label><input id="mealNote" placeholder="z. B. mit Obst"></div>
+    <button class="module-action" onclick="saveMeal()">Mahlzeit speichern</button>
+   </div>
+   <div class="module-card" style="margin-top:12px"><h3>Heutige Mahlzeiten</h3>
+    ${meals.length?meals.map(x=>`<div class="setting-row"><div><b>${x.type} · ${x.name.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</b><div class="muted">${x.note?x.note.replace(/</g,'&lt;').replace(/>/g,'&gt;'):'Keine Notiz'}</div></div><button class="module-action secondary" onclick="deleteMeal('${x.time}')">Löschen</button></div>`).join(''):'<div class="empty">Noch keine Mahlzeit für heute gespeichert.</div>'}
+   </div>
+   <div class="module-card" style="margin-top:12px"><h3>Kalorien & Makros</h3><div class="muted">Für eine separate Übersicht kannst du den Kalorienbereich über „Mehr → Kalorien & Ernährung“ öffnen.</div><button class="module-action secondary" onclick="openModule('calories')">Kalorien öffnen</button></div>
    </div>`;
  } else if(type==='recovery'){
    content=`<div class="module-head"><div><div class="muted">RECOVERY</div><h2>Erholung heute</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
@@ -742,6 +770,7 @@ function exportData(){
    cardio:cardioState,
    coach:coachState,
    bodycheck:bodyCheckState,
+   nutrition:nutritionState,
    calories:calorieState,
    plans:JSON.parse(localStorage.getItem('fitness_v94_plans')||'null')
  };
@@ -766,6 +795,7 @@ function importData(event){
      if(p.cardio && typeof p.cardio==='object')localStorage.setItem(cardioKey,JSON.stringify(p.cardio));
      if(p.coach && typeof p.coach==='object')localStorage.setItem(coachKey,JSON.stringify(p.coach));
      if(p.bodycheck && typeof p.bodycheck==='object')localStorage.setItem(bodyCheckKey,JSON.stringify(p.bodycheck));
+     if(p.nutrition && typeof p.nutrition==='object')localStorage.setItem(nutritionKey,JSON.stringify(p.nutrition));
      if(p.calories && typeof p.calories==='object')localStorage.setItem('fitness_v86_calories',JSON.stringify(p.calories));
      if(p.plans && typeof p.plans==='object')localStorage.setItem('fitness_v94_plans',JSON.stringify(p.plans));
      toast('Backup importiert ✓');
@@ -840,7 +870,7 @@ document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',e=>{
  e.stopPropagation();
  const view=btn.dataset.view;
  if(view){showView(view);return;}
- if(btn.textContent.includes('Ernährung'))openModule('calories');
+ if(btn.textContent.includes('Ernährung'))openModule('nutrition');
  if(btn.textContent.includes('Fortschritt'))openModule('progress');
  if(btn.textContent.includes('Coach'))openModule('coach');
  if(btn.textContent.includes('Mehr'))openModule('more');
@@ -848,7 +878,7 @@ document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',e=>{
 document.querySelectorAll('.quick button').forEach(btn=>btn.addEventListener('click',e=>{
  e.stopPropagation();
  if(btn.textContent.includes('Training'))showView('training');
- if(btn.textContent.includes('Ernährung'))openModule('calories');
+ if(btn.textContent.includes('Ernährung'))openModule('nutrition');
 }));
 
 function updateHomeCoach(){
