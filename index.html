@@ -591,8 +591,17 @@ function calcMaintenance(){
   const gymCalories = calorieState.training==='training' ? 200 : 0;
   return Math.round(b*activity + gymCalories);
 }
-function dietMacroTargets(){return calorieState.training==='training'?{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}:{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}}
-function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4),carbs:Math.round(t*0.50/4),fat:Math.round(t*0.30/9)};}
+function dietMacroTargets(){
+  return macroTargets();
+}
+function macroTargets(){
+  const t=calcTarget();
+  const protein=Math.round((Number(calorieState.weight)||0)*2);
+  const remaining=Math.max(0,t-protein*4);
+  const fat=Math.round((remaining*0.30)/9);
+  const carbs=Math.max(0,Math.round((remaining-fat*9)/4));
+  return {protein,carbs,fat};
+}
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
