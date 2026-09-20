@@ -231,6 +231,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .goal-segmented{display:grid;grid-template-columns:repeat(4,1fr)}
 .goal-segmented button{min-height:52px;font-weight:750}
 @media(max-width:650px){.goal-segmented{grid-template-columns:repeat(2,1fr)}}
+
+/* V112 GYM CALCULATION */
+.gym-note{margin-top:9px;padding:10px 12px;border-radius:10px;background:rgba(88,240,142,.045);border:1px solid rgba(88,240,142,.10);font-size:12px;color:#91a0a9;line-height:1.45}
 </style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -584,8 +587,9 @@ function calcBMR(){
 function calcMaintenance(){
   const b=calcBMR(); if(!b)return 0;
   const activity=Number(calorieState.activity)||1.2;
-  const trainingAdj=calorieState.training==='training'?200:0;
-  return Math.round(b*activity+trainingAdj);
+  // Aktivitätsfaktor = Alltag. Gym/Krafttraining wird separat berücksichtigt.
+  const gymCalories = calorieState.training==='training' ? 200 : 0;
+  return Math.round(b*activity + gymCalories);
 }
 function dietMacroTargets(){return calorieState.training==='training'?{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}:{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}}
 function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4),carbs:Math.round(t*0.50/4),fat:Math.round(t*0.30/9)};}
