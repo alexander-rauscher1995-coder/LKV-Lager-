@@ -411,6 +411,27 @@ button:active{transform:translateY(1px)}
  #home .calculator-hero,#home .dashboard-hero{grid-column:span 12}
  .module-calories .calorie-summary{grid-template-columns:1fr}
 }
+</style><style>
+/* V105 SMART DAY COMMAND CENTER */
+.smart-command{grid-column:span 12;padding:20px;border-radius:24px;border:1px solid rgba(72,233,133,.18);background:
+ radial-gradient(circle at 85% 15%,rgba(72,233,133,.13),transparent 30%),linear-gradient(135deg,#101b21,#0c1318);box-shadow:0 16px 45px rgba(0,0,0,.18)}
+.smart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:16px}
+.smart-head h2{margin:3px 0 5px;font-size:25px}
+.live-badge{border:1px solid rgba(72,233,133,.28);background:rgba(72,233,133,.08);color:var(--green);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.08em}
+.live-badge span{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 10px var(--green)}
+.smart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.smart-item{appearance:none;border:1px solid #27363e;background:rgba(255,255,255,.025);border-radius:18px;padding:14px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;text-align:left;color:inherit;cursor:pointer;transition:.18s}
+.smart-item:hover{transform:translateY(-2px);border-color:rgba(72,233,133,.35);background:rgba(72,233,133,.05)}
+.smart-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:rgba(72,233,133,.09);font-size:21px}
+.smart-item span{display:block;font-size:10px;color:#82919a;letter-spacing:.1em;font-weight:800}
+.smart-item b{display:block;margin:3px 0;font-size:14px}
+.smart-item small{display:block;color:#7e8b93}
+.smart-item strong{font-size:20px;color:var(--green)}
+.smart-footer{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.025)}
+.smart-footer span{color:var(--green);font-size:11px;font-weight:800;text-transform:uppercase}
+.smart-footer b{flex:1;font-size:13px}
+.smart-footer button{border:0;background:transparent;color:var(--green);font-weight:800;cursor:pointer}
+@media(max-width:700px){.smart-grid{grid-template-columns:1fr}.smart-head{display:block}.live-badge{display:inline-block;margin-top:10px}.smart-footer{align-items:flex-start;flex-wrap:wrap}.smart-footer b{flex-basis:calc(100% - 70px)}}
 </style></head>
 <body>
 <div class="app">
@@ -464,6 +485,18 @@ button:active{transform:translateY(1px)}
             </div>
           </div>
 
+          <div class="smart-command span12">
+            <div class="smart-head">
+              <div><div class="section-kicker">SMART DAY</div><h2>Dein Tag · Live</h2><div class="muted">Ein kompakter Kontrollraum für Training, Bewegung und Erholung.</div></div>
+              <div class="live-badge"><span></span> HEUTE</div>
+            </div>
+            <div class="smart-grid">
+              <button class="smart-item" onclick="showView('training')"><div class="smart-icon">🏋️</div><div><span>TRAINING</span><b>Einheit öffnen</b><small>Plan & Sätze</small></div><strong>→</strong></button>
+              <button class="smart-item" onclick="openModule('cardio')"><div class="smart-icon">👟</div><div><span>BEWEGUNG</span><b>Schritte + Cardio</b><small>Heute erfassen</small></div><strong>→</strong></button>
+              <button class="smart-item" onclick="openModule('recovery')"><div class="smart-icon">🌙</div><div><span>RECOVERY</span><b>Erholung prüfen</b><small>Schlaf & Regeneration</small></div><strong>→</strong></button>
+            </div>
+            <div class="smart-footer"><span>⚡ Fokus</span><b id="smartFocus">Heute deinen nächsten sinnvollen Schritt erledigen.</b><button onclick="openModule('coach')">Coach →</button></div>
+          </div>
           <div class="card tile span4 home-action" onclick="showView('training')" style="cursor:pointer"><div><div class="section-kicker">HEUTE</div><div class="icon">🏋️</div><h3>Training</h3><div>Heute: <b>GK A – Push</b></div><div class="muted">Brust · Schultern · Trizeps</div><div style="color:var(--green);margin-top:12px">● Geplant</div></div><div class="action-arrow">›</div></div>
           <div class="card tile span4 home-stat"><div class="stat-label">BEWEGUNG</div><div class="icon" style="color:var(--green)">👟</div><h3>Schritte</h3><div class="big"><span id="homeSteps">0</span> <small class="muted">/ 10.000</small></div><div class="progress-line"><div class="bar"><div id="homeStepFill" class="fill" style="width:0%"></div></div><span id="homeStepPct" class="pct">0%</span></div><div class="muted" style="margin-top:8px">🏃 <span id="homeCardioSummary">Cardio separat erfassen</span></div></div>
           <div class="card tile span4 home-stat"><div class="stat-label">ERNÄHRUNG</div><div class="icon" style="color:var(--orange);background:rgba(255,174,66,.12)">🔥</div><h3>Kalorien</h3><div class="big">1.920 <small class="muted">/ 2.300 kcal</small></div><div class="progress-line"><div class="bar"><div class="fill orange" style="width:84%"></div></div><span class="pct">84%</span></div></div>
