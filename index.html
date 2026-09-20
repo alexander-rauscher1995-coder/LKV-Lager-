@@ -425,6 +425,20 @@ function saveMeal(){
 }
 function deleteMeal(time){nutritionState.meals=nutritionState.meals.filter(x=>x.time!==time);saveNutrition();openModule('nutrition');toast('Mahlzeit gelöscht');}
 
+function saveNutrition(){localStorage.setItem(nutritionKey,JSON.stringify(nutritionState))}
+function saveMeal(){
+ const type=document.getElementById('mealType')?.value||'Mahlzeit';
+ const name=(document.getElementById('mealName')?.value||'').trim();
+ const note=(document.getElementById('mealNote')?.value||'').trim();
+ if(!name){toast('Bitte eine Mahlzeit eintragen.');return;}
+ nutritionState.meals.push({date:todayISO(),type,name,note,time:new Date().toISOString()});
+ saveNutrition(); openModule('nutrition'); toast('Mahlzeit gespeichert ✓');
+}
+function deleteMeal(time){nutritionState.meals=nutritionState.meals.filter(x=>x.time!==time);saveNutrition();openModule('nutrition');toast('Mahlzeit gelöscht');}
+
+function openCalculator(){
+ openModule('calculator');
+}
 const bodyCheckKey='fitness_v97_bodycheck';
 let bodyCheckState=JSON.parse(localStorage.getItem(bodyCheckKey)||'null')||{history:[]};
 bodyCheckState.history=Array.isArray(bodyCheckState.history)?bodyCheckState.history:[];
@@ -629,7 +643,54 @@ function openModule(type){
    <div class="module-card" style="margin-top:12px"><h3>Letzte Tage</h3>
     ${hist.length?`<div class="calorie-history">${hist.map(h=>`<div class="history-item"><span>${new Date(h.date).toLocaleDateString('de-DE')}</span><b>${h.intake} kcal</b><small>${h.training?'Training':'Ruhetag'}</small></div>`).join('')}</div>`:'<div class="empty">Noch keine gespeicherten Tage.</div>'}
    </div>`;
+ } else if(type==='calculator'){
+   const bmr=calcBMR(), maintenance=calcMaintenance(), target=calcTarget(), macros=macroTargets();
+   content=`<div class="module-head"><div><div class="muted">RECHNER</div><h2>Kalorien-Rechner</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
+   <div class="module-card">
+    <h3>Deine Daten</h3>
+    <div class="calorie-inputs">
+      <div class="field"><label>Alter</label><input id="ca" type="number" min="1" max="120" value="${calorieState.age}"></div>
+      <div class="field"><label>Größe (cm)</label><input id="ch" type="number" min="80" max="250" value="${calorieState.height}"></div>
+      <div class="field"><label>Gewicht (kg)</label><input id="cw" type="number" min="20" max="300" value="${calorieState.weight}"></div>
+      <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
+    </div>
+    <button class="module-action" onclick="saveCalorieSettings()">Berechnen</button>
+   </div>
+   <div class="module-grid" style="margin-top:12px">
+    <div class="module-card"><div class="muted">Grundumsatz</div><div class="module-value">${bmr.toLocaleString('de-DE')} kcal</div></div>
+    <div class="module-card"><div class="muted">Tagesbedarf</div><div class="module-value">${maintenance.toLocaleString('de-DE')} kcal</div></div>
+   </div>
+   <div class="module-card" style="margin-top:12px">
+    <h3>Aktivität & Tag</h3>
+    <div class="segmented">
+      <button class="${calorieState.activity===1.2?'active':''}" onclick="setActivity(1.2)">Niedrig</button>
+      <button class="${calorieState.activity===1.375?'active':''}" onclick="setActivity(1.375)">Leicht</button>
+      <button class="${calorieState.activity===1.55?'active':''}" onclick="setActivity(1.55)">Mittel</button>
+      <button class="${calorieState.activity===1.725?'active':''}" onclick="setActivity(1.725)">Hoch</button>
+    </div>
+    <div style="margin-top:12px" class="segmented">
+      <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
+      <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('train')">Trainingstag</button>
+    </div>
+   </div>
+   <div class="module-card" style="margin-top:12px"><h3>Zielbereich</h3>
+    <div class="segmented">
+      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
+      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
+      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
+    </div>
+    <div class="module-grid" style="margin-top:12px">
+      <div class="module-card"><div class="muted">Zielwert</div><div class="module-value">${target.toLocaleString('de-DE')} kcal</div></div>
+      <div class="module-card"><div class="muted">Protein</div><div class="module-value">${macros.protein} g</div></div>
+    </div>
+   </div>
+   <div class="module-card" style="margin-top:12px"><h3>Makro-Ziel</h3><div class="macro-bars">
+    <div class="macro-line"><span>Protein</span><div class="bar"><div class="fill" style="width:100%"></div></div><b>${macros.protein} g</b></div>
+    <div class="macro-line"><span>Kohlenhydrate</span><div class="bar"><div class="fill blue" style="width:100%"></div></div><b>${macros.carbs} g</b></div>
+    <div class="macro-line"><span>Fett</span><div class="bar"><div class="fill yellow" style="width:100%"></div></div><b>${macros.fat} g</b></div>
+   </div></div>`;
  } else if(type==='bodycheck'){
+
    const last=latestBodyCheck();
    const history=(bodyCheckState.history||[]).slice().reverse();
    const val=k=>last&&last[k]?last[k]:'–';
@@ -642,6 +703,11 @@ function openModule(type){
     <div class="bodycheck-stat"><span class="muted">Brust</span><b>${val('chest')==='–'?'–':val('chest')+' cm'}</b></div>
     <div class="bodycheck-stat"><span class="muted">Oberarm</span><b>${val('arm')==='–'?'–':val('arm')+' cm'}</b></div>
    </div><div class="bodycheck-note">Neutraler Verlauf deiner Messwerte. Am besten immer unter möglichst ähnlichen Bedingungen messen.</div></div>
+   <div class="module-card" style="margin-top:12px"><h3>Fortschrittsbild</h3>
+    <div class="muted">Optionales Foto zur persönlichen Dokumentation. Das Bild bleibt auf diesem Gerät gespeichert.</div>
+    <input id="bcPhoto" type="file" accept="image/*" style="margin-top:10px">
+    <div id="bcPhotoPreview" style="margin-top:10px"></div>
+   </div>
    <div class="module-card" style="margin-top:12px"><h3>Neue Messung</h3>
     <div class="bodycheck-form">
      <div class="field"><label>Datum</label><input id="bcDate" type="date" value="${todayISO()}"></div>
@@ -745,6 +811,7 @@ function openModule(type){
    content=`<div class="module-head"><div><div class="muted">MEHR</div><h2>Weitere Bereiche</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-grid">
     <button class="module-card" onclick="openModule('cardio')"><h3>🏃 Cardio & 10.000 Schritte</h3><div class="muted">Schritte, Cardio & Wochenübersicht</div></button>
+    <button class="module-card" onclick="openModule('calculator')"><h3>🧮 Kalorien-Rechner</h3><div class="muted">Grundumsatz, Tagesbedarf & Makros</div></button>
     <button class="module-card" onclick="openModule('calories')"><h3>🔥 Kalorien & Ernährung</h3><div class="muted">Mahlzeiten & Hydration</div></button>
     <button class="module-card" onclick="openModule('recovery')"><h3>♥ Recovery</h3><div class="muted">Schlaf & Check-in</div></button>
     <button class="module-card" onclick="openModule('progress')"><h3>📊 Fortschritt</h3><div class="muted">Leistung analysieren</div></button>
@@ -757,6 +824,13 @@ function openModule(type){
  }
  sheet.innerHTML=content;
  if(type==='settings') updateAccountUI();
+ if(type==='bodycheck'){
+   const photo=document.getElementById('bcPhoto');
+   const preview=document.getElementById('bcPhotoPreview');
+   const stored=localStorage.getItem('fitness_v98_body_photo');
+   if(stored&&preview)preview.innerHTML='<img src="'+stored+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';
+   if(photo)photo.onchange=()=>{const f=photo.files?.[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{localStorage.setItem('fitness_v98_body_photo',reader.result);if(preview)preview.innerHTML='<img src="'+reader.result+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';toast('Bild gespeichert ✓')};reader.readAsDataURL(f)};
+ }
  modal.classList.add('open');
 }
 function exportData(){
