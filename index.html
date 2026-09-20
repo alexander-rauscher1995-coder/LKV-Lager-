@@ -682,6 +682,12 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 /* V118 PLAN BUILDER */
 .plan-refresh-badge{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 10px;border-radius:999px;background:rgba(99,245,154,.07);border:1px solid rgba(99,245,154,.14);color:#9db5a6;font-size:11px}
 .setup-result-card.primary{box-shadow:0 15px 40px rgba(99,245,154,.06)}
+</style><style>
+/* V119 COMPLETE PLAN SETTINGS */
+.setup-extra{margin-top:12px}
+.setup-fields{grid-template-columns:repeat(2,1fr)}
+.plan-refresh-badge{display:block;text-align:center;margin:16px 0;padding:11px;border-radius:12px;background:rgba(99,245,154,.07);border:1px solid rgba(99,245,154,.16);color:#a6c3b0;font-size:12px}
+@media(max-width:600px){.setup-fields{grid-template-columns:1fr}}
 </style></head>
 <body>
 <div class="app">
@@ -1724,13 +1730,14 @@ document.addEventListener('input',e=>{
 let setupStep=0;
 const setupData=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{age:'',sex:'m',height:'',weight:'',activity:'normal',goal:'fitness',days:'3',experience:'beginner',cardio:'2',equipment:'gym'};
 const setupSteps=[
- {label:'DEINE DATEN',title:'Wir bauen deinen Plan.',sub:'Beantworte ein paar kurze Fragen. Daraus entsteht dein persönlicher Coach-Plan.',type:'data'},
- {label:'ALLTAG',title:'Wie aktiv bist du?',sub:'Damit die Energiebedarf-Schätzung zu deinem Alltag passt.',type:'activity'},
- {label:'ZIEL',title:'Was möchtest du entwickeln?',sub:'Wähle den Schwerpunkt, auf den dein Coach den Plan ausrichtet.',type:'goal'},
- {label:'TRAINING',title:'Wie trainierst du?',sub:'Dein Trainingsumfang bestimmt die Struktur der Woche.',type:'training'},
- {label:'ERFAHRUNG',title:'Wo stehst du aktuell?',sub:'Damit Übungen und Umfang passend geplant werden.',type:'experience'},
- {label:'CARDIO',title:'Wie viel Bewegung möchtest du?',sub:'Cardio wird getrennt vom Krafttraining geplant.',type:'cardio'},
- {label:'ERGEBNIS',title:'Dein Coach-Plan ist bereit.',sub:'Die Werte sind eine Orientierung. Du kannst den Plan anschließend jederzeit ändern.',type:'result'}
+ {label:'DEINE DATEN',title:'Wir bauen deinen Plan.',sub:'Deine Basisdaten für den persönlichen Coach.',type:'data'},
+ {label:'ENERGIE & ALLTAG',title:'Wie sieht dein Alltag aus?',sub:'Der Coach nutzt diese Angaben für deine Energie-Orientierung.',type:'activity'},
+ {label:'ZIEL',title:'Was möchtest du entwickeln?',sub:'Der Schwerpunkt beeinflusst Training und Wochenstruktur.',type:'goal'},
+ {label:'KRAFTTRAINING',title:'Wie soll dein Krafttraining aussehen?',sub:'Du kannst Umfang, Umgebung und Trainingsdauer festlegen.',type:'training'},
+ {label:'ERFAHRUNG',title:'Wo stehst du aktuell?',sub:'Damit Umfang und Planung zu deiner Erfahrung passen.',type:'experience'},
+ {label:'CARDIO & BEWEGUNG',title:'Wie möchtest du dich bewegen?',sub:'Cardio, Schritte und Intensität getrennt vom Krafttraining planen.',type:'cardio'},
+ {label:'PERSÖNLICHE VORLIEBEN',title:'Was soll dein Coach beachten?',sub:'Hier kannst du die Planung noch genauer anpassen.',type:'preferences'},
+ {label:'ERGEBNIS',title:'Dein Coach-Plan ist bereit.',sub:'Alle Einstellungen werden in deinem persönlichen Plan berücksichtigt.',type:'result'}
 ];
 function setupRender(){
  const s=setupSteps[setupStep], box=document.getElementById('setupContent');
@@ -1740,19 +1747,27 @@ function setupRender(){
  document.getElementById('setupNext').textContent=setupStep===setupSteps.length-1?'Coach starten →':'Weiter →';
  let html='<div class="setup-kicker">'+s.label+'</div><h1 class="setup-title">'+s.title+'</h1><div class="setup-sub">'+s.sub+'</div>';
  if(s.type==='data')html+='<div class="setup-fields"><div class="setup-field"><label>Alter</label><input id="sAge" type="number" min="13" max="100" value="'+setupData.age+'"></div><div class="setup-field"><label>Geschlecht</label><select id="sSex"><option value="m">Männlich</option><option value="f">Weiblich</option></select></div><div class="setup-field"><label>Größe (cm)</label><input id="sHeight" type="number" value="'+setupData.height+'"></div><div class="setup-field"><label>Gewicht (kg)</label><input id="sWeight" type="number" value="'+setupData.weight+'"></div></div>';
- if(s.type==='activity')html+=setupOptions('activity',[['leicht','Leicht aktiv','Viel Sitzen, wenig zusätzliche Bewegung'],['normal','Normal aktiv','Alltag + regelmäßige Bewegung'],['aktiv','Aktiv','Viel Bewegung im Alltag'],['sehr','Sehr aktiv','Sehr bewegter Alltag']],setupData.activity);
+ if(s.type==='activity')html+=setupOptions('activity',[['leicht','Leicht aktiv','Viel Sitzen, wenig zusätzliche Bewegung'],['normal','Normal aktiv','Alltag + regelmäßige Bewegung'],['aktiv','Aktiv','Viel Bewegung im Alltag'],['sehr','Sehr aktiv','Sehr bewegter Alltag']],setupData.activity)+'<div class="setup-fields setup-extra"><div class="setup-field"><label>Schritte im Alltag</label><input id="sSteps" type="number" min="0" max="50000" value="'+(setupData.steps||'')+'" placeholder="z. B. 8000"></div><div class="setup-field"><label>Schlafziel</label><select id="sSleep"><option value="7">7 h</option><option value="8">8 h</option><option value="9">9 h</option></select></div></div>';
  if(s.type==='goal')html+=setupOptions('goal',[['fitness','Allgemeine Fitness','Gesundheit, Bewegung und Leistungsfähigkeit'],['strength','Kraft & Leistung','Kraft und Trainingsleistung entwickeln'],['muscle','Muskelaufbau','Muskelentwicklung als Schwerpunkt'],['performance','Sportliche Leistung','Leistung für Sport und Ausdauer']],setupData.goal);
- if(s.type==='training')html+='<div class="setup-fields"><div class="setup-field"><label>Krafttraining pro Woche</label><select id="sDays"><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="setup-field"><label>Trainingsumgebung</label><select id="sEquipment"><option value="gym">Fitnessstudio</option><option value="home">Zuhause</option><option value="mixed">Studio + Zuhause</option></select></div></div>';
+ if(s.type==='training')html+='<div class="setup-fields"><div class="setup-field"><label>Krafttraining pro Woche</label><select id="sDays"><option>2</option><option>3</option><option>4</option><option>5</option></select></div><div class="setup-field"><label>Trainingsumgebung</label><select id="sEquipment"><option value="gym">Fitnessstudio</option><option value="home">Zuhause</option><option value="mixed">Studio + Zuhause</option></select></div><div class="setup-field"><label>Dauer pro Einheit</label><select id="sDuration"><option value="45">45 Minuten</option><option value="60">60 Minuten</option><option value="75">75 Minuten</option><option value="90">90 Minuten</option></select></div><div class="setup-field"><label>Split</label><select id="sSplit"><option value="auto">Coach entscheidet</option><option value="fullbody">Ganzkörper</option><option value="upperlower">Oberkörper / Unterkörper</option><option value="ppl">Push / Pull / Legs</option></select></div></div>';
  if(s.type==='experience')html+=setupOptions('experience',[['beginner','Einsteiger','Wenig Trainingserfahrung'],['intermediate','Fortgeschritten','Regelmäßig trainiert'],['advanced','Erfahren','Mehrjährige Trainingserfahrung']],setupData.experience);
- if(s.type==='cardio')html+=setupOptions('cardio',[['0','Kein Fokus','Nur Krafttraining und Alltag'],['1','1 Einheit','Eine zusätzliche Cardio-Einheit'],['2','2 Einheiten','Zwei Cardio-Einheiten'],['3','3+ Einheiten','Mehr Ausdauer-Fokus']],setupData.cardio);
- if(s.type==='result')html+=setupResult();
+ if(s.type==='cardio')html+=setupOptions('cardio',[['0','Kein Fokus','Nur Krafttraining und Alltag'],['1','1 Einheit','Eine zusätzliche Cardio-Einheit'],['2','2 Einheiten','Zwei Cardio-Einheiten'],['3','3+ Einheiten','Mehr Ausdauer-Fokus']],setupData.cardio)+'<div class="setup-fields setup-extra"><div class="setup-field"><label>Bewegungsziel</label><select id="sMove"><option value="easy">Locker</option><option value="moderate">Moderat</option><option value="active">Aktiv</option></select></div><div class="setup-field"><label>Cardio-Art</label><select id="sCardioType"><option value="run">Laufen</option><option value="bike">Radfahren</option><option value="cross">Crosstrainer</option><option value="walk">Gehen</option></select></div></div>';
+ if(s.type==='preferences')html+='<div class="setup-fields"><div class="setup-field"><label>Trainingstage bevorzugt</label><select id="sDaysPref"><option value="flex">Coach flexibel</option><option value="weekdays">Werktage</option><option value="weekend">Wochenende</option></select></div><div class="setup-field"><label>Regeneration</label><select id="sRecovery"><option value="normal">Normal</option><option value="high">Mehr Regeneration</option><option value="low">Weniger Pausentage</option></select></div><div class="setup-field"><label>Priorität</label><select id="sPriority"><option value="balanced">Ausgeglichen</option><option value="upper">Oberkörper / Arme</option><option value="lower">Unterkörper</option><option value="cardio">Ausdauer</option></select></div><div class="setup-field"><label>Coach-Stil</label><select id="sCoachStyle"><option value="balanced">Ausgewogen</option><option value="simple">Einfach & klar</option><option value="detailed">Detailliert</option></select></div></div>';
+ if(s.type==='result')html+=setupResult()+'<div class="plan-refresh-badge">✓ Alle gewählten Einstellungen fließen in deinen neuen Plan ein.</div>';
  box.innerHTML=html;
- if(s.type==='data'){document.getElementById('sSex').value=setupData.sex;document.getElementById('sDays').value=setupData.days;document.getElementById('sEquipment').value=setupData.equipment}
+ if(s.type==='data'){document.getElementById('sSex').value=setupData.sex}
+ if(s.type==='activity'){document.getElementById('sSleep').value=setupData.sleep||'8'}
+ if(s.type==='training'){document.getElementById('sDays').value=setupData.days;document.getElementById('sEquipment').value=setupData.equipment;document.getElementById('sDuration').value=setupData.duration||'60';document.getElementById('sSplit').value=setupData.split||'auto'}
+ if(s.type==='cardio'){document.getElementById('sMove').value=setupData.move||'moderate';document.getElementById('sCardioType').value=setupData.cardioType||'run'}
+ if(s.type==='preferences'){['sDaysPref','sRecovery','sPriority','sCoachStyle'].forEach(id=>{const k={sDaysPref:'daysPref',sRecovery:'recovery',sPriority:'priority',sCoachStyle:'coachStyle'}[id];document.getElementById(id).value=setupData[k]||document.getElementById(id).value})}
 }
 function setupOptions(key,opts,current){return '<div class="setup-options">'+opts.map(o=>'<button class="setup-option '+(current===o[0]?'active':'')+'" onclick="setupData.'+key+'=\''+o[0]+'\';setupRender()"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>').join('')+'</div>'}
 function setupSaveFields(){
  if(setupStep===0){setupData.age=document.getElementById('sAge').value;setupData.sex=document.getElementById('sSex').value;setupData.height=document.getElementById('sHeight').value;setupData.weight=document.getElementById('sWeight').value}
- if(setupStep===3){setupData.days=document.getElementById('sDays').value;setupData.equipment=document.getElementById('sEquipment').value}
+ if(setupStep===1){setupData.steps=document.getElementById('sSteps').value;setupData.sleep=document.getElementById('sSleep').value}
+ if(setupStep===3){setupData.days=document.getElementById('sDays').value;setupData.equipment=document.getElementById('sEquipment').value;setupData.duration=document.getElementById('sDuration').value;setupData.split=document.getElementById('sSplit').value}
+ if(setupStep===5){setupData.move=document.getElementById('sMove').value;setupData.cardioType=document.getElementById('sCardioType').value}
+ if(setupStep===6){setupData.daysPref=document.getElementById('sDaysPref').value;setupData.recovery=document.getElementById('sRecovery').value;setupData.priority=document.getElementById('sPriority').value;setupData.coachStyle=document.getElementById('sCoachStyle').value}
  localStorage.setItem('fitness_coach_setup',JSON.stringify(setupData));
 }
 function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setupData.height||!setupData.weight)){toast('Bitte Alter, Größe und Gewicht eintragen.');return}if(setupStep<setupSteps.length-1){setupStep++;setupRender()}else{
