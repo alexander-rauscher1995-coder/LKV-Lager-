@@ -558,11 +558,11 @@ function openModule(type){
       <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
       <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
     </div>
-    <div class="field" style="margin-top:10px"><label>Defizit / Überschuss</label><select id="cg">
-      <option value="200" ${Number(calorieState.goalAdjustment)===200?'selected':''}>200 kcal</option>
-      <option value="300" ${(!calorieState.goalAdjustment||Number(calorieState.goalAdjustment)===300)?'selected':''}>300 kcal</option>
-      <option value="500" ${Number(calorieState.goalAdjustment)===500?'selected':''}>500 kcal</option>
-    </select></div>
+    <div style="margin-top:10px"><div class="muted" style="margin-bottom:7px">Defizit / Überschuss selbst wählen</div>
+    <div class="segmented">
+      <button class="${Number(calorieState.goalAdjustment)===300||!calorieState.goalAdjustment?'active':''}" onclick="setGoalAdjustment(300)">300 kcal</button>
+      <button class="${Number(calorieState.goalAdjustment)===500?'active':''}" onclick="setGoalAdjustment(500)">500 kcal</button>
+    </div></div>
    </div>`
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
@@ -771,6 +771,7 @@ function importData(event){
 function setActivity(v){calorieState.activity=v;saveCalories();openModule('calories')}
 function setTrainingDay(v){calorieState.training=v;saveCalories();openModule('calories')}
 function setCalorieGoal(v){calorieState.goal=v;saveCalories();openModule('calories')}
+function setGoalAdjustment(v){calorieState.goalAdjustment=Math.abs(Number(v)||300);saveCalories();openModule('calories')}
 function saveCalorieSettings(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
