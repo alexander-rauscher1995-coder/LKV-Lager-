@@ -587,7 +587,7 @@ function calcBMR(){
 function calcMaintenance(){
   const b=calcBMR(); if(!b)return 0;
   const activity=Number(calorieState.activity)||1.2;
-  // Aktivitätsfaktor = Alltag. Gym/Krafttraining wird separat berücksichtigt.
+  // Aktivitätsfaktor beschreibt den Alltag. Ein Gym-/Krafttrainingstag wird separat addiert.
   const gymCalories = calorieState.training==='training' ? 200 : 0;
   return Math.round(b*activity + gymCalories);
 }
@@ -596,6 +596,7 @@ function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
+  // Gemeinsamer Fettverlust-Modus; Zielwerte bleiben als Orientierung.
   const adjustments={lose:-500,kfa:-500,maintain:0,bulk:250};
   return Math.max(1000,Math.round(maintenance+(adjustments[calorieState.goal]??0)));
 }
@@ -837,23 +838,23 @@ function openModule(type){
       <div class="field"><label>Gewicht (kg)</label><input id="cw" type="number" value="${calorieState.weight}"></div>
       <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
-    <div class="section-kicker" style="margin-top:18px">AKTIVITÄT</div>
-    <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="setActivity(${v},'calculator')">${['Leicht','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
+    <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
+    <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="setActivity(${v},'calculator')">${['Wenig aktiv','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
+    <div class="gym-note">Gym/Krafttraining wird separat über den Trainingstag berücksichtigt.</div>
     <div class="section-kicker" style="margin-top:18px">TAG</div>
     <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Gym · Krafttraining</button></div>
     <div class="section-kicker" style="margin-top:18px">ZIEL</div>
     <div class="segmented goal-segmented">
-      <button class="${calorieState.goal==="lose"?"active":""}" onclick="setCalorieGoal(&quot;lose&quot;,'calculator')">Abnehmen</button>
-      <button class="${calorieState.goal==="kfa"?"active":""}" onclick="setCalorieGoal(&quot;kfa&quot;,'calculator')">KFA senken</button>
-      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;,'calculator')">Erhalt</button>
-      <button class="${calorieState.goal==="bulk"?"active":""}" onclick="setCalorieGoal(&quot;bulk&quot;,'calculator')">Aufbau</button>
+      <button class="${(calorieState.goal==="lose"||calorieState.goal==="kfa")?"active":""}" onclick="setCalorieGoal('lose','calculator')">Abnehmen / KFA senken</button>
+      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal('maintain','calculator')">Erhalt</button>
+      <button class="${calorieState.goal==="bulk"?"active":""}" onclick="setCalorieGoal('bulk','calculator')">Aufbau</button>
     </div>
     <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
     <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
     <div class="result-box"><span class="muted">Tagesbedarf</span><b>${maintenance.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Zielwert</span><b>${target.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Tagesziel</span><b>${target.toLocaleString('de-DE')} kcal</b></div>
     <div class="result-box"><span class="muted">Protein</span><b>${Math.round(macro.protein)} g</b></div>
    </div>
    <div class="module-card" style="margin-top:12px"><h3>Makro-Zielwerte</h3><div class="macro-bars">
