@@ -701,7 +701,7 @@ function openModule(type){
       <button class="${calorieState.goal==="fitness"?"active":""}" onclick="setCalorieGoal(&quot;fitness&quot;,'calculator')">Allgemeine Fitness</button>
       <button class="${calorieState.goal==="recovery"?"active":""}" onclick="setCalorieGoal(&quot;recovery&quot;,'calculator')">Erholung</button>
     </div>
-    <button class="module-action" onclick="saveCalorieSettings('calculator')">Berechnen & speichern</button>
+    <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
     <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
@@ -908,6 +908,7 @@ function importData(event){
 function setActivity(v,target='calories'){calorieState.activity=v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
 function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target)}
+function calculateAndStay(){ saveCalorieSettings('calculator'); openModule('calculator'); }
 function saveCalorieSettings(target='calories'){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
