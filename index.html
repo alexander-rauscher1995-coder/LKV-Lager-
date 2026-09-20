@@ -411,6 +411,12 @@ body.coach-way-active .bottom{display:none!important}
 body.coach-way-active .top{margin-left:0!important;padding-left:5vw!important}
 body.coach-way-active #coachWay{position:fixed;inset:0;width:100vw;height:100dvh}
 @media(max-width:900px){body.coach-way-active .top{padding-left:20px!important}}
+
+/* V115 COACH ROUTE GUARANTEE */
+body:has(#coachWay.show)>.pro-sidebar{display:none!important}
+body:has(#coachWay.show)>.bottom{display:none!important}
+body:has(#coachWay.show){padding-left:0!important}
+body:has(#coachWay.show) .top{margin-left:0!important;padding-left:5vw!important}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1141,6 +1147,7 @@ function resetPlanEditor(){
  location.reload();
 }
 function openModule(type){
+ if(type==='coach'){openCoachPlan();return;}
  const modal=document.getElementById('modal'), sheet=document.getElementById('moduleSheet');
  const count=saved.length;
  const plansCount=saved.reduce((a,s)=>(a[s.plan]=(a[s.plan]||0)+1,a),{});
