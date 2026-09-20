@@ -177,6 +177,12 @@ html{scroll-padding-bottom:105px}.app{min-height:100vh}.bottom{position:fixed!im
 body.module-open .bottom{display:none!important}
 body.module-open{overflow:hidden}
 .modal-back.open{z-index:500!important}.module-sheet{padding-bottom:32px}
+
+/* V105 full-screen module workspace */
+body.module-open .modal-back{align-items:stretch!important;justify-content:stretch!important;background:rgba(5,10,14,.96)!important;backdrop-filter:blur(10px)!important}
+body.module-open .module-sheet{width:100%!important;height:100dvh!important;max-height:none!important;border:0!important;border-radius:0!important;padding:24px max(24px,4vw) 40px!important;overflow-y:auto!important;overscroll-behavior:contain}
+body.module-open .module-sheet::-webkit-scrollbar{width:9px}.module-sheet::-webkit-scrollbar-thumb{background:#344049;border-radius:99px}
+@media(max-width:600px){body.module-open .module-sheet{padding:18px 14px 30px!important}}
 </style>
 </head>
 <body>
