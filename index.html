@@ -559,10 +559,11 @@ function calcBMR(){
 function calcMaintenance(){
   const b=calcBMR(); if(!b)return 0;
   const activity=Number(calorieState.activity)||1.2;
-  const trainingAdj=calorieState.training==='train'?200:0;
+  const trainingAdj=calorieState.training==='training'?200:0;
   return Math.round(b*activity+trainingAdj);
 }
-function dietMacroTargets(){return calorieState.training==='train'?{protein:200,carbs:235,fat:52}:{protein:200,carbs:175,fat:60};}
+function dietMacroTargets(){return calorieState.training==='training'?{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}:{protein:Math.round((calcTarget()*0.20)/4),carbs:Math.round((calcTarget()*0.50)/4),fat:Math.round((calcTarget()*0.30)/9)}}
+function macroTargets(){const t=calcTarget();return {protein:Math.round(t*0.20/4),carbs:Math.round(t*0.50/4),fat:Math.round(t*0.30/9)};}
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
@@ -750,7 +751,7 @@ function openModule(type){
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
       <div class="progress-line"><div class="bar"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>
-      <div class="muted" style="margin-top:10px">${calorieState.training==='train'?'Trainingstag':'Ruhetag'} · noch ${remaining.toLocaleString('de-DE')} kcal</div>
+      <div class="muted" style="margin-top:10px">${calorieState.training==='training'?'Trainingstag':'Ruhetag'} · noch ${remaining.toLocaleString('de-DE')} kcal</div>
     </div>
     <div class="module-card"><div class="calorie-ring" style="background:conic-gradient(#48e985 0 ${pct}%,#29363e ${pct}% 100%)"><div><b>${Number(calorieState.intake||0).toLocaleString('de-DE')}</b><span class="muted">gegessen</span></div></div></div>
    </div>
