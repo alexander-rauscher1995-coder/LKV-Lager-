@@ -453,6 +453,32 @@ button:active{transform:translateY(1px)}
 .smart-footer b{flex:1;font-size:13px}
 .smart-footer button{border:0;background:transparent;color:var(--green);font-weight:800;cursor:pointer}
 @media(max-width:700px){.smart-grid{grid-template-columns:1fr}.smart-head{display:block}.live-badge{display:inline-block;margin-top:10px}.smart-footer{align-items:flex-start;flex-wrap:wrap}.smart-footer b{flex-basis:calc(100% - 70px)}}
+</style><style>
+/* V106 PRO APP SHELL */
+:root{--pro-panel:#10191f;--pro-border:#26343c;--pro-muted:#84929a}
+body{background:#080e12!important}
+.pro-sidebar{position:fixed;left:0;top:0;bottom:0;width:238px;background:linear-gradient(180deg,#0e171c,#0a1115);border-right:1px solid #202c33;z-index:10000;padding:24px 14px;display:flex;flex-direction:column;gap:5px}
+.pro-brand{display:flex;align-items:center;gap:11px;padding:2px 10px 25px}
+.pro-logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#48e985,#20b96a);color:#07100b;font-size:21px;font-weight:900;box-shadow:0 8px 22px rgba(72,233,133,.18)}
+.pro-brand b{display:block;letter-spacing:.08em;font-size:14px}.pro-brand span{display:block;color:var(--green);font-size:10px;letter-spacing:.2em;font-weight:800;margin-top:2px}
+.pro-nav-label{font-size:9px;color:#65747d;font-weight:800;letter-spacing:.15em;padding:16px 12px 6px}
+.pro-sidebar button{appearance:none;border:0;background:transparent;color:#8f9da5;border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:12px;font:600 13px inherit;text-align:left;cursor:pointer;transition:.16s}
+.pro-sidebar button i{font-style:normal;width:22px;text-align:center;font-size:16px}
+.pro-sidebar button:hover,.pro-sidebar button.active{color:#f2f7f9;background:rgba(72,233,133,.08)}
+.pro-sidebar button.active{box-shadow:inset 3px 0 var(--green)}
+.pro-sidebar-bottom{margin-top:auto;border-top:1px solid #202c33;padding:14px 8px 2px;display:flex;gap:10px;align-items:center}
+.pro-user-dot{width:32px;height:32px;border-radius:10px;background:#202c33;display:grid;place-items:center;color:var(--green);font-weight:800}
+.pro-sidebar-bottom b{display:block;font-size:11px}.pro-sidebar-bottom small{display:block;color:#65747d;font-size:9px;margin-top:2px}
+body{padding-left:238px!important}
+.top{margin-left:-238px;padding-left:calc(5vw + 238px)!important}
+main{max-width:1440px;margin:auto}
+.bottom{left:238px!important}
+.view>.shell,.training-page{max-width:1240px!important}
+.card,.module-card{border-color:#25343c!important;box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.dashboard-title{letter-spacing:-.03em}
+@media(max-width:900px){
+ .pro-sidebar{display:none} body{padding-left:0!important}.top{margin-left:0;padding-left:20px!important}.bottom{left:0!important}
+}
 </style></head>
 <body>
 <div class="app">
@@ -569,6 +595,20 @@ button:active{transform:translateY(1px)}
     </section>
   </main>
 
+  <aside class="pro-sidebar">
+    <div class="pro-brand"><div class="pro-logo">F</div><div><b>FITNESS</b><span>PRO</span></div></div>
+    <div class="pro-nav-label">ÜBERSICHT</div>
+    <button data-view="home" onclick="showView('home')"><i>⌂</i> Home</button>
+    <button data-view="training" onclick="showView('training')"><i>🏋</i> Training</button>
+    <button onclick="openModule('nutrition')"><i>🍴</i> Ernährung</button>
+    <button onclick="openModule('cardio')"><i>◌</i> Bewegung</button>
+    <button onclick="openModule('progress')"><i>▥</i> Fortschritt</button>
+    <div class="pro-nav-label">TOOLS</div>
+    <button onclick="openModule('calculator')"><i>⌁</i> Kalorien-Rechner</button>
+    <button onclick="openModule('coach')"><i>✦</i> Coach</button>
+    <button onclick="openModule('settings')"><i>⚙</i> Einstellungen</button>
+    <div class="pro-sidebar-bottom"><div class="pro-user-dot">A</div><div><b>Mein Bereich</b><small>Persönliches Dashboard</small></div></div>
+  </aside>
   <nav class="bottom">
     <button type="button" class="nav active" data-view="home" onclick="showView('home')"><span class="nicon">⌂</span><span>Home</span></button>
     <button type="button" class="nav" data-view="training" onclick="showView('training')"><span class="nicon">🏋️</span><span>Training</span></button>
