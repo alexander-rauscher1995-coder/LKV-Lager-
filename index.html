@@ -235,6 +235,63 @@ body.module-open .module-sheet::-webkit-scrollbar{width:9px}.module-sheet::-webk
 @media(max-width:900px){.modal-back{padding:0}.module-sheet{width:100%;height:calc(100dvh - 8px);margin:8px 0 0;border-radius:24px 24px 0 0}.module-head{padding:18px 18px 15px}.module-head h2{font-size:25px}.module-sheet>.module-card,.module-sheet>.module-grid,.module-sheet>.calorie-summary,.module-sheet>.module-tabs,.module-sheet>.history-list,.module-sheet>.bodycheck-summary,.module-sheet>.bodycheck-form,.module-sheet>.metric-list,.module-sheet>.timeline,.module-sheet>.calendar-grid,.module-sheet>.calorie-history{margin-left:14px;margin-right:14px}.training-page{padding-left:14px;padding-right:14px}.training-header h1{font-size:30px}.actions{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}}
 @media(max-width:600px){.calorie-summary{grid-template-columns:1fr}.module-grid{gap:10px}.module-card{padding:16px}.calorie-number{font-size:40px}.exercise{padding:15px}.sets{font-size:12px}}
 </style>
+<style>
+/* V101 APP EXPERIENCE */
+.app{position:relative}
+.top{min-height:290px}
+.top-inner{max-width:1440px}
+.shell{max-width:1440px}
+.dashboard-hero,.calculator-hero{position:relative;overflow:hidden}
+.dashboard-hero:before,.calculator-hero:before{content:"";position:absolute;width:280px;height:280px;right:-120px;top:-150px;border-radius:50%;border:1px solid rgba(99,245,154,.12);box-shadow:0 0 0 35px rgba(99,245,154,.025),0 0 0 70px rgba(99,245,154,.015);pointer-events:none}
+.dashboard-hero-main,.calculator-hero>div{position:relative;z-index:1}
+.dashboard-score{position:relative;z-index:1}
+.dashboard-title{font-size:30px!important;letter-spacing:-.8px}
+.dashboard-sub{max-width:560px!important}
+.dashboard-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.dashboard-actions button{min-height:42px}
+.score-ring{box-shadow:0 0 0 1px rgba(99,245,154,.08),0 0 35px rgba(99,245,154,.12)!important}
+.home-stat,.home-action{min-height:165px}
+.home-stat .icon,.home-action .icon{box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.stat-label{font-size:10px!important;letter-spacing:.14em!important;font-weight:850!important;color:#71818a!important;margin-bottom:2px}
+.quick-wrap{display:grid!important;grid-template-columns:1.25fr 1fr;align-items:stretch}
+.quick-wrap .calc-home{grid-column:auto!important}
+.quick{grid-template-columns:repeat(3,1fr)!important;margin-top:0!important}
+.quick button{min-height:86px!important}
+.quick button:nth-child(n+4){display:none}
+.quick-wrap:after{content:"Mehr Bereiche über 'Alles anzeigen'";grid-column:2;align-self:end;color:#687881;font-size:11px;text-align:right;padding:4px 4px 0}
+.module-sheet{scroll-behavior:smooth}
+.module-sheet:before{content:"";display:block;height:4px;width:54px;border-radius:99px;background:#42515a;margin:8px auto 0}
+.module-head{padding-top:18px}
+.module-card{position:relative}
+.module-card:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.025),transparent 35%)}
+.module-action:hover,.primary:hover,.calc-button:hover{transform:translateY(-1px)}
+.close-btn:hover{border-color:rgba(99,245,154,.35);color:var(--accent)}
+.bottom{padding:7px!important}
+.nav{min-height:56px}
+.nav .nicon{font-size:21px}
+.nav.active{box-shadow:inset 0 0 0 1px rgba(99,245,154,.10)}
+.training-page{padding-top:22px}
+.training-header{position:sticky;top:0;z-index:6;background:rgba(7,16,22,.88);backdrop-filter:blur(18px);margin:0 -2px 18px;padding:14px 2px 15px}
+.training-header h1{margin-top:2px}
+.pill{transition:.16s}.pill:hover{border-color:rgba(99,245,154,.35)}
+.exercise{box-shadow:0 14px 35px rgba(0,0,0,.16)}
+.exercise-actions .module-action{padding:10px 13px}
+.account-window{backdrop-filter:blur(18px)}
+@media(max-width:900px){
+ .top{min-height:250px}
+ .quick-wrap{grid-template-columns:1fr}
+ .quick{grid-template-columns:repeat(3,1fr)!important}
+ .quick-wrap:after{grid-column:1;text-align:left}
+}
+@media(max-width:600px){
+ .top{min-height:235px}
+ .dashboard-title{font-size:24px!important}
+ .home-stat,.home-action{min-height:145px}
+ .quick button{min-height:76px!important}
+ .quick-wrap:after{display:none}
+ .training-header{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}
+}
+</style>
 </head>
 <body>
 <div class="app">
