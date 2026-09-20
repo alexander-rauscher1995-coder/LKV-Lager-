@@ -237,6 +237,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
 /* V115 STEP-BASED ENERGY MODEL */
 #csteps{font-size:16px;font-weight:700}
+
+.calculator-breakdown{background:linear-gradient(145deg,rgba(23,32,39,.98),rgba(12,20,25,.98))}.calc-breakdown-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.calc-breakdown-grid>div{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid #29363e;background:#0d151a;border-radius:11px}.calc-breakdown-grid span{color:#9aa7af}.calc-breakdown-grid b{white-space:nowrap}.calc-breakdown-grid .calc-total{grid-column:1/-1;border-color:rgba(99,245,154,.28);background:rgba(99,245,154,.06)}.calc-breakdown-grid .calc-total b{color:var(--accent)}
+@media(max-width:600px){.calc-breakdown-grid{grid-template-columns:1fr}.calc-breakdown-grid .calc-total{grid-column:auto}}
 </style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -587,23 +590,26 @@ function calcBMR(){
   if(![w,h,a].every(Number.isFinite) || w<=0 || h<=0 || a<=0)return 0;
   return Math.round(10*w + 6.25*h - 5*a + (calorieState.sex==='m'?5:-161));
 }
-function calcMaintenance(){
-  const b=calcBMR(); if(!b)return 0;
-  // Niedriger Basisfaktor für den Alltag; Schritte und Gym werden separat berechnet.
-  const base=Number(calorieState.activity)||1.2;
-  const w=Number(calorieState.weight)||0;
-  const h=Number(calorieState.height)||0;
+function activityFactor(){
+  const map={1.35:1.20,1.5:1.25,1.65:1.30,1.8:1.35};
+  return map[Number(calorieState.activity)]||1.25;
+}
+function calcBreakdown(){
+  const b=calcBMR(); if(!b)return {bmr:0,activity:0,steps:0,training:0,preTef:0,tef:0,total:0};
+  const w=Number(calorieState.weight)||0, h=Number(calorieState.height)||0;
   const steps=Math.max(0,Math.min(50000,Number(calorieState.steps)||0));
-  // Näherung der Gehstrecke aus Körpergröße; Schrittenergie wird aus Körpergewicht und Strecke abgeleitet.
   const stepLength=Math.max(0.55,Math.min(0.85,h*0.414/100));
   const distanceKm=steps*stepLength/1000;
   const stepCalories=distanceKm*w*0.5;
-  const gymCalories=calorieState.training==='training'?200:0;
-  return Math.round(b*base + stepCalories + gymCalories);
+  const activityCalories=Math.max(0,Math.round(b*(activityFactor()-1)));
+  const trainingCalories=calorieState.training==='training'?Math.round(b*0.045):0;
+  const preTef=Math.round(b+activityCalories+stepCalories+trainingCalories);
+  const tef=Math.round(preTef*0.08);
+  const total=Math.round(preTef+tef);
+  return {bmr:b,activity:activityCalories,steps:Math.round(stepCalories),training:trainingCalories,preTef,tef,total};
 }
-function dietMacroTargets(){
-  return macroTargets();
-}
+function calcMaintenance(){return calcBreakdown().total}
+function dietMacroTargets(){return macroTargets()}
 function macroTargets(){
   const t=calcTarget();
   const protein=Math.round((Number(calorieState.weight)||0)*2);
@@ -613,12 +619,7 @@ function macroTargets(){
   return {protein,carbs,fat};
 }
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
-function calcTarget(){
-  const maintenance=calcMaintenance(); if(!maintenance)return 0;
-  // Gemeinsamer Fettverlust-Modus; Zielwerte bleiben als Orientierung.
-  const adjustments={lose:-500,kfa:-500,maintain:0,bulk:250};
-  return Math.max(1000,Math.round(maintenance+(adjustments[calorieState.goal]??0)));
-}
+function calcTarget(){return calcMaintenance()}
 function goalLabel(){
   const labels={lose:'Abnehmen / KFA senken',kfa:'Abnehmen / KFA senken',maintain:'Erhalt',bulk:'Aufbau'};
   return labels[calorieState.goal]||labels.maintain;
@@ -847,7 +848,7 @@ function openModule(type){
     ${hist.length?`<div class="calorie-history">${hist.map(h=>`<div class="history-item"><span>${new Date(h.date).toLocaleDateString('de-DE')}</span><b>${h.intake} kcal</b><small>${h.training?'Training':'Ruhetag'}</small></div>`).join('')}</div>`:'<div class="empty">Noch keine gespeicherten Tage.</div>'}
    </div>`;
  } else if(type==='calculator'){
-   const macro=macroTargets(), bmr=Math.round(calcBMR()), maintenance=Math.round(calcMaintenance()), target=Math.round(calcTarget());
+   const calcParts=calcBreakdown(), macro=macroTargets(), bmr=Math.round(calcParts.bmr), maintenance=Math.round(calcParts.total), target=Math.round(calcTarget());
    content=`<div class="module-head"><div><div class="muted">PLANUNG</div><h2>🧮 Kalorien-Rechner</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-card calculator-main">
     <div class="section-kicker">DEINE DATEN</div>
@@ -873,10 +874,21 @@ function openModule(type){
     <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
-    <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Tagesbedarf</span><b>${maintenance.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Tagesziel</span><b>${target.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Protein</span><b>${Math.round(macro.protein)} g</b></div>
+    <div class="result-box"><span class="muted">Grundumsatz</span><b>\${bmr.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Geschätzter Tagesbedarf</span><b>\${maintenance.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Orientierungswert</span><b>\${target.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Protein</span><b>\${Math.round(macro.protein)} g</b></div>
+   </div>
+   <div class="module-card calculator-breakdown" style="margin-top:12px"><h3>Berechnung im Detail</h3>
+    <div class="calc-breakdown-grid">
+      <div><span>Grundumsatz</span><b>\${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Alltag</span><b>+\${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Schritte</span><b>+\${calcParts.steps.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Gym · Krafttraining</span><b>+\${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Thermischer Effekt</span><b>+\${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
+      <div class="calc-total"><span>Geschätzter Gesamtbedarf</span><b>\${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
+    </div>
+    <div class="mini-note">Schätzmodell statt exakter Messung. Der Abgleich mit echten Verlaufsdaten kann die persönliche Genauigkeit weiter verbessern.</div>
    </div>
    <div class="module-card" style="margin-top:12px"><h3>Makro-Zielwerte</h3><div class="macro-bars">
     <div class="macro-line"><span>Protein</span><div class="bar"><div class="fill" style="width:100%"></div></div><b>${Math.round(macro.protein)} g</b></div>
