@@ -207,7 +207,35 @@ body.module-open .module-sheet::-webkit-scrollbar{width:9px}.module-sheet::-webk
 .account-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid #26343b;margin-top:18px;padding-top:15px;color:#7f8d95;font-size:12px}.account-footer button{width:auto!important;margin:0!important;padding:7px 10px!important;border:0!important;background:transparent!important;color:#aebbc2!important}.account-footer button:first-of-type{margin-left:auto!important}.account-footer .account-delete{color:#ff7c88!important}
 @media(max-width:600px){.account-modal-pro{padding:10px;align-items:flex-end}.account-window{max-height:calc(100dvh - 20px);border-radius:24px;padding:18px}.account-brand h2{font-size:24px}.account-logo{width:42px;height:42px}}
 </style></style>
-<style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style></head>
+<style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
+/* V100 PREMIUM MODULE SYSTEM */
+:root{--surface:#10191f;--surface-2:#152229;--surface-3:#192830;--line-soft:rgba(154,177,188,.16);--text-soft:#9eacb4;--accent-glow:rgba(99,245,154,.16)}
+.module-sheet{width:min(1080px,100%);height:min(900px,calc(100dvh - 28px));max-height:none;margin:14px auto 0;padding:0;overflow:hidden;border-radius:30px 30px 0 0;background:radial-gradient(circle at 90% 0%,rgba(99,245,154,.08),transparent 25%),linear-gradient(145deg,#152229 0%,#0d171d 72%);border:1px solid rgba(153,176,187,.22);box-shadow:0 35px 100px rgba(0,0,0,.62)}
+.modal-back{align-items:flex-end;padding:0 14px;background:rgba(1,6,9,.72)}
+.module-head{position:sticky;top:0;z-index:8;margin:0;padding:22px 26px 18px;background:rgba(13,23,29,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft)}
+.module-head h2{font-size:30px;letter-spacing:-.5px}
+.module-head .muted{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#71818a;font-weight:800}
+.module-grid{gap:14px;padding-bottom:24px}
+.module-sheet>.module-card,.module-sheet>.module-grid,.module-sheet>.calorie-summary,.module-sheet>.module-tabs,.module-sheet>.history-list,.module-sheet>.bodycheck-summary,.module-sheet>.bodycheck-form,.module-sheet>.metric-list,.module-sheet>.timeline,.module-sheet>.calendar-grid,.module-sheet>.calorie-history{margin-left:24px;margin-right:24px}
+.module-card{background:linear-gradient(145deg,rgba(25,38,46,.94),rgba(14,23,29,.96));border:1px solid var(--line-soft);box-shadow:0 10px 30px rgba(0,0,0,.16);transition:.18s ease}
+.module-card:hover{transform:translateY(-1px);border-color:rgba(99,245,154,.25)}
+.module-card h3{font-size:17px}.module-action{min-height:42px;box-shadow:0 7px 18px rgba(0,0,0,.16)}.module-action.secondary{background:#18252c}.close-btn{border-radius:13px;background:#18252c;border-color:var(--line-soft);padding:10px 14px}
+.field input,.field select,.plan-editor textarea,.input{background:#0a1318!important;border-color:rgba(153,176,187,.20)!important}
+.field input:focus,.field select:focus,.plan-editor textarea:focus,.input:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-glow)}
+.module-tabs{padding-top:18px}.module-tab{background:#111d23;border-color:var(--line-soft);padding:10px 14px}.module-tab.active{box-shadow:0 0 0 1px rgba(99,245,154,.08)}
+.calorie-summary{grid-template-columns:1.2fr .8fr;gap:16px;padding-top:18px}.calorie-summary>.module-card{min-height:170px}.calorie-number{font-size:48px}.calorie-ring{box-shadow:0 0 38px rgba(99,245,154,.08)}
+.check-stat{background:#0a1318;border-color:var(--line-soft)}.history-list,.calorie-history,.bodycheck-history{padding-bottom:24px}
+.history-item{background:#0f1a20;border-color:var(--line-soft)}.setting-row{padding:16px 0}.calendar-grid{padding:18px 0 24px}.cal-day{background:#0f1a20;border-color:var(--line-soft);transition:.15s}.cal-day:hover{border-color:rgba(99,245,154,.3)}
+.training-page{max-width:1240px}.training-header{padding:8px 0 18px;border-bottom:1px solid var(--line-soft)}.training-header h1{font-size:36px;letter-spacing:-.8px}
+.training-page>.card{background:linear-gradient(145deg,rgba(24,36,43,.96),rgba(12,20,25,.98));border-color:var(--line-soft)}
+.exercise{padding:20px}.exercise-head{gap:18px}.exercise-name{font-size:20px}.exercise-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.exercise-actions .module-action{margin-top:0}
+.sets{border:1px solid var(--line-soft);border-radius:14px;overflow:hidden;background:#0b1419}.sets>div{border-bottom:1px solid rgba(154,177,188,.10)}
+.actions{position:sticky;bottom:0;z-index:5;margin:18px -24px -125px;padding:14px 24px;background:rgba(7,16,22,.90);backdrop-filter:blur(16px);border-top:1px solid var(--line-soft)}
+.quick-wrap{gap:14px}.quick button{transition:.18s ease}.quick button:hover{box-shadow:0 10px 24px rgba(0,0,0,.18)}
+@media(max-width:900px){.modal-back{padding:0}.module-sheet{width:100%;height:calc(100dvh - 8px);margin:8px 0 0;border-radius:24px 24px 0 0}.module-head{padding:18px 18px 15px}.module-head h2{font-size:25px}.module-sheet>.module-card,.module-sheet>.module-grid,.module-sheet>.calorie-summary,.module-sheet>.module-tabs,.module-sheet>.history-list,.module-sheet>.bodycheck-summary,.module-sheet>.bodycheck-form,.module-sheet>.metric-list,.module-sheet>.timeline,.module-sheet>.calendar-grid,.module-sheet>.calorie-history{margin-left:14px;margin-right:14px}.training-page{padding-left:14px;padding-right:14px}.training-header h1{font-size:30px}.actions{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}}
+@media(max-width:600px){.calorie-summary{grid-template-columns:1fr}.module-grid{gap:10px}.module-card{padding:16px}.calorie-number{font-size:40px}.exercise{padding:15px}.sets{font-size:12px}}
+</style>
+</head>
 <body>
 <div class="app">
   <header class="top">
