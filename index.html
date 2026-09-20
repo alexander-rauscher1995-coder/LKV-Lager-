@@ -580,7 +580,7 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.5, steps: 10000, stepsEnabled: false, cardioEnabled: false, training: 'rest', goal: 'maintain',
+  activity: 1.5, steps: 0, stepsEnabled: false, cardioEnabled: false, training: 'rest', goal: 'maintain',
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
@@ -597,10 +597,7 @@ function activityFactor(){
 function calcBreakdown(){
   const b=calcBMR(); if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
   const w=Number(calorieState.weight)||0, h=Number(calorieState.height)||0;
-  const steps=Math.max(0,Math.min(50000,Number(calorieState.steps)||0));
-  const stepLength=Math.max(0.55,Math.min(0.85,h*0.414/100));
-  const distanceKm=steps*stepLength/1000;
-  const stepCalories=calorieState.stepsEnabled ? distanceKm*w*0.5 : 0;
+  const stepCalories=0;
   const activityCalories=Math.max(0,Math.round(b*(activityFactor()-1)));
   const trainingCalories=calorieState.training==='training'?Math.round(b*0.045):0;
   const today=todayISO();
@@ -868,11 +865,7 @@ function openModule(type){
     </div>
     <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
     <div class="segmented"><button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35,'calculator')">Wenig aktiv</button><button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">Normal</button><button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65,'calculator')">Aktiv</button><button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8,'calculator')">Sehr aktiv</button></div>
-    <div class="section-kicker" style="margin-top:18px">SCHRITTE</div>
-    <div class="field"><label>Schritte pro Tag</label><input id="csteps" type="number" min="0" max="50000" step="500" value="${calorieState.steps||10000}"></div>
-    <div class="segmented" style="margin-top:8px"><button class="${calorieState.stepsEnabled?'':'active'}" onclick="setStepsEnabled(false,'calculator')">Ohne Schritte</button><button class="${calorieState.stepsEnabled?'active':''}" onclick="setStepsEnabled(true,'calculator')">Schritte einrechnen</button></div>
-    <div class="mini-note">Schritte werden nur berücksichtigt, wenn „Schritte einrechnen“ aktiv ist.</div>
-    <div class="gym-note">Gym/Krafttraining wird separat über den Trainingstag berücksichtigt.</div>
+    <div class="gym-note">Schritte werden nicht in die Berechnung einbezogen. Gym/Krafttraining wird separat über den Trainingstag berücksichtigt.</div>
     <div class="section-kicker" style="margin-top:18px">CARDIO</div>
     <div class="segmented"><button class="${calorieState.cardioEnabled?'':'active'}" onclick="setCardioEnabled(false,'calculator')">Ohne Cardio</button><button class="${calorieState.cardioEnabled?'active':''}" onclick="setCardioEnabled(true,'calculator')">Cardio einrechnen</button></div>
     <div class="mini-note">${calorieState.cardioEnabled ? 'Gespeicherte Cardio-Einheiten von heute werden geschätzt berücksichtigt.' : 'Cardio wird nicht in den Tagesbedarf eingerechnet.'}</div>
@@ -896,13 +889,12 @@ function openModule(type){
     <div class="calc-breakdown-grid">
       <div><span>Grundumsatz</span><b>${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
       <div><span>Alltag</span><b>+${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>${calorieState.stepsEnabled?'Schritte':'Schritte · nicht eingerechnet'}</span><b>${calorieState.stepsEnabled?'+':''}${calcParts.steps.toLocaleString('de-DE')} kcal</b></div>
       <div><span>Gym · Krafttraining</span><b>+${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
       <div><span>${calorieState.cardioEnabled?'Cardio':'Cardio · nicht eingerechnet'}</span><b>${calorieState.cardioEnabled?'+':''}${calcParts.cardio.toLocaleString('de-DE')} kcal</b></div>
       <div><span>Thermischer Effekt</span><b>+${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
       <div class="calc-total"><span>Geschätzter Gesamtbedarf</span><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
     </div>
-    <div class="mini-note">Schätzmodell statt exakter Messung. Alltag, Schritte, Gym und Cardio können getrennt ein- oder ausgeschlossen werden.</div>
+    <div class="mini-note">Schätzmodell statt exakter Messung. Alltag, Gym und Cardio werden getrennt berücksichtigt.</div>
    </div>
    <div class="module-card" style="margin-top:12px"><h3>Makro-Zielwerte</h3><div class="macro-bars">
     <div class="macro-line"><span>Protein</span><div class="bar"><div class="fill" style="width:100%"></div></div><b>${Math.round(macro.protein)} g</b></div>
