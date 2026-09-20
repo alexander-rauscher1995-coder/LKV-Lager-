@@ -168,6 +168,10 @@ body{letter-spacing:.01em}
 /* V102 fixed navigation */
 html{scroll-padding-bottom:105px}.app{min-height:100vh}.bottom{position:fixed!important;left:50%!important;bottom:max(10px,env(safe-area-inset-bottom))!important;z-index:9999!important;visibility:visible!important;opacity:1!important;transform:translate3d(-50%,0,0)!important;will-change:transform}.shell{padding-bottom:155px}.bottom .nav{position:relative;z-index:10000}.bottom:before{content:"";position:absolute;inset:0;border-radius:28px;pointer-events:none}
 @media(max-width:600px){.bottom{bottom:max(6px,env(safe-area-inset-bottom))!important;width:calc(100% - 10px);padding:7px}.shell{padding-bottom:145px}.training-page{padding-bottom:145px}}
+
+/* V103 navigation visibility without covering content */
+.bottom{bottom:12px!important;padding:6px!important;border-radius:22px!important;width:min(920px,calc(100% - 24px))!important}.nav{padding:7px 4px!important}.nav .nicon{font-size:19px!important;margin-bottom:2px!important}.nav span{font-size:11px!important}.shell{padding-bottom:185px!important}.training-page{padding-bottom:170px!important}
+@media(max-width:600px){.bottom{bottom:5px!important;width:calc(100% - 10px)!important;border-radius:19px!important}.nav{padding:6px 2px!important}.nav .nicon{font-size:17px!important}.nav span{font-size:9px!important}.shell{padding-bottom:150px!important}.training-page{padding-bottom:150px!important}}
 </style>
 </head>
 <body>
