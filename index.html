@@ -552,6 +552,18 @@ function openModule(type){
    const fPct=fatTarget?Math.min(100,Math.round((calorieState.fat||0)/fatTarget*100)):0;
    const hist=(calorieState.history||[]).slice().reverse().slice(0,7);
    content=`<div class="module-head"><div><div class="muted">KALORIEN & ERNÄHRUNG</div><h2>Tagesübersicht</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
+   <div class="module-card" style="margin-bottom:12px"><h3>Ziel festlegen</h3>
+    <div class="segmented">
+      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
+      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
+      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
+    </div>
+    <div class="field" style="margin-top:10px"><label>Defizit / Überschuss</label><select id="cg">
+      <option value="200" ${Number(calorieState.goalAdjustment)===200?'selected':''}>200 kcal</option>
+      <option value="300" ${(!calorieState.goalAdjustment||Number(calorieState.goalAdjustment)===300)?'selected':''}>300 kcal</option>
+      <option value="500" ${Number(calorieState.goalAdjustment)===500?'selected':''}>500 kcal</option>
+    </select></div>
+   </div>`
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
       <div class="progress-line"><div class="bar"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>
@@ -590,15 +602,7 @@ function openModule(type){
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
       <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('train')">Trainingstag</button>
     </div></div>
-    <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
-      <button class="\${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
-      <button class="\${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
-      <button class="\${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
-    </div>
-    <div class="field" style="margin-top:10px"><label>Defizit / Überschuss</label><select id="cg">
-      <option value="300">300 kcal</option><option value="500">500 kcal</option><option value="200">200 kcal</option>
-    </select></div>
-    <div class="mini-note">Abnehmen/Zunehmen: frei wählbare Anpassung. Protein automatisch: Abnehmen 2,5 g/kg · Halten/Zunehmen 2 g/kg. Kohlenhydrate passen sich automatisch an.</div></div>
+
     <div class="mini-note">Grundumsatz: ${bmr.toLocaleString('de-DE')} kcal · Bedarf wird aus Grundumsatz, Aktivitätsfaktor und Trainingstag berechnet.</div>
     <button class="module-action secondary" onclick="saveCalorieSettings()">Daten übernehmen & neu berechnen</button>
    </div>
