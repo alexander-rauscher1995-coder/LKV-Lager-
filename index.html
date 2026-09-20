@@ -403,6 +403,14 @@ button:active{transform:translateY(1px)}
 .coach-sidebar-card{background:#101a20;border:1px solid #26333a;border-radius:15px;padding:14px;margin-top:10px}.coach-sidebar-card b{font-size:13px}.coach-sidebar-card span{font-size:11px;color:#77858d}
 @media(max-width:850px){.coach-sidebar{width:72px;padding:18px 9px}.coach-side-brand div:last-child,.coach-side-section,.coach-side-btn span:not(.coach-side-icon),.coach-side-profile{display:none}.coach-side-btn{justify-content:center;padding:12px}.coach-way-inner{padding-left:92px}.coach-way-top{margin-left:-22px;padding-left:22px}}
 @media(max-width:600px){.coach-sidebar{display:none}.coach-way-inner{padding:0 14px 100px}.coach-way-top{margin:0 -14px 15px;padding:0 14px}.coach-way-title{font-size:23px}}
+
+/* V114 COACH WAY FULLSCREEN FIX */
+body.coach-way-active{padding-left:0!important;overflow:hidden}
+body.coach-way-active>.pro-sidebar{display:none!important}
+body.coach-way-active .bottom{display:none!important}
+body.coach-way-active .top{margin-left:0!important;padding-left:5vw!important}
+body.coach-way-active #coachWay{position:fixed;inset:0;width:100vw;height:100dvh}
+@media(max-width:900px){body.coach-way-active .top{padding-left:20px!important}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -790,7 +798,7 @@ main{max-width:1320px!important}
     <button onclick="openModule('progress')"><i>▥</i> Fortschritt</button>
     <div class="pro-nav-label">TOOLS</div>
     <button onclick="openModule('calculator')"><i>⌁</i> Kalorien-Rechner</button>
-    <button onclick="openModule('coach')"><i>✦</i> Coach</button>
+    <button onclick="openCoachPlan()"><i>✦</i> Coach</button>
     <button onclick="openModule('settings')"><i>⚙</i> Einstellungen</button>
     <div class="pro-sidebar-bottom"><div class="pro-user-dot">A</div><div><b>Mein Bereich</b><small>Persönliches Dashboard</small></div></div>
   </aside>
@@ -1776,7 +1784,7 @@ function coachOpenToday(){
  else {toast(week[i].type==='Cardio'?'Heute ist Cardio geplant.':'Heute ist Regeneration geplant.')}
 }
 function openCoachPlan(){coachRenderWeek();document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');}
-function closeCoachPlan(){document.getElementById('coachWay').classList.remove('show');document.body.classList.remove('module-open')}
+function closeCoachPlan(){document.getElementById('coachWay').classList.remove('show');document.body.classList.remove('module-open','coach-way-active')}
 </script><script>
 /* V111 COACH WAY INTERACTIONS */
 function coachOpenSetupAndClose(){closeCoachPlan();openCoachSetup()}
@@ -1829,6 +1837,6 @@ function coachSideView(view,btn){
  if(list)list.innerHTML='<div class="coach-mini-row"><span>Krafttraining</span><b>'+((s.days)||'–')+'×</b></div><div class="coach-mini-row"><span>Cardio</span><b>'+((s.cardio)||'0')+'×</b></div><div class="coach-mini-row"><span>Check-in</span><b>'+(state.checkins[key]?'Erledigt':'Offen')+'</b></div>';
  if(view==='overview'||view==='week'||view==='today'||view==='checkin')coachRenderWeek();
 }
-function openCoachPlan(){coachRenderWeek();coachSetMode('overview');const first=document.querySelector('.coach-side-btn');if(first)first.classList.add('active');const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');coachSideView('overview',first)}
+function openCoachPlan(){coachRenderWeek();coachSetMode('overview');const first=document.querySelector('.coach-side-btn');if(first)first.classList.add('active');const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open','coach-way-active');coachSideView('overview',first)}
 </script></body>
 </html>
