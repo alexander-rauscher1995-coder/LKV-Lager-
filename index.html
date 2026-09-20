@@ -52,7 +52,7 @@ button{font:inherit;color:inherit}
 .macro{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.macro-col{padding-right:18px;border-right:1px solid #344049}.macro-col:last-child{border:0}.macro-name{color:#cbd3d8}.macro-val{font-size:24px;font-weight:800;margin-top:7px}
 .quick{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:13px}.quick button{border:1px solid #303d45;background:#182229;border-radius:16px;padding:17px 10px;cursor:pointer;min-height:90px}.quick button:hover{border-color:#52626c;transform:translateY(-1px)}.quick .qicon{font-size:25px;display:block;margin-bottom:8px}.quick button:first-child{background:rgba(72,233,133,.10)}
 
-.bottom{position:fixed;z-index:100;pointer-events:auto;left:50%;bottom:14px;transform:translateX(-50%);width:min(1100px,calc(100% - 28px));background:rgba(14,22,28,.95);backdrop-filter:blur(18px);border:1px solid #2c3840;border-radius:28px;padding:9px;display:grid;grid-template-columns:repeat(6,1fr);box-shadow:0 20px 55px rgba(0,0,0,.5)}
+.bottom{position:fixed;z-index:300;pointer-events:auto;left:50%;bottom:14px;transform:translateX(-50%);width:min(1100px,calc(100% - 28px));background:rgba(14,22,28,.95);backdrop-filter:blur(18px);border:1px solid #2c3840;border-radius:28px;padding:9px;display:grid;grid-template-columns:repeat(6,1fr);box-shadow:0 20px 55px rgba(0,0,0,.5)}
 .nav{border:0;background:none;color:#98a5ad;padding:11px 5px;border-radius:18px;cursor:pointer}.nav.active{color:var(--green);background:rgba(72,233,133,.06)}.nav .nicon{font-size:22px;display:block;margin-bottom:5px}.nav span{font-size:13px}
 
 .view{display:none}.view.active{display:block}
@@ -228,9 +228,9 @@ button{font:inherit;color:inherit}
   </main>
 
   <nav class="bottom">
-    <button class="nav active" data-view="home" onclick="showView('home')"><span class="nicon">⌂</span><span>Home</span></button>
-    <button class="nav" data-view="training" onclick="showView('training')"><span class="nicon">🏋️</span><span>Training</span></button>
-    <button class="nav" onclick="openModule('calories')"><span class="nicon">🍴</span><span>Ernährung</span></button>
+    <button type="button" class="nav active" data-view="home" onclick="showView('home')"><span class="nicon">⌂</span><span>Home</span></button>
+    <button type="button" class="nav" data-view="training" onclick="showView('training')"><span class="nicon">🏋️</span><span>Training</span></button>
+    <button type="button" class="nav" onclick="openModule('calories')"><span class="nicon">🍴</span><span>Ernährung</span></button>
     <button class="nav" onclick="openModule('progress')"><span class="nicon">▥</span><span>Fortschritt</span></button>
     <button class="nav" onclick="openModule('coach')"><span class="nicon">🧠</span><span>Coach</span></button>
     <button class="nav" onclick="openModule('more')"><span class="nicon">•••</span><span>Mehr</span></button>
@@ -836,9 +836,20 @@ function updateTrainingCoachHint(){
 updateTrainingCoachHint();
 
 // Navigation fallback: keep Training and module buttons reliably clickable even after dynamic UI updates.
-document.querySelectorAll('.nav[data-view]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();showView(btn.dataset.view)}));
-
-document.querySelectorAll('.quick button').forEach(btn=>btn.addEventListener('click',()=>{if(btn.textContent.includes('Training'))showView('training');}));
+document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',e=>{
+ e.stopPropagation();
+ const view=btn.dataset.view;
+ if(view){showView(view);return;}
+ if(btn.textContent.includes('Ernährung'))openModule('calories');
+ if(btn.textContent.includes('Fortschritt'))openModule('progress');
+ if(btn.textContent.includes('Coach'))openModule('coach');
+ if(btn.textContent.includes('Mehr'))openModule('more');
+}));
+document.querySelectorAll('.quick button').forEach(btn=>btn.addEventListener('click',e=>{
+ e.stopPropagation();
+ if(btn.textContent.includes('Training'))showView('training');
+ if(btn.textContent.includes('Ernährung'))openModule('calories');
+}));
 
 function updateHomeCoach(){
  const box=document.getElementById('homeCoachText'); if(!box)return;
