@@ -690,18 +690,18 @@ function openModule(type){
       <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div class="section-kicker" style="margin-top:18px">AKTIVITÄT</div>
-    <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="calorieState.activity=${v};saveCalories();openModule('calculator')">${['Leicht','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
+    <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="setActivity(${v},'calculator')">${['Leicht','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
     <div class="section-kicker" style="margin-top:18px">TAG</div>
-    <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest');openModule('calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training');openModule('calculator')">Training</button></div>
+    <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Training</button></div>
     <div class="section-kicker" style="margin-top:18px">ZIEL</div>
     <div class="segmented goal-segmented">
-      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;);openModule(&quot;calculator&quot;)">Gewicht halten</button>
-      <button class="${calorieState.goal==="strength"?"active":""}" onclick="setCalorieGoal(&quot;strength&quot;);openModule(&quot;calculator&quot;)">Kraft & Leistung</button>
-      <button class="${calorieState.goal==="muscle"?"active":""}" onclick="setCalorieGoal(&quot;muscle&quot;);openModule(&quot;calculator&quot;)">Muskelaufbau</button>
-      <button class="${calorieState.goal==="fitness"?"active":""}" onclick="setCalorieGoal(&quot;fitness&quot;);openModule(&quot;calculator&quot;)">Allgemeine Fitness</button>
-      <button class="${calorieState.goal==="recovery"?"active":""}" onclick="setCalorieGoal(&quot;recovery&quot;);openModule(&quot;calculator&quot;)">Erholung</button>
+      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;,'calculator')">Gewicht halten</button>
+      <button class="${calorieState.goal==="strength"?"active":""}" onclick="setCalorieGoal(&quot;strength&quot;,'calculator')">Kraft & Leistung</button>
+      <button class="${calorieState.goal==="muscle"?"active":""}" onclick="setCalorieGoal(&quot;muscle&quot;,'calculator')">Muskelaufbau</button>
+      <button class="${calorieState.goal==="fitness"?"active":""}" onclick="setCalorieGoal(&quot;fitness&quot;,'calculator')">Allgemeine Fitness</button>
+      <button class="${calorieState.goal==="recovery"?"active":""}" onclick="setCalorieGoal(&quot;recovery&quot;,'calculator')">Erholung</button>
     </div>
-    <button class="module-action" onclick="saveCalorieSettings()">Berechnen & speichern</button>
+    <button class="module-action" onclick="saveCalorieSettings('calculator')">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
     <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
@@ -905,14 +905,14 @@ function importData(event){
  };
  reader.readAsText(file);
 }
-function setActivity(v){calorieState.activity=v;saveCalories();openModule('calories')}
-function setTrainingDay(v){calorieState.training=v;saveCalories();openModule('calories')}
-function setCalorieGoal(v){calorieState.goal=v;saveCalories();openModule('calories')}
-function saveCalorieSettings(){
+function setActivity(v,target='calories'){calorieState.activity=v;saveCalories();openModule(target)}
+function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
+function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target)}
+function saveCalorieSettings(target='calories'){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
  calorieState.age=a;calorieState.height=h;calorieState.weight=w;calorieState.sex=s==='f'?'f':'m';
- saveCalories();openModule('calories');toast('Berechnung aktualisiert ✓');
+ saveCalories();openModule(target);toast('Berechnung aktualisiert ✓');
 }
 function saveCalorieDay(){
  const vals=['ci','cp','cc','cf'].map(id=>Number(document.getElementById(id)?.value));
