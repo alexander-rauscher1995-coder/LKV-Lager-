@@ -1029,12 +1029,21 @@ function importData(event){
 function setActivity(v,target='calories'){calorieState.activity=v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
 function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target)}
-function calculateAndStay(){ saveCalorieSettings('calculator'); openModule('calculator'); }
-function saveCalorieSettings(target='calories'){
+function readCalculatorInputs(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
- if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte gültige Daten eingeben.');return}
+ if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte Alter, Größe und Gewicht prüfen.');return false}
  calorieState.age=a;calorieState.height=h;calorieState.weight=w;calorieState.sex=s==='f'?'f':'m';
- saveCalories();openModule(target);toast('Berechnung aktualisiert ✓');
+ saveCalories(); return true;
+}
+function calculateAndStay(){
+ if(!readCalculatorInputs())return;
+ openModule('calculator');
+ toast('Berechnung aktualisiert ✓');
+}
+function saveCalorieSettings(target='calories'){
+ if(!readCalculatorInputs())return;
+ openModule(target);
+ toast('Berechnung aktualisiert ✓');
 }
 function saveCalorieDay(){
  const vals=['ci','cp','cc','cf'].map(id=>Number(document.getElementById(id)?.value));
