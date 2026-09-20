@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#071016">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Fitness App – V94 Coach</title>
+<title>Fitness App – Pro Dashboard</title>
 <style>
 :root{
   --bg:#071016; --panel:#121a20; --panel2:#172128; --line:#2a353d;
@@ -240,6 +240,34 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
 .calculator-breakdown{background:linear-gradient(145deg,rgba(23,32,39,.98),rgba(12,20,25,.98))}.calc-breakdown-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.calc-breakdown-grid>div{display:flex;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid #29363e;background:#0d151a;border-radius:11px}.calc-breakdown-grid span{color:#9aa7af}.calc-breakdown-grid b{white-space:nowrap}.calc-breakdown-grid .calc-total{grid-column:1/-1;border-color:rgba(99,245,154,.28);background:rgba(99,245,154,.06)}.calc-breakdown-grid .calc-total b{color:var(--accent)}
 @media(max-width:600px){.calc-breakdown-grid{grid-template-columns:1fr}.calc-breakdown-grid .calc-total{grid-column:auto}}
+
+/* V108 PRO APP POLISH */
+:root{--pro-bg:#060d12;--pro-panel:#101a21;--pro-panel2:#15222a;--pro-line:rgba(160,180,190,.16);--pro-accent:#63f59a}
+html{scroll-behavior:smooth;scrollbar-color:#34444d #071016;scrollbar-width:thin}
+body{background:var(--pro-bg);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease,opacity .16s ease}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--pro-accent);outline-offset:2px}
+button:active{transform:translateY(1px)}
+.card,.module-card,.result-box{box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.card:hover,.module-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.22)}
+.module-card button.module-action:hover,.primary:hover{filter:brightness(1.07);box-shadow:0 8px 24px rgba(99,245,154,.13)}
+.secondary:hover,.close-btn:hover,.module-tab:hover,.pill:hover{border-color:rgba(99,245,154,.35);background:#1d2b33}
+.field input:hover,.field select:hover,.plan-editor textarea:hover{border-color:#4a5b65}
+.field input:focus,.field select:focus,.plan-editor textarea:focus{border-color:var(--pro-accent);box-shadow:0 0 0 3px rgba(99,245,154,.08)}
+.modal-back.open .module-sheet{animation:proSheetIn .22s ease both}
+@keyframes proSheetIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.bottom{border-color:rgba(160,180,190,.20);box-shadow:0 18px 60px rgba(0,0,0,.52)}
+.nav{position:relative}.nav.active:after{content:"";position:absolute;left:24%;right:24%;bottom:3px;height:2px;border-radius:99px;background:var(--pro-accent);box-shadow:0 0 12px rgba(99,245,154,.45)}
+.module-head{position:sticky;top:-24px;z-index:5;padding:4px 0 14px;background:linear-gradient(180deg,#111a20 78%,rgba(17,26,32,0));backdrop-filter:blur(8px)}
+.module-card h3{letter-spacing:-.2px}.section-kicker{letter-spacing:.16em}
+.calculator-main .module-action{width:100%;font-size:15px;padding:14px}
+.goal-segmented{display:grid;grid-template-columns:repeat(5,1fr)}
+.goal-segmented button{min-height:46px}
+.empty{background:rgba(255,255,255,.015)}
+.toast{z-index:500}
+@media(max-width:900px){.shell{padding-bottom:120px}.hero-title{letter-spacing:-.3px}.module-sheet{width:100%}.module-head{top:-18px}}
+@media(max-width:700px){.goal-segmented{grid-template-columns:repeat(2,1fr)}.goal-segmented button:last-child{grid-column:1/-1}.module-head h2{font-size:23px}.module-card{padding:16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 </style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
