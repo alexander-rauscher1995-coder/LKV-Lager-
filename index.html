@@ -742,11 +742,7 @@ function openModule(type){
    content=`<div class="module-head"><div><div class="muted">KALORIEN & ERNÄHRUNG</div><h2>Tagesübersicht</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-card" style="margin-bottom:12px"><h3>Ziel</h3>
     <div class="segmented">
-      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
-      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
-      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
-    </div>
-    <div class="mini-note">Diät: Ruhetag <b>200 P / 175 KH / 60 F</b> · Trainingstag <b>200 P / 235 KH / 52 F</b></div>
+      <button class="${calorieState.goal==='maintain'?'active':''}" onclick="setCalorieGoal('maintain')">Gewicht halten</button><button class="${calorieState.goal==='strength'?'active':''}" onclick="setCalorieGoal('strength')">Kraft & Leistung</button><button class="${calorieState.goal==='muscle'?'active':''}" onclick="setCalorieGoal('muscle')">Muskelaufbau</button><button class="${calorieState.goal==='fitness'?'active':''}" onclick="setCalorieGoal('fitness')">Allgemeine Fitness</button><button class="${calorieState.goal==='recovery'?'active':''}" onclick="setCalorieGoal('recovery')">Erholung</button></div><div class="mini-note">Der Rechner zeigt den Tagesbedarf als neutrale Orientierung.</div>
    </div>
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
@@ -777,14 +773,14 @@ function openModule(type){
       <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Aktivität</div><div class="segmented">
-      <button class="${calorieState.activity===1.2?'active':''}" onclick="setActivity(1.2)">Niedrig</button>
-      <button class="${calorieState.activity===1.375?'active':''}" onclick="setActivity(1.375)">Leicht</button>
-      <button class="${calorieState.activity===1.55?'active':''}" onclick="setActivity(1.55)">Mittel</button>
-      <button class="${calorieState.activity===1.725?'active':''}" onclick="setActivity(1.725)">Hoch</button>
+      <button class="${calorieState.activity===1.2?'active':''}" onclick="setActivity(1.35)">Leicht</button>
+      <button class="${calorieState.activity===1.375?'active':''}" onclick="setActivity(1.5)">Normal</button>
+      <button class="${calorieState.activity===1.55?'active':''}" onclick="setActivity(1.65)">Aktiv</button>
+      <button class="${calorieState.activity===1.725?'active':''}" onclick="setActivity(1.8)">Sehr aktiv</button>
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Tag</div><div class="segmented">
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
-      <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('train')">Trainingstag</button>
+      <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('training')">Training</button>
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
       <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
