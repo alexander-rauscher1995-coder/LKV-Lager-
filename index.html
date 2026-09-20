@@ -268,7 +268,30 @@ button:active{transform:translateY(1px)}
 @media(max-width:900px){.shell{padding-bottom:120px}.hero-title{letter-spacing:-.3px}.module-sheet{width:100%}.module-head{top:-18px}}
 @media(max-width:700px){.goal-segmented{grid-template-columns:repeat(2,1fr)}.goal-segmented button:last-child{grid-column:1/-1}.module-head h2{font-size:23px}.module-card{padding:16px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-</style></style>
+<style>
+/* V103 OVERVIEW */
+.module-sheet{padding:18px!important}
+.module-sheet .module-head{position:sticky;top:0;z-index:5;padding:10px 0 14px;margin-bottom:12px;background:var(--bg,#0d1419);border-bottom:1px solid rgba(255,255,255,.08)}
+.module-sheet .module-head h2{font-size:24px;margin:4px 0}
+.module-card{border-radius:18px!important;padding:16px!important}
+.calorie-summary{gap:12px!important}
+.calorie-summary .module-card:first-child{min-width:0}
+.segmented{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px!important}
+.segmented button{min-height:42px!important;padding:9px 10px!important;line-height:1.2}
+.calorie-inputs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important}
+.field label{display:block;margin-bottom:6px}
+.module-action{width:100%;min-height:46px;margin-top:12px}
+.macro-line{display:grid;grid-template-columns:105px minmax(0,1fr) 82px;gap:10px;align-items:center;margin:12px 0}
+.calorie-number{font-size:38px!important;font-weight:800}
+@media(max-width:700px){
+ .module-sheet{padding:12px!important}
+ .segmented{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .calorie-inputs{grid-template-columns:1fr!important}
+ .macro-line{grid-template-columns:82px minmax(0,1fr);gap:8px}
+ .macro-line b{grid-column:2;text-align:right;font-size:12px}
+ .calorie-number{font-size:32px!important}
+}
+</style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
 :root{--surface:#10191f;--surface-2:#152229;--surface-3:#192830;--line-soft:rgba(154,177,188,.16);--text-soft:#9eacb4;--accent-glow:rgba(99,245,154,.16)}
