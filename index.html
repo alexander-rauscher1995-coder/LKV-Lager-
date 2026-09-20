@@ -1028,10 +1028,18 @@ function macroTargets(){
   return {protein,carbs,fat};
 }
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
-function calcTarget(){return calcMaintenance()}
+function calcTarget(){
+  const maintenance=calcMaintenance();
+  const goal=calorieState.goal;
+  if(!maintenance)return 0;
+  /* Coach-Ziele bleiben gesundheitsorientiert: kein aggressives Defizit. */
+  if(goal==='lose'||goal==='kfa'||goal==='weightloss')return maintenance;
+  if(goal==='bulk'||goal==='muscle')return Math.round(maintenance*1.05);
+  return maintenance;
+}
 function goalLabel(){
-  const labels={lose:'Abnehmen / KFA senken',kfa:'Abnehmen / KFA senken',maintain:'Erhalt',bulk:'Aufbau'};
-  return labels[calorieState.goal]||labels.maintain;
+  const labels={lose:'Abnehmen – Körper definieren',kfa:'Abnehmen – Körper definieren',weightloss:'Abnehmen – Körper definieren',maintain:'Gewicht halten & Allgemeine Fitness',maintainfitness:'Gewicht halten & Allgemeine Fitness',bulk:'Muskelaufbau',muscle:'Muskelaufbau',strength:'Kraft & Leistung',fitness:'Gewicht halten & Allgemeine Fitness'};
+  return labels[calorieState.goal]||labels.maintainfitness;
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
 
@@ -1774,7 +1782,7 @@ function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setup
  localStorage.setItem('fitness_coach_onboarded','1');
  const factors={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8};
  if(typeof calorieState!=='undefined'){
-   calorieState.age=Number(setupData.age)||calorieState.age;calorieState.height=Number(setupData.height)||calorieState.height;calorieState.weight=Number(setupData.weight)||calorieState.weight;calorieState.sex=setupData.sex==='f'?'f':'m';calorieState.activity=factors[setupData.activity]||1.5;calorieState.training='training';calorieState.goal=setupData.goal==='performance'?'fitness':setupData.goal;saveCalories();
+   calorieState.age=Number(setupData.age)||calorieState.age;calorieState.height=Number(setupData.height)||calorieState.height;calorieState.weight=Number(setupData.weight)||calorieState.weight;calorieState.sex=setupData.sex==='f'?'f':'m';calorieState.activity=factors[setupData.activity]||1.5;calorieState.training='training';calorieState.goal=({weightloss:'weightloss',maintainfitness:'maintainfitness',muscle:'muscle',strength:'strength',fitness:'maintainfitness',performance:'strength'}[setupData.goal]||'maintainfitness');saveCalories();
  }
  document.getElementById('coachSetup').classList.remove('show');openCoachPlan();toast('Dein Coach-Plan ist bereit ✓');
 }}
