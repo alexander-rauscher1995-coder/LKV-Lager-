@@ -312,6 +312,46 @@ button:active{transform:translateY(1px)}
 .bottom{padding:7px;border-radius:24px;background:rgba(8,15,20,.92);border-color:rgba(145,170,180,.18)}
 @media(max-width:900px){.top{min-height:270px}.name{font-size:42px}.dashboard-hero{grid-template-columns:1fr}.dashboard-score{text-align:left;display:flex;align-items:center;gap:15px}.score-ring{margin:0;width:100px;height:100px}.dashboard-mini{grid-template-columns:1fr 1fr}.smart-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.top{padding-top:30px}.name{font-size:35px}.shell{margin-top:-28px}.calculator-hero{padding:21px}.calculator-hero h2{font-size:25px!important}.dashboard-hero,.smart-command{padding:18px;border-radius:18px}.dashboard-title{font-size:25px}.dashboard-mini{grid-template-columns:1fr}.smart-footer{align-items:flex-start;flex-wrap:wrap}.smart-footer button{margin-left:0}.home-stat,.home-action{min-height:150px}}
+
+/* V110 COACH WAY PLAN SYSTEM */
+.coach-way{position:fixed;inset:0;z-index:500;background:
+ radial-gradient(circle at 75% 5%,rgba(99,245,154,.12),transparent 25%),
+ linear-gradient(180deg,#081116 0%,#050b0f 100%);display:none;overflow:auto}
+.coach-way.show{display:block}
+.coach-way-inner{max-width:1280px;margin:auto;padding:28px 28px 110px}
+.coach-way-top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px}
+.coach-way-brand{display:flex;align-items:center;gap:13px}
+.coach-way-logo{width:44px;height:44px;border-radius:14px;background:var(--accent);color:#06100b;display:grid;place-items:center;font-weight:900;font-size:20px}
+.coach-way-kicker{font-size:11px;letter-spacing:.16em;color:#7f8e96;font-weight:800}
+.coach-way-title{font-size:34px;font-weight:850;letter-spacing:-1px;margin-top:3px}
+.coach-way-close{border:1px solid #344049;background:#162229;border-radius:13px;padding:11px 15px;cursor:pointer}
+.coach-way-hero{display:grid;grid-template-columns:1.4fr .8fr;gap:14px;margin-bottom:14px}
+.coach-way-card{background:linear-gradient(145deg,rgba(23,34,41,.98),rgba(12,20,25,.98));border:1px solid rgba(143,162,173,.2);border-radius:22px;padding:22px}
+.coach-way-card h2,.coach-way-card h3{margin:0 0 8px}
+.coach-way-sub{color:#9eabb2;line-height:1.5}
+.coach-way-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:17px}
+.coach-way-stat{background:#0d151a;border:1px solid #29363e;border-radius:14px;padding:13px}
+.coach-way-stat span{display:block;color:#819099;font-size:12px}.coach-way-stat b{display:block;font-size:21px;margin-top:5px}
+.coach-way-grid{display:grid;grid-template-columns:1.45fr .75fr;gap:14px}
+.coach-week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.coach-day{min-height:145px;background:#0d151a;border:1px solid #29363e;border-radius:15px;padding:11px;cursor:pointer;transition:.18s}
+.coach-day:hover{transform:translateY(-2px);border-color:#50616b}
+.coach-day.today{border-color:var(--accent);box-shadow:0 0 0 1px rgba(99,245,154,.08)}
+.coach-day.done{background:rgba(99,245,154,.08)}
+.coach-day .dow{font-size:11px;color:#819099;font-weight:800;text-transform:uppercase}
+.coach-day b{display:block;margin:10px 0 6px;font-size:15px}
+.coach-day small{color:#96a3aa;line-height:1.35;display:block}
+.coach-check{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:13px 14px;border-radius:14px;background:rgba(99,245,154,.07);border:1px solid rgba(99,245,154,.16)}
+.coach-check button{border:0;background:var(--accent);color:#06100b;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+.coach-today{margin-top:14px}
+.coach-task{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #26323a}
+.coach-task:last-child{border-bottom:0}.coach-task input{width:19px;height:19px;accent-color:var(--accent)}
+.coach-task.done span{text-decoration:line-through;color:#718087}
+.coach-next{margin-top:14px}
+.coach-next-btn{width:100%;border:0;background:var(--accent);color:#06100b;border-radius:13px;padding:13px;font-weight:850;cursor:pointer}
+.coach-note{font-size:12px;color:#7f8c94;margin-top:9px;line-height:1.45}
+@media(max-width:900px){.coach-way-hero,.coach-way-grid{grid-template-columns:1fr}.coach-week{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.coach-way-inner{padding:18px 14px 100px}.coach-way-title{font-size:28px}.coach-way-stats{grid-template-columns:1fr 1fr}.coach-week{grid-template-columns:1fr 1fr}.coach-day{min-height:120px}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1447,7 +1487,7 @@ document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',e=>{
  if(view){showView(view);return;}
  if(btn.textContent.includes('Ernährung'))openModule('nutrition');
  if(btn.textContent.includes('Fortschritt'))openModule('progress');
- if(btn.textContent.includes('Coach'))openModule('coach');
+ if(btn.textContent.includes('Coach'))openCoachPlan();
  if(btn.textContent.includes('Mehr'))openModule('more');
 }));
 document.querySelectorAll('.quick button').forEach(btn=>btn.addEventListener('click',e=>{
@@ -1477,6 +1517,67 @@ document.addEventListener('input',e=>{
 
 </script>
 
+
+<div id="coachWay" class="coach-way">
+  <div class="coach-way-inner">
+    <div class="coach-way-top">
+      <div class="coach-way-brand"><div class="coach-way-logo">C</div><div><div class="coach-way-kicker">COACH WAY</div><div class="coach-way-title">Dein persönlicher Plan</div></div></div>
+      <button class="coach-way-close" onclick="closeCoachPlan()">Zur App →</button>
+    </div>
+    <div class="coach-way-hero">
+      <div class="coach-way-card">
+        <div class="section-kicker">DEIN COACH</div>
+        <h2 id="coachWayHeadline">Deine Woche ist geplant.</h2>
+        <div class="coach-way-sub" id="coachWaySub">Training, Bewegung und Regeneration werden aus deinen Angaben strukturiert.</div>
+        <div class="coach-way-stats">
+          <div class="coach-way-stat"><span>Kraft</span><b id="cwStrength">–</b></div>
+          <div class="coach-way-stat"><span>Cardio</span><b id="cwCardio">–</b></div>
+          <div class="coach-way-stat"><span>Fokus</span><b id="cwGoal">–</b></div>
+        </div>
+      </div>
+      <div class="coach-way-card">
+        <div class="section-kicker">HEUTE</div>
+        <h3 id="cwTodayTitle">Tagesfokus</h3>
+        <div class="coach-way-sub" id="cwTodayText">–</div>
+        <div class="coach-check"><span id="cwTodayStatus">Noch offen</span><button onclick="coachCompleteToday()">Erledigt</button></div>
+      </div>
+    </div>
+    <div class="coach-way-grid">
+      <div class="coach-way-card">
+        <div class="section-kicker">WOCHENPLAN</div>
+        <h2>Deine Woche</h2>
+        <div class="coach-week" id="coachWeek"></div>
+        <div class="coach-today">
+          <div class="section-kicker">HEUTE IM DETAIL</div>
+          <div class="coach-way-card" style="padding:15px;background:#0d151a">
+            <h3 id="cwDetailTitle">Tagesplan</h3>
+            <div id="cwTasks"></div>
+            <div class="coach-next"><button class="coach-next-btn" onclick="coachOpenToday()">Training öffnen →</button></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="coach-way-card">
+          <div class="section-kicker">COACH CHECK-IN</div>
+          <h3>Wie läuft die Woche?</h3>
+          <div class="coach-way-sub">Markiere deinen heutigen Stand. Der Coach nutzt ihn als Grundlage für die nächste Planung.</div>
+          <div class="actions" style="margin-top:14px">
+            <button class="secondary" onclick="coachCheckin('easy')">Zu leicht</button>
+            <button class="secondary" onclick="coachCheckin('right')">Passt</button>
+            <button class="secondary" onclick="coachCheckin('hard')">Zu viel</button>
+          </div>
+          <div class="coach-note" id="cwCheckinNote">Noch kein Check-in für heute.</div>
+        </div>
+        <div class="coach-way-card" style="margin-top:14px">
+          <div class="section-kicker">ADAPTIV</div>
+          <h3>Nächster Schritt</h3>
+          <div class="coach-way-sub" id="cwAdaptive">Erledige zuerst deinen heutigen Plan.</div>
+          <button class="coach-next-btn" style="margin-top:14px" onclick="openCoachSetup()">Plan neu erstellen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="accountModal" class="modal account-modal-pro"><div class="account-window">
   <div class="account-top"><div class="account-brand"><div class="account-logo">F</div><div><div class="section-kicker">FITNESS PRO</div><h2>Dein Konto</h2><div class="muted">Profil & App-Daten</div></div></div><button class="account-x" onclick="accountClose()">×</button></div>
   <div class="account-status-card"><div class="account-avatar">A</div><div><div class="muted">STATUS</div><b id="accountStatus">Noch kein Konto</b><div class="account-status-line"><span></span> Daten werden auf diesem Gerät gespeichert</div></div></div>
@@ -1526,12 +1627,59 @@ function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setup
  if(typeof calorieState!=='undefined'){
    calorieState.age=Number(setupData.age)||calorieState.age;calorieState.height=Number(setupData.height)||calorieState.height;calorieState.weight=Number(setupData.weight)||calorieState.weight;calorieState.sex=setupData.sex==='f'?'f':'m';calorieState.activity=factors[setupData.activity]||1.5;calorieState.training='training';calorieState.goal=setupData.goal==='performance'?'fitness':setupData.goal;saveCalories();
  }
- document.getElementById('coachSetup').classList.remove('show');showView('home');toast('Dein Coach-Dashboard ist bereit ✓');
+ document.getElementById('coachSetup').classList.remove('show');openCoachPlan();toast('Dein Coach-Plan ist bereit ✓');
 }}
 function setupPrev(){setupSaveFields();if(setupStep>0){setupStep--;setupRender()}}
 function setupResult(){const a=Number(setupData.age),h=Number(setupData.height),w=Number(setupData.weight);const b=a&&h&&w?Math.round(10*w+6.25*h-5*a+(setupData.sex==='m'?5:-161)):0;const factor={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8}[setupData.activity]||1.5;const energy=b?Math.round(b*factor):0;return '<div class="setup-result"><div class="setup-result-card primary"><h3>Energiebedarf · Orientierung</h3><div class="setup-number">'+(energy?energy.toLocaleString('de-DE'):'–')+' <small>kcal</small></div><div class="setup-sub">Geschätzter täglicher Bedarf auf Basis deiner Angaben. Kein Diätziel.</div></div><div class="setup-result-card"><h3>Dein Wochenrahmen</h3><div class="setup-list"><div>🎯 <b>'+({fitness:'Allgemeine Fitness',strength:'Kraft & Leistung',muscle:'Muskelaufbau',performance:'Sportliche Leistung'}[setupData.goal]||'Fitness')+'</b></div><div>🏋️ <b>'+setupData.days+'×</b> Krafttraining</div><div>🏃 <b>'+setupData.cardio+'×</b> Cardio</div><div>📈 <b>'+({beginner:'Einsteiger',intermediate:'Fortgeschritten',advanced:'Erfahren'}[setupData.experience]||'')+'</b></div></div></div></div>'}
 function openCoachSetup(){setupStep=0;setupRender();document.getElementById('coachSetup').classList.add('show')}
 </script><script>
 document.addEventListener('DOMContentLoaded',()=>{if(!localStorage.getItem('fitness_coach_onboarded'))setTimeout(openCoachSetup,250);});
+</script><script>
+/* V110 COACH WAY ENGINE */
+const coachWayKey='fitness_coach_way';
+function coachWayLoad(){return JSON.parse(localStorage.getItem(coachWayKey)||'null')||{done:{},tasks:{},checkins:{}}}
+function coachWaySave(x){localStorage.setItem(coachWayKey,JSON.stringify(x))}
+function coachGoalLabel(g){return {fitness:'Fitness',strength:'Kraft',muscle:'Muskelaufbau',performance:'Leistung'}[g]||'Fitness'}
+function coachBuildWeek(){
+ const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{days:'3',cardio:'2',goal:'fitness',experience:'beginner'};
+ const n=Math.max(2,Math.min(5,Number(s.days)||3)), cardio=Math.max(0,Math.min(3,Number(s.cardio)||0));
+ const names=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+ const plans=Array(7).fill(null).map((_,i)=>({name:names[i],type:'Recovery',title:'Erholung & Alltag',tasks:['Spaziergang / Alltag bewegen','Regeneration priorisieren','Schlafroutine']}));
+ const strengthDays=n===2?[0,3]:n===3?[0,2,4]:n===4?[0,1,3,5]:[0,1,3,4,6];
+ strengthDays.forEach((i,j)=>{plans[i]={name:names[i],type:'Strength',title:'Krafttraining · GK '+String.fromCharCode(65+(j%4)),tasks:['Aufwärmen & Technik','Krafttraining dokumentieren','Kurze Regeneration danach']};});
+ const free=plans.map((p,i)=>p.type==='Recovery'?i:-1).filter(i=>i>=0);
+ for(let i=0;i<Math.min(cardio,free.length);i++){const idx=free[i];plans[idx]={name:names[idx],type:'Cardio',title:i%2===0?'Cardio · locker':'Cardio · Intervalle',tasks:[i%2===0?'Lockere Ausdauer':'Intervall-Einheit','Intensität kontrollieren','Cooldown & Regeneration']};}
+ return plans;
+}
+function coachRenderWeek(){
+ const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{days:'3',cardio:'0',goal:'fitness'};
+ const state=coachWayLoad(),week=coachBuildWeek(),now=new Date(),today=(now.getDay()+6)%7;
+ document.getElementById('cwStrength').textContent=(Number(s.days)||3)+'× / Woche';
+ document.getElementById('cwCardio').textContent=(Number(s.cardio)||0)+'× / Woche';
+ document.getElementById('cwGoal').textContent=coachGoalLabel(s.goal);
+ const p=week[today], key=todayISO();
+ document.getElementById('cwTodayTitle').textContent=p.title;
+ document.getElementById('cwTodayText').textContent=p.type==='Recovery'?'Heute steht Regeneration und normale Alltagsbewegung im Mittelpunkt.':p.tasks.join(' · ');
+ document.getElementById('cwTodayStatus').textContent=state.done[key]?'Heute erledigt ✓':'Noch offen';
+ document.getElementById('cwDetailTitle').textContent=p.title;
+ document.getElementById('cwTasks').innerHTML=p.tasks.map((t,i)=>'<label class="coach-task '+((state.tasks[key]||[]).includes(i)?'done':'')+'"><input type="checkbox" '+((state.tasks[key]||[]).includes(i)?'checked':'')+' onchange="coachToggleTask('+i+',this.checked)"><span>'+t+'</span></label>').join('');
+ document.getElementById('coachWeek').innerHTML=week.map((d,i)=>'<div class="coach-day '+(i===today?'today ':'')+(state.done[(function(){const dt=new Date(now);dt.setHours(0,0,0,0);dt.setDate(dt.getDate()-today+i);return dt.toISOString().slice(0,10)})()]?'done':'')+'" onclick="coachSelectDay('+i+')"><div class="dow">'+d.name.slice(0,3)+'</div><b>'+d.title+'</b><small>'+d.tasks[0]+'</small></div>').join('');
+ const ci=state.checkins[key];document.getElementById('cwCheckinNote').textContent=ci?({easy:'Heute war es leicht. Nächste Einheit kann normal weiterlaufen.',right:'Heute hat die Belastung gut gepasst.',hard:'Heute war es anspruchsvoll. Regeneration und Anpassung werden priorisiert.'}[ci]):'Noch kein Check-in für heute.';
+ document.getElementById('cwAdaptive').textContent=state.done[key]?'Heute abgeschlossen. Morgen wartet der nächste Baustein.':'Erledige heute die wichtigsten Aufgaben und gib danach deinen Check-in ab.';
+}
+function coachToggleTask(i,on){
+ const s=coachWayLoad(),key=todayISO();s.tasks[key]=s.tasks[key]||[];s.tasks[key]=on?[...new Set([...s.tasks[key],i])]:s.tasks[key].filter(x=>x!==i);coachWaySave(s);coachRenderWeek();
+}
+function coachCompleteToday(){const s=coachWayLoad();s.done[todayISO()]=true;coachWaySave(s);coachRenderWeek();toast('Coach-Tag abgeschlossen ✓')}
+function coachCheckin(v){const s=coachWayLoad();s.checkins[todayISO()]=v;coachWaySave(s);coachRenderWeek();toast('Check-in gespeichert ✓')}
+function coachSelectDay(i){const week=coachBuildWeek(),d=week[i],box=document.getElementById('cwDetailTitle');if(box)box.textContent=d.name+' · '+d.title;const tasks=document.getElementById('cwTasks');if(tasks)tasks.innerHTML=d.tasks.map(t=>'<div class="coach-task"><span>'+t+'</span></div>').join('')}
+function coachOpenToday(){
+ const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{days:'3'};
+ const week=coachBuildWeek(),i=(new Date().getDay()+6)%7;
+ if(week[i].type==='Strength'){closeCoachPlan();showView('training');}
+ else {toast(week[i].type==='Cardio'?'Heute ist Cardio geplant.':'Heute ist Regeneration geplant.')}
+}
+function openCoachPlan(){coachRenderWeek();document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');}
+function closeCoachPlan(){document.getElementById('coachWay').classList.remove('show');document.body.classList.remove('module-open')}
 </script></body>
 </html>
