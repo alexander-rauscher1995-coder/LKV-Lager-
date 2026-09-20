@@ -234,6 +234,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
 /* V112 GYM CALCULATION */
 .gym-note{margin-top:9px;padding:10px 12px;border-radius:10px;background:rgba(88,240,142,.045);border:1px solid rgba(88,240,142,.10);font-size:12px;color:#91a0a9;line-height:1.45}
+
+/* V115 STEP-BASED ENERGY MODEL */
+#csteps{font-size:16px;font-weight:700}
 </style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -574,7 +577,7 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.55, training: 'rest', goal: 'maintain',
+  activity: 1.2, steps: 10000, training: 'rest', goal: 'maintain',
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
@@ -586,10 +589,17 @@ function calcBMR(){
 }
 function calcMaintenance(){
   const b=calcBMR(); if(!b)return 0;
-  const activity=Number(calorieState.activity)||1.2;
-  // Aktivitätsfaktor beschreibt den Alltag. Ein Gym-/Krafttrainingstag wird separat addiert.
-  const gymCalories = calorieState.training==='training' ? 200 : 0;
-  return Math.round(b*activity + gymCalories);
+  // Niedriger Basisfaktor für den Alltag; Schritte und Gym werden separat berechnet.
+  const base=Number(calorieState.activity)||1.2;
+  const w=Number(calorieState.weight)||0;
+  const h=Number(calorieState.height)||0;
+  const steps=Math.max(0,Math.min(50000,Number(calorieState.steps)||0));
+  // Näherung der Gehstrecke aus Körpergröße; Schrittenergie wird aus Körpergewicht und Strecke abgeleitet.
+  const stepLength=Math.max(0.55,Math.min(0.85,h*0.414/100));
+  const distanceKm=steps*stepLength/1000;
+  const stepCalories=distanceKm*w*0.5;
+  const gymCalories=calorieState.training==='training'?200:0;
+  return Math.round(b*base + stepCalories + gymCalories);
 }
 function dietMacroTargets(){
   return macroTargets();
@@ -848,6 +858,8 @@ function openModule(type){
       <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
+    <div class="section-kicker" style="margin-top:18px">SCHRITTE</div>
+    <div class="field"><label>Schritte pro Tag</label><input id="csteps" type="number" min="0" max="50000" step="500" value="${calorieState.steps||10000}"></div>
     <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="setActivity(${v},'calculator')">${['Wenig aktiv','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
     <div class="gym-note">Gym/Krafttraining wird separat über den Trainingstag berücksichtigt.</div>
     <div class="section-kicker" style="margin-top:18px">TAG</div>
@@ -1070,6 +1082,8 @@ function readCalculatorInputs(){
  const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte Alter, Größe und Gewicht prüfen.');return false}
  calorieState.age=a;calorieState.height=h;calorieState.weight=w;calorieState.sex=s==='f'?'f':'m';
+ const steps=Number(document.getElementById('csteps')?.value);
+ if(Number.isFinite(steps)) calorieState.steps=Math.max(0,Math.min(50000,Math.round(steps)));
  saveCalories(); return true;
 }
 function calculateAndStay(){
