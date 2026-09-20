@@ -352,6 +352,42 @@ button:active{transform:translateY(1px)}
 .coach-note{font-size:12px;color:#7f8c94;margin-top:9px;line-height:1.45}
 @media(max-width:900px){.coach-way-hero,.coach-way-grid{grid-template-columns:1fr}.coach-week{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.coach-way-inner{padding:18px 14px 100px}.coach-way-title{font-size:28px}.coach-way-stats{grid-template-columns:1fr 1fr}.coach-week{grid-template-columns:1fr 1fr}.coach-day{min-height:120px}}
+
+/* V111 COACH WAY REDESIGN */
+.coach-way{background:
+ radial-gradient(900px 500px at 85% -5%,rgba(99,245,154,.15),transparent 55%),
+ radial-gradient(700px 500px at -10% 40%,rgba(61,168,255,.08),transparent 55%),
+ #050a0e}
+.coach-way-inner{max-width:1440px;padding:22px 34px 100px}
+.coach-way-top{height:70px;margin-bottom:18px;padding:0 2px}
+.coach-way-brand{gap:12px}.coach-way-logo{width:40px;height:40px;border-radius:12px;box-shadow:0 0 25px rgba(99,245,154,.18)}
+.coach-way-title{font-size:29px;letter-spacing:-1.2px}.coach-way-kicker{font-size:10px}
+.coach-way-close{padding:9px 13px;background:rgba(23,34,41,.72);backdrop-filter:blur(14px);border-color:#2b3941}
+.coach-way-hero{grid-template-columns:1.65fr .75fr;gap:12px}
+.coach-way-card{border-radius:20px;padding:20px;background:linear-gradient(145deg,rgba(19,29,35,.92),rgba(9,16,20,.96));box-shadow:0 16px 45px rgba(0,0,0,.18)}
+.coach-way-hero>.coach-way-card:first-child{min-height:218px;position:relative;overflow:hidden}
+.coach-way-hero>.coach-way-card:first-child:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-100px;border:1px solid rgba(99,245,154,.12);box-shadow:0 0 0 35px rgba(99,245,154,.025),0 0 0 70px rgba(99,245,154,.018)}
+.coach-way-card h2{font-size:25px;letter-spacing:-.6px}.coach-way-card h3{font-size:18px}
+.coach-way-sub{font-size:14px;color:#93a1a9}
+.coach-way-stats{grid-template-columns:repeat(3,160px);gap:8px;margin-top:25px;position:relative;z-index:2}
+.coach-way-stat{padding:11px 12px;background:rgba(6,12,16,.55);backdrop-filter:blur(8px)}
+.coach-way-stat b{font-size:18px}
+.coach-way-grid{grid-template-columns:1.65fr .75fr;gap:12px}
+.coach-week{gap:7px}
+.coach-day{min-height:132px;padding:12px;border-radius:14px;background:rgba(8,15,19,.72)}
+.coach-day.today{background:rgba(99,245,154,.08)}
+.coach-day .dow{font-size:10px;letter-spacing:.08em}
+.coach-day b{font-size:14px;margin:12px 0 5px}.coach-day small{font-size:12px}
+.coach-day.today:before{content:"HEUTE";display:inline-block;font-size:8px;font-weight:900;letter-spacing:.1em;color:#06100b;background:var(--accent);border-radius:20px;padding:4px 7px;margin-bottom:2px}
+.coach-check{margin-top:12px;padding:11px 12px}
+.coach-check button{padding:8px 11px}
+.coach-today{margin-top:12px}.coach-task{padding:10px 0;font-size:14px}
+.coach-task input{accent-color:var(--accent)}
+.coach-next-btn{padding:12px;border-radius:11px}
+.coach-way>.coach-way-inner>.coach-way-grid>div> .coach-way-card{box-shadow:none}
+.coach-way-card .actions{gap:7px}.coach-way-card .actions .secondary{padding:9px 11px;font-size:12px}
+@media(max-width:1000px){.coach-way-inner{padding:18px 18px 95px}.coach-way-hero,.coach-way-grid{grid-template-columns:1fr}.coach-way-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.coach-way-top{height:auto}.coach-way-title{font-size:24px}.coach-way-close{font-size:12px}.coach-way-stats{grid-template-columns:1fr 1fr}.coach-way-stats .coach-way-stat:last-child{grid-column:1/-1}.coach-week{grid-template-columns:repeat(2,1fr)}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1681,5 +1717,8 @@ function coachOpenToday(){
 }
 function openCoachPlan(){coachRenderWeek();document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');}
 function closeCoachPlan(){document.getElementById('coachWay').classList.remove('show');document.body.classList.remove('module-open')}
+</script><script>
+/* V111 COACH WAY INTERACTIONS */
+function coachOpenSetupAndClose(){closeCoachPlan();openCoachSetup()}
 </script></body>
 </html>
