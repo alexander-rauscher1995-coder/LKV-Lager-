@@ -425,17 +425,6 @@ function saveMeal(){
 }
 function deleteMeal(time){nutritionState.meals=nutritionState.meals.filter(x=>x.time!==time);saveNutrition();openModule('nutrition');toast('Mahlzeit gelöscht');}
 
-function saveNutrition(){localStorage.setItem(nutritionKey,JSON.stringify(nutritionState))}
-function saveMeal(){
- const type=document.getElementById('mealType')?.value||'Mahlzeit';
- const name=(document.getElementById('mealName')?.value||'').trim();
- const note=(document.getElementById('mealNote')?.value||'').trim();
- if(!name){toast('Bitte eine Mahlzeit eintragen.');return;}
- nutritionState.meals.push({date:todayISO(),type,name,note,time:new Date().toISOString()});
- saveNutrition(); openModule('nutrition'); toast('Mahlzeit gespeichert ✓');
-}
-function deleteMeal(time){nutritionState.meals=nutritionState.meals.filter(x=>x.time!==time);saveNutrition();openModule('nutrition');toast('Mahlzeit gelöscht');}
-
 function openCalculator(){
  openModule('calculator');
 }
