@@ -806,7 +806,7 @@ function openModule(type){
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Tag</div><div class="segmented">
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
-      <button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training')">Training</button>
+      <button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training')">Gym · Krafttraining</button>
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
       <button class="${calorieState.goal==='maintain'?'active':''}" onclick="setCalorieGoal('maintain')">Gewicht halten</button>
@@ -836,7 +836,7 @@ function openModule(type){
     <div class="section-kicker" style="margin-top:18px">AKTIVITÄT</div>
     <div class="segmented">${[1.35,1.5,1.65,1.8].map((v,i)=>`<button class="${calorieState.activity===v?'active':''}" onclick="setActivity(${v},'calculator')">${['Leicht','Normal','Aktiv','Sehr aktiv'][i]}</button>`).join('')}</div>
     <div class="section-kicker" style="margin-top:18px">TAG</div>
-    <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Training</button></div>
+    <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Gym · Krafttraining</button></div>
     <div class="section-kicker" style="margin-top:18px">ZIEL</div>
     <div class="segmented goal-segmented">
       <button class="${calorieState.goal==="lose"?"active":""}" onclick="setCalorieGoal(&quot;lose&quot;,'calculator')">Abnehmen</button>
