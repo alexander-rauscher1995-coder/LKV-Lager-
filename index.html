@@ -396,7 +396,7 @@ function startTimer(){
  const id=setInterval(()=>{s--; if(s<=0){clearInterval(id);toast('Pause beendet ✓')}},1000);
 }
 function openSheet(){openModule('more')}
-function closeSheet(){document.getElementById('modal').classList.remove('open');document.body.classList.remove('module-open')}
+function closeSheet(){document.getElementById('modal').classList.remove('open');document.body.classList.remove('module-open');const nav=document.querySelector('.bottom');if(nav)nav.style.display='grid'}
 
 /* V97 ACCOUNT LAYER — local account foundation. Cloud auth requires backend deployment. */
 const ACCOUNT_USERS_KEY='fitness_v97_accounts';
@@ -860,6 +860,7 @@ function openModule(type){
  }
  modal.classList.add('open');
  document.body.classList.add('module-open');
+ const bottomNav=document.querySelector('.bottom'); if(bottomNav) bottomNav.style.display='none';
 }
 function exportData(){
  const payload={
