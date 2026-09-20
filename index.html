@@ -672,6 +672,12 @@ main{max-width:1320px!important}
 .coach-focus-card h2{margin:4px 0 7px;font-size:28px}.coach-focus-card p{margin:0;color:#87969e}
 .coach-focus-action{border:0;border-radius:13px;padding:13px 18px;background:var(--green);color:#07100b;font-weight:800;cursor:pointer;white-space:nowrap}
 @media(max-width:700px){.coach-focus-card{display:block}.coach-focus-action{margin-top:16px;width:100%}}
+</style><style>
+/* V117 CALCULATOR FULLSCREEN */
+body.calculator-fullscreen{padding-left:0!important}
+body.calculator-fullscreen .pro-sidebar,body.calculator-fullscreen .bottom,body.calculator-fullscreen>.top{display:none!important}
+body.calculator-fullscreen .modal-back{display:flex!important;position:fixed!important;inset:0!important;z-index:2147482000!important;align-items:center!important;padding:14px!important;background:rgba(1,6,9,.94)!important}
+body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100dvh - 28px);max-height:none;margin:0;border-radius:26px}
 </style></head>
 <body>
 <div class="app">
@@ -930,7 +936,13 @@ function startTimer(){
  const id=setInterval(()=>{s--; if(s<=0){clearInterval(id);toast('Pause beendet ✓')}},1000);
 }
 function openSheet(){openModule('more')}
-function closeSheet(){document.getElementById('modal').classList.remove('open');document.body.classList.remove('module-open');const nav=document.querySelector('.bottom');if(nav)nav.style.display='grid'}
+function closeSheet(){
+ const modal=document.getElementById('modal');if(modal){modal.classList.remove('open');modal.style.cssText='';}
+ const calc=document.body.classList.contains('calculator-fullscreen');
+ document.body.classList.remove('module-open','calculator-fullscreen');document.body.style.paddingLeft='';
+ document.querySelectorAll('[data-calculator-hidden="1"]').forEach(x=>{x.style.display='';x.removeAttribute('data-calculator-hidden')});
+ const nav=document.querySelector('.bottom');if(nav)nav.style.display='grid';
+}
 
 /* V97 ACCOUNT LAYER — local account foundation. Cloud auth requires backend deployment. */
 const ACCOUNT_USERS_KEY='fitness_v97_accounts';
@@ -1154,6 +1166,7 @@ function resetPlanEditor(){
 }
 function openModule(type){
  if(type==='coach'){openCoachPlan();return;}
+ if(type==='calculator' && !window.__calcFull){openCalculatorFull();return;}
  const modal=document.getElementById('modal'), sheet=document.getElementById('moduleSheet');
  const count=saved.length;
  const plansCount=saved.reduce((a,s)=>(a[s.plan]=(a[s.plan]||0)+1,a),{});
@@ -1877,6 +1890,14 @@ function openCoachPlan(){
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
  coachSideView('overview',first);
+}
+</script><script>
+function openCalculatorFull(){
+ const els=[document.querySelector('.pro-sidebar'),document.querySelector('.bottom'),document.querySelector('.top')];
+ document.body.classList.add('calculator-fullscreen','module-open');document.body.style.paddingLeft='0';
+ els.forEach(x=>{if(x){x.style.display='none';x.setAttribute('data-calculator-hidden','1')}});
+ window.__calcFull=true;openModule('calculator');window.__calcFull=false;
+ const modal=document.getElementById('modal');if(modal)modal.classList.add('open');
 }
 </script></body>
 </html>
