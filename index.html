@@ -1593,6 +1593,29 @@ document.addEventListener('input',e=>{
 <div id="coachView-today" class="coach-view"></div>
 <div id="coachView-progress" class="coach-view"></div>
 <div id="coachView-checkin" class="coach-view"></div>
+
+<div class="coach-mainbar">
+ <div class="coach-mainbar-left"><div class="section-kicker" id="cwPageKicker">COACH CENTER</div><div class="coach-mainbar-title" id="cwPageTitle">Deine Woche im Blick</div></div>
+ <div class="coach-live"><i></i> LIVE COACH</div>
+</div>
+<div class="coach-command">
+ <div class="coach-command-card"><small>Heute</small><b id="cwCmdToday">–</b></div>
+ <div class="coach-command-card"><small>Woche</small><b id="cwCmdWeek">–</b></div>
+ <div class="coach-command-card"><small>Fortschritt</small><b id="cwCmdProgress">–</b></div>
+ <div class="coach-command-card"><small>Check-in</small><b id="cwCmdCheckin">Offen</b></div>
+</div>
+<div class="coach-progress-panel">
+ <div class="coach-way-card">
+  <div class="section-kicker">WOCHENFORTSCHRITT</div><h2>Konstanz statt Perfektion</h2>
+  <div class="coach-progress-big" id="cwProgressValue">0 Tage</div>
+  <div class="coach-progress-track"><i id="cwProgressBar"></i></div>
+  <div class="coach-way-sub">Deine erledigten Coach-Tage dieser Woche.</div>
+ </div>
+ <div class="coach-way-card">
+  <div class="section-kicker">DEIN STATUS</div>
+  <div class="coach-mini-list" id="cwProgressList"></div>
+ </div>
+</div>
 <div class="coach-way-top">
       <div class="coach-way-brand"><div class="coach-way-logo">C</div><div><div class="coach-way-kicker">COACH WAY</div><div class="coach-way-title">Dein persönlicher Plan</div></div></div>
       <button class="coach-way-close" onclick="closeCoachPlan()">Zur App →</button>
@@ -1779,5 +1802,33 @@ function coachMountView(v){
    if(v==='overview'){host.appendChild(grid.cloneNode(true));}
  }
 }
+</script><script>
+/* V113 INNER COACH NAV */
+function coachSetMode(view){
+ const root=document.getElementById('coachWay'); if(!root)return;
+ root.className=root.className.replace(/coach-mode-[^ ]+/g,'').trim()+' coach-mode-'+view;
+ const titles={overview:['COACH CENTER','Deine Woche im Blick'],week:['WOCHENPLAN','Struktur für deine Woche'],today:['HEUTE','Dein nächster Schritt'],progress:['FORTSCHRITT','Deine Konstanz'],checkin:['CHECK-IN','Wie fühlt sich die Woche an?']};
+ const t=titles[view]||titles.overview;
+ const a=document.getElementById('cwPageKicker'),b=document.getElementById('cwPageTitle');if(a)a.textContent=t[0];if(b)b.textContent=t[1];
+ document.querySelectorAll('.coach-side-btn').forEach(x=>x.classList.remove('active'));
+}
+function coachSideView(view,btn){
+ coachSetMode(view);if(btn)btn.classList.add('active');
+ const state=coachWayLoad(),week=coachBuildWeek(),today=(new Date().getDay()+6)%7,key=todayISO();
+ const done=Object.keys(state.done||{}).filter(k=>k>=key.slice(0,8)).length;
+ const weekDone=week.filter((_,i)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-today+i);return state.done[d.toISOString().slice(0,10)]}).length;
+ const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ const ct=document.getElementById('cwCmdToday'),cw=document.getElementById('cwCmdWeek'),cp=document.getElementById('cwCmdProgress'),cc=document.getElementById('cwCmdCheckin');
+ if(ct)ct.textContent=week[today].title;
+ if(cw)cw.textContent=weekDone+' / '+week.length+' Tage';
+ if(cp)cp.textContent=weekDone+' erledigt';
+ if(cc)cc.textContent=state.checkins[key]?'Gespeichert':'Offen';
+ const pg=document.getElementById('cwProgressValue'),bar=document.getElementById('cwProgressBar'),list=document.getElementById('cwProgressList');
+ if(pg)pg.textContent=weekDone+' / '+week.length+' Tage';
+ if(bar)bar.style.width=Math.round(weekDone/week.length*100)+'%';
+ if(list)list.innerHTML='<div class="coach-mini-row"><span>Krafttraining</span><b>'+((s.days)||'–')+'×</b></div><div class="coach-mini-row"><span>Cardio</span><b>'+((s.cardio)||'0')+'×</b></div><div class="coach-mini-row"><span>Check-in</span><b>'+(state.checkins[key]?'Erledigt':'Offen')+'</b></div>';
+ if(view==='overview'||view==='week'||view==='today'||view==='checkin')coachRenderWeek();
+}
+function openCoachPlan(){coachRenderWeek();coachSetMode('overview');const first=document.querySelector('.coach-side-btn');if(first)first.classList.add('active');const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');coachSideView('overview',first)}
 </script></body>
 </html>
