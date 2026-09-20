@@ -734,7 +734,7 @@ function openModule(type){
    <div class="module-card" style="margin-top:12px"><h3>Letzte Cardio-Einheiten</h3>${sessions.length?sessions.map(x=>`<div class="cardio-history-item"><div class="cardio-history-icon">${x.type==='Laufen'?'🏃':x.type==='Rad'?'🚴':x.type==='Gehen'?'🚶':'◉'}</div><div class="cardio-history-main"><b>${x.type}</b><span>${x.zone||'Zone 2'} · ${new Date(x.date+'T12:00:00').toLocaleDateString('de-DE')}</span></div><strong>${x.minutes} min${x.distance?` · ${x.distance} km`:''}</strong></div>`).join(''):'<div class="muted">Noch keine Cardio-Einheit gespeichert.</div>'}</div>`;
  } else if(type==='calories'){
    const target=calcTarget(), bmr=calcBMR(), pct=caloriePct(), remaining=Math.max(0,target-(Number(calorieState.intake)||0));
-   const proteinTarget=Math.round(target*0.25/4), carbTarget=Math.round(target*0.45/4), fatTarget=Math.round(target*0.30/9);
+   const proteinTarget=Math.round(target*0.20/4), carbTarget=Math.round(target*0.50/4), fatTarget=Math.round(target*0.30/9);
    const pPct=proteinTarget?Math.min(100,Math.round((calorieState.protein||0)/proteinTarget*100)):0;
    const cPct=carbTarget?Math.min(100,Math.round((calorieState.carbs||0)/carbTarget*100)):0;
    const fPct=fatTarget?Math.min(100,Math.round((calorieState.fat||0)/fatTarget*100)):0;
@@ -773,21 +773,23 @@ function openModule(type){
       <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Aktivität</div><div class="segmented">
-      <button class="${calorieState.activity===1.2?'active':''}" onclick="setActivity(1.35)">Leicht</button>
-      <button class="${calorieState.activity===1.375?'active':''}" onclick="setActivity(1.5)">Normal</button>
-      <button class="${calorieState.activity===1.55?'active':''}" onclick="setActivity(1.65)">Aktiv</button>
-      <button class="${calorieState.activity===1.725?'active':''}" onclick="setActivity(1.8)">Sehr aktiv</button>
+      <button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35)">Leicht</button>
+      <button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5)">Normal</button>
+      <button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65)">Aktiv</button>
+      <button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8)">Sehr aktiv</button>
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Tag</div><div class="segmented">
       <button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest')">Ruhetag</button>
-      <button class="${calorieState.training==='train'?'active':''}" onclick="setTrainingDay('training')">Training</button>
+      <button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training')">Training</button>
     </div></div>
     <div style="margin-top:12px"><div class="muted" style="margin-bottom:7px">Ziel</div><div class="segmented">
-      <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose')">Abnehmen</button>
-      <button class="${(!calorieState.goal||calorieState.goal==='maintain')?'active':''}" onclick="setCalorieGoal('maintain')">Halten</button>
-      <button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain')">Zunehmen</button>
+      <button class="${calorieState.goal==='maintain'?'active':''}" onclick="setCalorieGoal('maintain')">Gewicht halten</button>
+      <button class="${calorieState.goal==='strength'?'active':''}" onclick="setCalorieGoal('strength')">Kraft & Leistung</button>
+      <button class="${calorieState.goal==='muscle'?'active':''}" onclick="setCalorieGoal('muscle')">Muskelaufbau</button>
+      <button class="${calorieState.goal==='fitness'?'active':''}" onclick="setCalorieGoal('fitness')">Allgemeine Fitness</button>
+      <button class="${calorieState.goal==='recovery'?'active':''}" onclick="setCalorieGoal('recovery')">Erholung</button>
     </div>
-    <div class="mini-note">Das Ziel verändert die errechnete Tagesmenge um ca. 300 kcal: Abnehmen −300 · Halten ±0 · Zunehmen +300.</div></div>
+    <div class="mini-note">Das Ziel dient zur Einordnung des Tagesbedarfs. Der Rechner bleibt bei einer neutralen Orientierung.</div></div>
     <div class="mini-note">Grundumsatz: ${bmr.toLocaleString('de-DE')} kcal · Bedarf wird aus Grundumsatz, Aktivitätsfaktor und Trainingstag berechnet.</div>
     <button class="module-action secondary" onclick="saveCalorieSettings()">Daten übernehmen & neu berechnen</button>
    </div>
