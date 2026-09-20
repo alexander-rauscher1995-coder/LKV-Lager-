@@ -388,6 +388,21 @@ button:active{transform:translateY(1px)}
 .coach-way-card .actions{gap:7px}.coach-way-card .actions .secondary{padding:9px 11px;font-size:12px}
 @media(max-width:1000px){.coach-way-inner{padding:18px 18px 95px}.coach-way-hero,.coach-way-grid{grid-template-columns:1fr}.coach-way-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.coach-way-top{height:auto}.coach-way-title{font-size:24px}.coach-way-close{font-size:12px}.coach-way-stats{grid-template-columns:1fr 1fr}.coach-way-stats .coach-way-stat:last-child{grid-column:1/-1}.coach-week{grid-template-columns:repeat(2,1fr)}}
+
+/* V112 COACH WAY SIDEBAR NAV */
+.coach-way{display:none}.coach-way.show{display:block}
+.coach-way-inner{max-width:none;margin:0;padding:0 30px 90px 260px;min-height:100vh}
+.coach-way-top{position:sticky;top:0;z-index:20;height:76px;margin:0 -30px 18px -30px;padding:0 30px;background:rgba(5,10,14,.84);backdrop-filter:blur(18px);border-bottom:1px solid rgba(111,127,137,.14)}
+.coach-sidebar{position:fixed;z-index:30;left:0;top:0;bottom:0;width:230px;background:rgba(8,15,20,.96);border-right:1px solid #202c33;padding:22px 14px;display:flex;flex-direction:column}
+.coach-side-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 25px}.coach-side-logo{width:36px;height:36px;border-radius:11px;background:var(--accent);color:#06100b;display:grid;place-items:center;font-weight:900}.coach-side-brand b{font-size:15px}.coach-side-brand span{display:block;font-size:9px;color:#71818a;letter-spacing:.14em;margin-top:2px}
+.coach-side-section{font-size:9px;color:#62717a;font-weight:900;letter-spacing:.14em;padding:12px 10px 7px}
+.coach-side-nav{display:grid;gap:4px}.coach-side-btn{width:100%;display:flex;align-items:center;gap:11px;border:0;background:transparent;color:#91a0a8;padding:11px 12px;border-radius:11px;text-align:left;cursor:pointer;font-size:13px}.coach-side-btn:hover{background:#121d23;color:#eaf0f2}.coach-side-btn.active{background:rgba(99,245,154,.10);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}.coach-side-icon{width:22px;text-align:center;font-size:16px}
+.coach-side-bottom{margin-top:auto}.coach-side-profile{padding:12px;background:#101a20;border:1px solid #26333a;border-radius:14px;font-size:12px}.coach-side-profile small{display:block;color:#71818a;margin-bottom:4px}.coach-side-profile b{display:block}
+.coach-view{display:none}.coach-view.active{display:block}
+.coach-overview-grid{display:grid;grid-template-columns:1.45fr .8fr;gap:12px}.coach-main-title{font-size:27px;font-weight:850;letter-spacing:-.7px}.coach-main-sub{font-size:14px;color:#8f9ca4;margin-top:5px}
+.coach-sidebar-card{background:#101a20;border:1px solid #26333a;border-radius:15px;padding:14px;margin-top:10px}.coach-sidebar-card b{font-size:13px}.coach-sidebar-card span{font-size:11px;color:#77858d}
+@media(max-width:850px){.coach-sidebar{width:72px;padding:18px 9px}.coach-side-brand div:last-child,.coach-side-section,.coach-side-btn span:not(.coach-side-icon),.coach-side-profile{display:none}.coach-side-btn{justify-content:center;padding:12px}.coach-way-inner{padding-left:92px}.coach-way-top{margin-left:-22px;padding-left:22px}}
+@media(max-width:600px){.coach-sidebar{display:none}.coach-way-inner{padding:0 14px 100px}.coach-way-top{margin:0 -14px 15px;padding:0 14px}.coach-way-title{font-size:23px}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1556,7 +1571,29 @@ document.addEventListener('input',e=>{
 
 <div id="coachWay" class="coach-way">
   <div class="coach-way-inner">
-    <div class="coach-way-top">
+<aside class="coach-sidebar">
+ <div class="coach-side-brand"><div class="coach-side-logo">C</div><div><b>COACH WAY</b><span>PERSONAL COACH</span></div></div>
+ <div class="coach-side-section">ÜBERSICHT</div>
+ <div class="coach-side-nav">
+  <button class="coach-side-btn active" onclick="coachSideView('overview',this)"><i class="coach-side-icon">⌂</i><span>Übersicht</span></button>
+  <button class="coach-side-btn" onclick="coachSideView('week',this)"><i class="coach-side-icon">▦</i><span>Wochenplan</span></button>
+  <button class="coach-side-btn" onclick="coachSideView('today',this)"><i class="coach-side-icon">✓</i><span>Heute</span></button>
+  <button class="coach-side-btn" onclick="coachSideView('progress',this)"><i class="coach-side-icon">↗</i><span>Fortschritt</span></button>
+ </div>
+ <div class="coach-side-section">COACH</div>
+ <div class="coach-side-nav">
+  <button class="coach-side-btn" onclick="coachSideView('checkin',this)"><i class="coach-side-icon">◉</i><span>Check-in</span></button>
+  <button class="coach-side-btn" onclick="openCoachSetup()"><i class="coach-side-icon">⚙</i><span>Plan anpassen</span></button>
+ </div>
+ <div class="coach-side-bottom"><div class="coach-side-profile"><small>DEIN FOKUS</small><b id="cwSideGoal">–</b></div></div>
+</aside>
+    
+<div id="coachView-overview" class="coach-view active"></div>
+<div id="coachView-week" class="coach-view"></div>
+<div id="coachView-today" class="coach-view"></div>
+<div id="coachView-progress" class="coach-view"></div>
+<div id="coachView-checkin" class="coach-view"></div>
+<div class="coach-way-top">
       <div class="coach-way-brand"><div class="coach-way-logo">C</div><div><div class="coach-way-kicker">COACH WAY</div><div class="coach-way-title">Dein persönlicher Plan</div></div></div>
       <button class="coach-way-close" onclick="closeCoachPlan()">Zur App →</button>
     </div>
@@ -1720,5 +1757,27 @@ function closeCoachPlan(){document.getElementById('coachWay').classList.remove('
 </script><script>
 /* V111 COACH WAY INTERACTIONS */
 function coachOpenSetupAndClose(){closeCoachPlan();openCoachSetup()}
+</script><script>
+/* V112 SIDEBAR VIEWS */
+function coachSideView(view,btn){
+ document.querySelectorAll('.coach-side-btn').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');
+ document.querySelectorAll('.coach-view').forEach(x=>x.classList.remove('active'));
+ const el=document.getElementById('coachView-'+view);if(el)el.classList.add('active');
+ if(view==='overview')coachRenderWeek();
+ if(view==='week')coachRenderWeek();
+ if(view==='today')coachRenderWeek();
+ if(view==='progress'){const s=coachWayLoad();const days=Object.keys(s.done||{}).length;const x=document.getElementById('cwProgressValue');if(x)x.textContent=days+' Tage abgeschlossen';}
+}
+</script>
+<script>
+function coachMountView(v){
+ const grid=document.querySelector('#coachWay .coach-way-grid');
+ if(!grid)return;
+ const host=document.getElementById('coachView-'+v);
+ if(!host)return;
+ if(host.childElementCount===0){
+   if(v==='overview'){host.appendChild(grid.cloneNode(true));}
+ }
+}
 </script></body>
 </html>
