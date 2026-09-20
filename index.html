@@ -1028,6 +1028,21 @@ function openModule(type){
     <button class="module-card" onclick="accountOpen()"><h3>👤 Konto</h3><div class="muted">Anmelden & Datenverwaltung</div></button>
    </div>`;
  }
+ if(type==='calculator'){
+  const calculatorFallbacks={
+    '\\$\\{bmr\\.toLocaleString\\(\\'de-DE\\'\\)\\}': bmr.toLocaleString('de-DE'),
+    '\\$\\{maintenance\\.toLocaleString\\(\\'de-DE\\'\\)\\}': maintenance.toLocaleString('de-DE'),
+    '\\$\\{target\\.toLocaleString\\(\\'de-DE\\'\\)\\}': target.toLocaleString('de-DE'),
+    '\\$\\{Math\\.round\\(macro\\.protein\\)\\}': String(Math.round(macro.protein)),
+    '\\$\\{calcParts\\.bmr\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.bmr.toLocaleString('de-DE'),
+    '\\$\\{calcParts\\.activity\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.activity.toLocaleString('de-DE'),
+    '\\$\\{calcParts\\.steps\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.steps.toLocaleString('de-DE'),
+    '\\$\\{calcParts\\.training\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.training.toLocaleString('de-DE'),
+    '\\$\\{calcParts\\.tef\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.tef.toLocaleString('de-DE'),
+    '\\$\\{calcParts\\.total\\.toLocaleString\\(\\'de-DE\\'\\)\\}': calcParts.total.toLocaleString('de-DE')
+  };
+  Object.entries(calculatorFallbacks).forEach(([raw,value])=>{content=content.replace(new RegExp(raw,'g'),value);});
+ }
  sheet.innerHTML=content;
  if(type==='settings') updateAccountUI();
  if(type==='bodycheck'){
