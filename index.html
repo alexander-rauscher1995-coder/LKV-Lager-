@@ -582,7 +582,7 @@ main{max-width:1320px!important}
               <div class="section-kicker">HEUTE · ÜBERSICHT</div>
               <div class="dashboard-title">Dein Tag auf einen Blick</div>
               <div class="dashboard-sub">Training, Ernährung, Bewegung und Erholung übersichtlich an einem Ort.</div>
-              <div class="dashboard-actions">
+              <div class="dashboard-actions"><button class="secondary" type="button" onclick="openCoachSetup()">⚙ Coach neu einrichten</button>
                 <button class="primary" type="button" onclick="showView('training')">🏋️ Training öffnen</button>
                 <button class="secondary" type="button" onclick="openModule('coach')">🧠 Coach</button>
               </div>
@@ -1491,9 +1491,18 @@ function setupSaveFields(){
  if(setupStep===3){setupData.days=document.getElementById('sDays').value;setupData.equipment=document.getElementById('sEquipment').value}
  localStorage.setItem('fitness_coach_setup',JSON.stringify(setupData));
 }
-function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setupData.height||!setupData.weight)){toast('Bitte Alter, Größe und Gewicht eintragen.');return}if(setupStep<setupSteps.length-1){setupStep++;setupRender()}else{localStorage.setItem('fitness_coach_onboarded','1');document.getElementById('coachSetup').classList.remove('show');showView('home');toast('Dein Coach-Dashboard ist bereit ✓');}}
+function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setupData.height||!setupData.weight)){toast('Bitte Alter, Größe und Gewicht eintragen.');return}if(setupStep<setupSteps.length-1){setupStep++;setupRender()}else{
+ localStorage.setItem('fitness_coach_onboarded','1');
+ const factors={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8};
+ if(typeof calorieState!=='undefined'){
+   calorieState.age=Number(setupData.age)||calorieState.age;calorieState.height=Number(setupData.height)||calorieState.height;calorieState.weight=Number(setupData.weight)||calorieState.weight;calorieState.sex=setupData.sex==='f'?'f':'m';calorieState.activity=factors[setupData.activity]||1.5;calorieState.training='training';calorieState.goal=setupData.goal==='performance'?'fitness':setupData.goal;saveCalories();
+ }
+ document.getElementById('coachSetup').classList.remove('show');showView('home');toast('Dein Coach-Dashboard ist bereit ✓');
+}}
 function setupPrev(){setupSaveFields();if(setupStep>0){setupStep--;setupRender()}}
 function setupResult(){const a=Number(setupData.age),h=Number(setupData.height),w=Number(setupData.weight);const b=a&&h&&w?Math.round(10*w+6.25*h-5*a+(setupData.sex==='m'?5:-161)):0;const factor={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8}[setupData.activity]||1.5;const energy=b?Math.round(b*factor):0;return '<div class="setup-result"><div class="setup-result-card primary"><h3>Energiebedarf · Orientierung</h3><div class="setup-number">'+(energy?energy.toLocaleString('de-DE'):'–')+' <small>kcal</small></div><div class="setup-sub">Geschätzter täglicher Bedarf auf Basis deiner Angaben. Kein Diätziel.</div></div><div class="setup-result-card"><h3>Dein Wochenrahmen</h3><div class="setup-list"><div>🎯 <b>'+({fitness:'Allgemeine Fitness',strength:'Kraft & Leistung',muscle:'Muskelaufbau',performance:'Sportliche Leistung'}[setupData.goal]||'Fitness')+'</b></div><div>🏋️ <b>'+setupData.days+'×</b> Krafttraining</div><div>🏃 <b>'+setupData.cardio+'×</b> Cardio</div><div>📈 <b>'+({beginner:'Einsteiger',intermediate:'Fortgeschritten',advanced:'Erfahren'}[setupData.experience]||'')+'</b></div></div></div></div>'}
 function openCoachSetup(){setupStep=0;setupRender();document.getElementById('coachSetup').classList.add('show')}
+</script><script>
+document.addEventListener('DOMContentLoaded',()=>{if(!localStorage.getItem('fitness_coach_onboarded'))setTimeout(openCoachSetup,250);});
 </script></body>
 </html>
