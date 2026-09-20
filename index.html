@@ -874,19 +874,19 @@ function openModule(type){
     <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
-    <div class="result-box"><span class="muted">Grundumsatz</span><b>\${bmr.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Geschätzter Tagesbedarf</span><b>\${maintenance.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Orientierungswert</span><b>\${target.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Protein</span><b>\${Math.round(macro.protein)} g</b></div>
+    <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Geschätzter Tagesbedarf</span><b>${maintenance.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Orientierungswert</span><b>${target.toLocaleString('de-DE')} kcal</b></div>
+    <div class="result-box"><span class="muted">Protein</span><b>${Math.round(macro.protein)} g</b></div>
    </div>
    <div class="module-card calculator-breakdown" style="margin-top:12px"><h3>Berechnung im Detail</h3>
     <div class="calc-breakdown-grid">
-      <div><span>Grundumsatz</span><b>\${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Alltag</span><b>+\${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Schritte</span><b>+\${calcParts.steps.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Gym · Krafttraining</span><b>+\${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Thermischer Effekt</span><b>+\${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
-      <div class="calc-total"><span>Geschätzter Gesamtbedarf</span><b>\${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Grundumsatz</span><b>${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Alltag</span><b>+${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Schritte</span><b>+${calcParts.steps.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Gym · Krafttraining</span><b>+${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
+      <div><span>Thermischer Effekt</span><b>+${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
+      <div class="calc-total"><span>Geschätzter Gesamtbedarf</span><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
     </div>
     <div class="mini-note">Schätzmodell statt exakter Messung. Der Abgleich mit echten Verlaufsdaten kann die persönliche Genauigkeit weiter verbessern.</div>
    </div>
