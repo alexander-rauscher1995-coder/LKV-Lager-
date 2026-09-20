@@ -184,7 +184,7 @@ body.module-open .module-sheet{width:100%!important;height:100dvh!important;max-
 body.module-open .module-sheet::-webkit-scrollbar{width:9px}.module-sheet::-webkit-scrollbar-thumb{background:#344049;border-radius:99px}
 @media(max-width:600px){body.module-open .module-sheet{padding:18px 14px 30px!important}}
 </style>
-</head>
+<style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style></head>
 <body>
 <div class="app">
   <header class="top">
@@ -448,19 +448,11 @@ function dietMacroTargets(){return calorieState.training==='train'?{protein:200,
 function macroCalories(m){return m.protein*4+m.carbs*4+m.fat*9}
 function calcTarget(){
   const maintenance=calcMaintenance(); if(!maintenance)return 0;
-  const goal=calorieState.goal||'maintain';
-  if(goal==='lose')return macroCalories(dietMacroTargets());
-  const adjustment=goal==='gain'?Math.abs(Number(calorieState.goalAdjustment)||300):0;
-  return Math.max(1200,Math.round(maintenance+adjustment));
+  return Math.round(maintenance);
 }
-function goalLabel(){return calorieState.goal==='lose'?'Abnehmen':calorieState.goal==='gain'?'Zunehmen':'Halten'}
-function macroTargets(){
-  if(calorieState.goal==='lose')return dietMacroTargets();
-  const target=calcTarget(), w=Number(calorieState.weight)||0;
-  const protein=Math.round(w*(goalLabel()==='Abnehmen'?2.5:2));
-  const fat=Math.round((target*0.25)/9);
-  const carbs=Math.max(0,Math.round((target-protein*4-fat*9)/4));
-  return {protein,carbs,fat};
+function goalLabel(){
+  const labels={maintain:'Gewicht & Energie halten',strength:'Kraft & Leistung',muscle:'Muskelaufbau',fitness:'Allgemeine Fitness',recovery:'Erholung & Regeneration'};
+  return labels[calorieState.goal]||labels.maintain;
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
 
@@ -702,7 +694,13 @@ function openModule(type){
     <div class="section-kicker" style="margin-top:18px">TAG</div>
     <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest');openModule('calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training');openModule('calculator')">Training</button></div>
     <div class="section-kicker" style="margin-top:18px">ZIEL</div>
-    <div class="segmented"><button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose');openModule('calculator')">Weniger</button><button class="${calorieState.goal==='maintain'?'active':''}" onclick="setCalorieGoal('maintain');openModule('calculator')">Halten</button><button class="${calorieState.goal==='gain'?'active':''}" onclick="setCalorieGoal('gain');openModule('calculator')">Mehr</button></div>
+    <div class="segmented goal-segmented">
+      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal(&quot;maintain&quot;);openModule(&quot;calculator&quot;)">Gewicht halten</button>
+      <button class="${calorieState.goal==="strength"?"active":""}" onclick="setCalorieGoal(&quot;strength&quot;);openModule(&quot;calculator&quot;)">Kraft & Leistung</button>
+      <button class="${calorieState.goal==="muscle"?"active":""}" onclick="setCalorieGoal(&quot;muscle&quot;);openModule(&quot;calculator&quot;)">Muskelaufbau</button>
+      <button class="${calorieState.goal==="fitness"?"active":""}" onclick="setCalorieGoal(&quot;fitness&quot;);openModule(&quot;calculator&quot;)">Allgemeine Fitness</button>
+      <button class="${calorieState.goal==="recovery"?"active":""}" onclick="setCalorieGoal(&quot;recovery&quot;);openModule(&quot;calculator&quot;)">Erholung</button>
+    </div>
     <button class="module-action" onclick="saveCalorieSettings()">Berechnen & speichern</button>
    </div>
    <div class="calculator-result" style="margin-top:12px">
