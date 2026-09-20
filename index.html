@@ -571,10 +571,7 @@ function openModule(type){
     <div style="margin-top:10px"><div class="muted" style="margin-bottom:7px">${calorieState.goal==='lose'?'Deine Diät-Makros':'Defizit / Überschuss selbst wählen'}</div>
     ${calorieState.goal==='lose'
       ? '<div class="mini-note">Ruhetag: <b>200 P / 175 KH / 60 F</b> · 2.040 kcal<br>Trainingstag: <b>200 P / 235 KH / 52 F</b> · 2.208 kcal</div>'
-      : `<div class="segmented">
-      <button class="${Number(calorieState.goalAdjustment)===300||!calorieState.goalAdjustment?'active':''}" onclick="setGoalAdjustment(300)">300 kcal</button>
-      <button class="${Number(calorieState.goalAdjustment)===500?'active':''}" onclick="setGoalAdjustment(500)">500 kcal</button>
-    </div>`}</div>
+      : '<div class="segmented"><button class="' + (Number(calorieState.goalAdjustment)===300||!calorieState.goalAdjustment?'active':'') + '" onclick="setGoalAdjustment(300)">300 kcal</button><button class="' + (Number(calorieState.goalAdjustment)===500?'active':'') + '" onclick="setGoalAdjustment(500)">500 kcal</button></div>'}</div>
    </div>`
    <div class="calorie-summary">
     <div class="module-card"><div class="muted">Kalorienziel · ${goalLabel()}</div><div class="calorie-number">${target.toLocaleString('de-DE')} <small>kcal</small></div>
