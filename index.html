@@ -417,6 +417,12 @@ body:has(#coachWay.show)>.pro-sidebar{display:none!important}
 body:has(#coachWay.show)>.bottom{display:none!important}
 body:has(#coachWay.show){padding-left:0!important}
 body:has(#coachWay.show) .top{margin-left:0!important;padding-left:5vw!important}
+
+/* V116 HARD COACH OVERLAY */
+#coachWay.show{display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important}
+#coachWay.show~.modal-back{display:none!important}
+body.coach-way-active .pro-sidebar,body.coach-way-active .bottom,body.coach-way-active>.top{display:none!important}
+body.coach-way-active{padding-left:0!important}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1791,7 +1797,13 @@ function coachOpenToday(){
  else {toast(week[i].type==='Cardio'?'Heute ist Cardio geplant.':'Heute ist Regeneration geplant.')}
 }
 function openCoachPlan(){coachRenderWeek();document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');}
-function closeCoachPlan(){document.getElementById('coachWay').classList.remove('show');document.body.classList.remove('module-open','coach-way-active')}
+function closeCoachPlan(){
+ const cw=document.getElementById('coachWay');if(cw){cw.classList.remove('show');cw.style.cssText='';}
+ document.body.classList.remove('module-open','coach-way-active');document.body.style.paddingLeft='';
+ document.querySelectorAll('[data-coach-hidden="1"]').forEach(x=>{x.style.display='';x.removeAttribute('data-coach-hidden')});
+ document.querySelectorAll('.view').forEach(x=>x.style.display='');
+ const home=document.getElementById('home');if(home)home.classList.add('active');
+}
 </script><script>
 /* V111 COACH WAY INTERACTIONS */
 function coachOpenSetupAndClose(){closeCoachPlan();openCoachSetup()}
@@ -1844,6 +1856,27 @@ function coachSideView(view,btn){
  if(list)list.innerHTML='<div class="coach-mini-row"><span>Krafttraining</span><b>'+((s.days)||'–')+'×</b></div><div class="coach-mini-row"><span>Cardio</span><b>'+((s.cardio)||'0')+'×</b></div><div class="coach-mini-row"><span>Check-in</span><b>'+(state.checkins[key]?'Erledigt':'Offen')+'</b></div>';
  if(view==='overview'||view==='week'||view==='today'||view==='checkin')coachRenderWeek();
 }
-function openCoachPlan(){coachRenderWeek();coachSetMode('overview');const first=document.querySelector('.coach-side-btn');if(first)first.classList.add('active');const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open','coach-way-active');coachSideView('overview',first)}
+function openCoachPlan(){
+ const cw=document.getElementById('coachWay');
+ const modal=document.getElementById('modal');
+ const sidebar=document.querySelector('.pro-sidebar');
+ const bottom=document.querySelector('.bottom');
+ const top=document.querySelector('.top');
+ if(!cw)return;
+ if(modal){modal.classList.remove('open');modal.style.display='none';}
+ if(sidebar){sidebar.style.display='none';sidebar.setAttribute('data-coach-hidden','1');}
+ if(bottom){bottom.style.display='none';bottom.setAttribute('data-coach-hidden','1');}
+ if(top){top.style.display='none';top.setAttribute('data-coach-hidden','1');}
+ document.querySelectorAll('.view').forEach(x=>x.style.display='none');
+ document.body.style.paddingLeft='0';
+ document.body.classList.add('module-open','coach-way-active');
+ cw.classList.add('show');
+ cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
+ coachRenderWeek();coachSetMode('overview');
+ const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
+ const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
+ coachSideView('overview',first);
+}
 </script></body>
 </html>
