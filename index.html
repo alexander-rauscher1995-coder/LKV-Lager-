@@ -172,6 +172,11 @@ html{scroll-padding-bottom:105px}.app{min-height:100vh}.bottom{position:fixed!im
 /* V103 navigation visibility without covering content */
 .bottom{bottom:12px!important;padding:6px!important;border-radius:22px!important;width:min(920px,calc(100% - 24px))!important}.nav{padding:7px 4px!important}.nav .nicon{font-size:19px!important;margin-bottom:2px!important}.nav span{font-size:11px!important}.shell{padding-bottom:185px!important}.training-page{padding-bottom:170px!important}
 @media(max-width:600px){.bottom{bottom:5px!important;width:calc(100% - 10px)!important;border-radius:19px!important}.nav{padding:6px 2px!important}.nav .nicon{font-size:17px!important}.nav span{font-size:9px!important}.shell{padding-bottom:150px!important}.training-page{padding-bottom:150px!important}}
+
+/* V104 modal content must never be covered by bottom navigation */
+body.module-open .bottom{display:none!important}
+body.module-open{overflow:hidden}
+.modal-back.open{z-index:500!important}.module-sheet{padding-bottom:32px}
 </style>
 </head>
 <body>
@@ -385,7 +390,7 @@ function startTimer(){
  const id=setInterval(()=>{s--; if(s<=0){clearInterval(id);toast('Pause beendet ✓')}},1000);
 }
 function openSheet(){openModule('more')}
-function closeSheet(){document.getElementById('modal').classList.remove('open')}
+function closeSheet(){document.getElementById('modal').classList.remove('open');document.body.classList.remove('module-open')}
 
 /* V97 ACCOUNT LAYER — local account foundation. Cloud auth requires backend deployment. */
 const ACCOUNT_USERS_KEY='fitness_v97_accounts';
@@ -848,6 +853,7 @@ function openModule(type){
    if(photo)photo.onchange=()=>{const f=photo.files?.[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{localStorage.setItem('fitness_v98_body_photo',reader.result);if(preview)preview.innerHTML='<img src="'+reader.result+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';toast('Bild gespeichert ✓')};reader.readAsDataURL(f)};
  }
  modal.classList.add('open');
+ document.body.classList.add('module-open');
 }
 function exportData(){
  const payload={
