@@ -596,7 +596,7 @@ function calcTarget(){
   return Math.max(1000,Math.round(maintenance+(adjustments[calorieState.goal]??0)));
 }
 function goalLabel(){
-  const labels={lose:'Abnehmen',kfa:'KFA senken',maintain:'Erhalt',bulk:'Aufbau'};
+  const labels={lose:'Abnehmen / KFA senken',kfa:'Abnehmen / KFA senken',maintain:'Erhalt',bulk:'Aufbau'};
   return labels[calorieState.goal]||labels.maintain;
 }
 function caloriePct(){const t=calcTarget();return t?Math.min(100,Math.max(0,Math.round((Number(calorieState.intake)||0)/t*100))):0}
