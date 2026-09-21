@@ -317,7 +317,7 @@ function saveWeekPlan(){
  const day=document.getElementById('planDay').value.trim(),activity=document.getElementById('planActivity').value.trim();
  const map={'mo':'Montag','montag':'Montag','di':'Dienstag','dienstag':'Dienstag','mi':'Mittwoch','mittwoch':'Mittwoch','do':'Donnerstag','donnerstag':'Donnerstag','fr':'Freitag','freitag':'Freitag','sa':'Samstag','samstag':'Samstag','so':'Sonntag','sonntag':'Sonntag'};
  const key=map[day.toLowerCase()];if(!key||!activity){toast('Bitte Tag und Aktivität eingeben');return}
- state.weekPlan=state.weekPlan||{};state.weekPlan[key]=activity;save();renderWeekPlanner();toast(key+' geplant');
+ state.weekPlan=state.weekPlan||{};state.weekPlan[key]=activity;save();renderWeekPlanner();initDate();toast(key+' geplant');
 }
 function renderWeeklyGoals(){
  const w=document.getElementById('goalWorkouts'),s=document.getElementById('goalSteps'),ci=document.getElementById('goalCheckins'),sum=document.getElementById('goalSummary');if(!w)return;
@@ -381,7 +381,7 @@ function saveWorkout(){
  state.workouts=state.workouts||[];
  state.workouts.push({date:new Date().toLocaleDateString('de-DE'),name,duration,rpe});
  state.workouts=state.workouts.slice(-30);
- save(); toast('Training gespeichert');
+ save(); toast('Training gespeichert'); initDate(); renderActivityStreak(); renderWeeklyGoals(); updateGoalRing();
 }
 function resetToday(){state.steps=0;state.meals=0;state.calories=0;state.sleep=0;save();toast('Tageswerte zurückgesetzt')}
 function exportData(){
@@ -407,9 +407,21 @@ function render(){
 }
 function initDate(){
  const d=new Date();document.getElementById('date').textContent=d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
- const names=['Mo','Di','Mi','Do','Fr','Sa','So'];const today=(d.getDay()+6)%7;const w=document.getElementById('week');w.innerHTML=names.map((n,i)=>'<div class="day '+(i<today?'done':'')+'"><span>'+n+'</span><b>'+String(i+1).padStart(2,'0')+'</b><div class="dot"></div></div>').join('');
+ const names=['Mo','Di','Mi','Do','Fr','Sa','So'];const full=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];const today=(d.getDay()+6)%7;const monday=new Date(d);monday.setDate(d.getDate()-today);
+ const w=document.getElementById('week');w.innerHTML=names.map((n,i)=>{const x=new Date(monday);x.setDate(monday.getDate()+i);const key=full[i];const planned=state.weekPlan&&state.weekPlan[key];const completed=(state.workouts||[]).some(a=>a.date===x.toLocaleDateString('de-DE'));return '<div class="day '+(completed?'done':'')+'"><span>'+n+'</span><b>'+String(x.getDate()).padStart(2,'0')+'</b><div class="dot" title="'+(planned||'Kein Plan')+'"></div></div>'}).join('');
+ updateGoalRing();
 }
-initDate();render();
+function updateGoalRing(){
+ const ring=document.querySelector('.ring'),label=document.querySelector('.ring span');if(!ring||!label)return;
+ const now=new Date(),start=new Date(now);start.setDate(now.getDate()-((now.getDay()+6)%7));start.setHours(0,0,0,0);
+ const workouts=(state.workouts||[]).filter(x=>new Date(x.date||0)>=start).length;const pct=Math.min(100,Math.round(workouts/3*100));
+ ring.style.background='conic-gradient(var(--purple) 0 '+pct+'%,#ecebf3 '+pct+'% 100%)';label.textContent=pct+'%';
+}
+function setupSearch(){
+ const input=document.querySelector('.search input');if(!input)return;
+ input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();document.querySelectorAll('.module-card').forEach(card=>{card.style.display=!q||card.textContent.toLowerCase().includes(q)?'':'none'});});
+}
+initDate();render();setupSearch();
 renderPRs();renderProgressTable();renderWeeklyGoals();renderWeekPlanner();renderActivityStreak();</script>
 </body>
 </html>
