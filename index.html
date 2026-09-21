@@ -998,6 +998,17 @@ body{background:var(--ref-bg)!important;color:var(--ref-text)!important}
  .exact-sidebar{display:none!important}.exact-pro-app{margin-left:0!important;padding:12px 12px 120px!important}
 }
 </style>
+<style id="exact-reference-v3">
+.exact-pro-app{background:#f4f5fa!important;min-height:100vh}
+.exact-header{height:58px!important}
+.exact-search{height:50px!important;border-radius:15px!important}
+.exact-hero{height:252px!important;border-radius:22px!important;background-image:url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=88")!important;background-position:center 52%!important}
+.exact-metrics{margin-top:12px!important}.exact-metric{min-height:145px!important}
+.exact-actions button{min-height:122px!important}
+.exact-actions button em{font-style:normal;font-size:24px;grid-column:3;grid-row:1 / span 2}
+.exact-bottom-grid{margin-top:12px!important}
+@media(max-width:900px){.exact-sidebar{display:none!important}.exact-pro-app{margin-left:0!important;padding:12px 12px 120px!important}.exact-header{height:auto!important}.exact-hero{height:235px!important}}
+</style>
 </head>
 <body><div id="cloudStatus" class="pro-health"><span>Cloud-Status wird geprüft …</span></div>
 <div class="app">
@@ -1046,22 +1057,22 @@ body{background:var(--ref-bg)!important;color:var(--ref-text)!important}
     </section>
 
     <div class="exact-metrics">
-      <button class="exact-metric"><span class="em-icon purple">⚖</span><b>—</b><small>Gewicht</small><i>Persönlicher Wert</i></button>
-      <button class="exact-metric" onclick="openModule('bodycheck')"><span class="em-icon green">◉</span><b>—</b><small>Körpermaß</small><i>Fortschritt</i></button>
+      <button class="exact-metric"><span class="em-icon purple">⚖</span><b>—</b><small>Aktuelles Gewicht</small><i>Persönlicher Verlauf</i></button>
+      <button class="exact-metric" onclick="openModule('bodycheck')"><span class="em-icon green">◉</span><b>—</b><small>Körpermaß</small><i>Fortschritt dokumentieren</i></button>
       <button class="exact-metric" onclick="openModule('nutrition')"><span class="em-icon orange">♨</span><b id="homeMeals">0</b><small>Mahlzeiten heute</small><i>Dokumentiert</i></button>
       <button class="exact-metric" onclick="openModule('cardio')"><span class="em-icon blue">⌁</span><b id="homeSteps">0</b><small>Schritte heute</small><i>Bewegung</i></button>
     </div>
 
     <section class="exact-goal">
-      <div><div class="exact-label">DEIN FOKUS</div><h2>Training &amp; Wohlbefinden</h2><p>Verfolge deine Gewohnheiten und deinen persönlichen Fortschritt.</p></div>
+      <div><div class="exact-label">DEIN FOKUS</div><h2>Training &amp; Wohlbefinden</h2><p>Deine Gewohnheiten, dein Training und deine Erholung auf einen Blick.</p></div>
       <div class="exact-goal-ring"><span>Heute</span></div>
     </section>
 
     <div class="exact-actions">
-      <button onclick="showView('training')" class="action-purple"><span>🏋️</span><b>Training</b><small>Planen &amp; Tracken</small>›</button>
-      <button onclick="openModule('nutrition')" class="action-green"><span>🍎</span><b>Ernährung</b><small>Tracken &amp; Ziele</small>›</button>
-      <button onclick="openModule('progress')" class="action-blue"><span>▥</span><b>Fortschritt</b><small>Statistiken</small>›</button>
-      <button onclick="openModule('calculator')" class="action-orange"><span>▦</span><b>Rechner</b><small>Schätzungen &amp; Daten</small>›</button>
+      <button onclick="showView('training')" class="action-purple"><span>🏋️</span><b>Training</b><small>Planen &amp; Tracken</small><em>›</em></button>
+      <button onclick="openModule('nutrition')" class="action-green"><span>🍎</span><b>Ernährung</b><small>Tracken &amp; Ziele</small><em>›</em></button>
+      <button onclick="openModule('progress')" class="action-blue"><span>▥</span><b>Fortschritt</b><small>Statistiken</small><em>›</em></button>
+      <button onclick="openModule('calculator')" class="action-orange"><span>▦</span><b>Rechner</b><small>Schätzungen &amp; Daten</small><em>›</em></button>
     </div>
 
     <div class="exact-grid">
