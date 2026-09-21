@@ -2526,11 +2526,11 @@ function runReleaseGuard(){
  return {ok,total,checks};
 }
 <script>
-/* V143 RELEASE HARDENING */
+/* V145 RELEASE HARDENING */
 function appReleaseSnapshot(){
  const safe=(k,f)=>{try{return f()}catch{return null}};
  return {
-  version:'V143',
+  version:'V145',
   date:new Date().toISOString(),
   coach:safe('coach',()=>localStorage.getItem('fitness_coach_setup')!==null),
   customPlans:safe('plans',()=>customPlans().length),
@@ -2549,9 +2549,10 @@ function runReleaseAudit(){
   ['Fortschritt',typeof renderProgressCoach==='function'],
   ['Backup',typeof exportData==='function'&&typeof importData==='function'],
   ['PWA',document.querySelector('link[rel="manifest"]')!==null],
-  ['Eindeutige IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()]
+  ['Eindeutige IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()],
+  ['Backup Schema',typeof validateBackupPayload==='function'&&typeof normalizeBackupPayload==='function']
  ];
- const result={version:'V143',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
+ const result={version:'V145',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
  window.__releaseAudit=result;
  const e=document.getElementById('systemCheckResult');
  if(e)e.innerHTML=required.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+result.ok+'/'+result.total+' Release-Bereiche aktiv</b>';
