@@ -986,8 +986,10 @@ function saveSession(){
  saveTrainingData(all);
  const completed=[...document.querySelectorAll('#exerciseList .check input')].filter(x=>x.checked).length;
  const total=document.querySelectorAll('#exerciseList .check input').length;
- saved.push({date:new Date().toISOString(),plan:currentPlan,rows,completed,total});
+ const session={date:new Date().toISOString(),plan:currentPlan,rows,completed,total};
+ saved.push(session);
  localStorage.setItem('fitness_v85_sessions',JSON.stringify(saved));
+ if(typeof coachRecordSessionFeedback==='function')coachRecordSessionFeedback(session);
  updateLastSession(); updateTrainingCoachHint(); updateHomeCardio();
 updateHomeCalculator();
  toast(`Training gespeichert · ${completed}/${total} Sätze ✓`);
@@ -2065,7 +2067,7 @@ function coachAdaptiveAnalysis(){
 function coachRenderAdaptive(){
  const a=coachAdaptiveAnalysis();
  const focus=document.getElementById('cwAdaptiveFocus'),note=document.getElementById('cwAdaptiveNote'),stat=document.getElementById('cwAdaptiveStat');
- if(focus)focus.textContent=a.focus;if(note)note.textContent=a.note;if(stat)stat.textContent=a.completed+' / '+a.planned+' geplante Tage';
+ if(focus)focus.textContent=a.focus;if(note)note.textContent=a.note+' '+(typeof coachSessionMessage==='function'?coachSessionMessage():'');if(stat)stat.textContent=a.completed+' / '+a.planned+' geplante Tage';
 }
 function coachAdaptiveRefresh(){coachRenderAdaptive();toast('Coach-Analyse aktualisiert ✓')}
 </script>
@@ -2115,6 +2117,20 @@ function coachRenderExerciseInsights(){
    const el=card.querySelector('.exercise-adaptive');
    if(el){el.querySelector('b').textContent='Letzter Stand · '+i.last;el.querySelector('strong').textContent='Fokus: '+i.focus;}
  });
+}
+</script>
+<script>
+/* V124 COACH SESSION FEEDBACK */
+function coachRecordSessionFeedback(session){
+ const s=coachWayLoad();s.lastTraining={date:session.date,plan:session.plan,completed:session.completed,total:session.total};coachWaySave(s);
+}
+function coachSessionMessage(){
+ const s=coachWayLoad(),x=s.lastTraining;
+ if(!x||!x.total)return 'Noch keine abgeschlossene Trainingseinheit analysiert.';
+ const ratio=x.completed/x.total;
+ if(ratio>=.9)return 'Letzte Einheit vollständig dokumentiert. Nächster Fokus: Qualität beibehalten.';
+ if(ratio>=.6)return 'Letzte Einheit teilweise dokumentiert. Nächstes Mal die wichtigsten Sätze vollständig erfassen.';
+ return 'Letzte Einheit nur teilweise dokumentiert. Fokus: ruhig starten und die Einheit sauber festhalten.';
 }
 </script>
 </body>
