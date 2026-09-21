@@ -1182,6 +1182,8 @@ function saveBodyCheck(){
  bodyCheckState.history.push({date,...vals});
  bodyCheckState.history.sort((a,b)=>a.date.localeCompare(b.date));
  localStorage.setItem(bodyCheckKey,JSON.stringify(bodyCheckState));
+ const cs=coachWayLoad(); cs.lastBodyCheck={date}; coachWaySave(cs);
+ if(typeof coachRefreshAll==='function') coachRefreshAll();
  openModule('bodycheck'); toast('Körper-Check gespeichert ✓');
 }
 function deleteBodyCheck(date){
@@ -1551,6 +1553,15 @@ function openModule(type){
    <div class="setting-row"><div><b>Lokale Daten</b><div class="muted">Die Trainingsdaten bleiben auf diesem Gerät.</div></div><button class="module-action secondary" onclick="toast('Lokale Speicherung aktiv.')">Info</button></div>
    <div class="module-card" style="margin-top:12px"><h3>👤 Konto</h3><div id="accountStatus" class="mini-note">Konto wird geladen …</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="module-action" onclick="accountOpen()">Konto verwalten</button>${currentAccount?'<button class="module-action secondary" onclick="accountLogout()">Abmelden</button>':''}</div></div>
    <div class="module-card" style="margin-top:12px"><h3>🗑️ App-Daten zurücksetzen</h3><div class="muted">Training, Cardio, Schritte, Recovery, Check-ins und Fortschritt werden auf 0/leer gesetzt. Das Konto bleibt bestehen.</div><button class="module-action secondary" style="margin-top:10px" onclick="accountDeleteData()">Alle meine App-Daten löschen</button></div>
+   <div class="module-card" style="margin-top:12px"><h3>🧠 Coach-System</h3>
+    <div class="muted">Deine Coach-Daten werden lokal mit der App verknüpft. Änderungen an Training, Bewegung, Check-ins und Körper-Checks fließen in die Übersicht ein.</div>
+    <div class="progress-coach-grid" style="margin-top:12px">
+      <div class="progress-coach-stat"><span>Coach Setup</span><b id="settingsCoachSetup">–</b></div>
+      <div class="progress-coach-stat"><span>Training</span><b id="settingsTraining">–</b></div>
+      <div class="progress-coach-stat"><span>Messungen</span><b id="settingsChecks">–</b></div>
+    </div>
+    <button class="module-action" style="margin-top:10px" onclick="openCoachPlan()">Coach öffnen</button>
+   </div>
    <div class="module-card" style="margin-top:12px"><h3>🏋️ Trainingspläne bearbeiten</h3><div class="mini-note">Eine Zeile pro Übung: <b>Name | Sätze | Wiederholungen</b></div><div class="plan-editor">${['A','B','C','D'].map(p=>`<div class="field"><label>GK ${p}</label><textarea id="planEdit${p}">${plans[p].map(e=>e.join(' | ')).join('\n')}</textarea></div>`).join('')}</div><button class="module-action" onclick="savePlanEditor()">Pläne speichern</button><button class="module-action secondary" onclick="resetPlanEditor()">Standardpläne wiederherstellen</button></div></div>`;
  } else {
    content=`<div class="module-head"><div><div class="muted">MEHR</div><h2>Weitere Bereiche</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
@@ -1578,6 +1589,7 @@ function openModule(type){
    if(photo)photo.onchange=()=>{const f=photo.files?.[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{localStorage.setItem('fitness_v98_body_photo',reader.result);if(preview)preview.innerHTML='<img src="'+reader.result+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';toast('Bild gespeichert ✓')};reader.readAsDataURL(f)};
  }
  if(type==='progress')renderProgressCoach();
+ if(type==='settings')renderSettingsCoachStatus();
  modal.classList.add('open');
  document.body.classList.add('module-open');
  const bottomNav=document.querySelector('.bottom'); if(bottomNav) bottomNav.style.display='none';
@@ -2432,6 +2444,13 @@ function renderProgressCoach(){
  const avg=ratios.length?Math.round(ratios.reduce((a,b)=>a+b,0)/ratios.length*100):0;
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('pcTraining',recent.length);set('pcCardio',cardio);set('pcQuality',ratios.length?avg+'%':'–');
  const note=document.getElementById('pcNote');if(note)note.textContent=recent.length?'Deine gespeicherten Einheiten bilden die Grundlage für die nächste Coach-Auswertung.':'Noch keine Trainingsdaten für die aktuelle 7-Tage-Auswertung.';
+}
+
+/* V134 SETTINGS COACH STATUS */
+function renderSettingsCoachStatus(){
+ const setup=localStorage.getItem('fitness_coach_setup'),sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ set('settingsCoachSetup',setup?'Aktiv':'Offen');set('settingsTraining',sessions.length);set('settingsChecks',(bodyCheckState.history||[]).length);
 }
 </body>
 </html>
