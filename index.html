@@ -463,6 +463,9 @@ body.coach-way-active{padding-left:0!important}
 
 /* V133 PROGRESS COACH SUMMARY */
 .progress-coach{padding:17px;border:1px solid rgba(99,245,154,.20);border-radius:17px;background:linear-gradient(145deg,rgba(99,245,154,.07),#0d151a);margin-bottom:12px}.progress-coach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.progress-coach-stat{padding:12px;border:1px solid #29363e;border-radius:12px;background:#0d151a}.progress-coach-stat span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800}.progress-coach-stat b{display:block;font-size:20px;margin-top:5px}.progress-coach-note{margin-top:11px;color:#9aa7af;font-size:12px;line-height:1.45}@media(max-width:600px){.progress-coach-grid{grid-template-columns:1fr}}
+
+/* V135 FINAL POLISH */
+.app-health{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.app-health-item{padding:11px;border:1px solid #29363e;border-radius:12px;background:#0d151a}.app-health-item span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.app-health-item b{display:block;margin-top:5px;font-size:16px}@media(max-width:700px){.app-health{grid-template-columns:repeat(2,1fr)}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1555,12 +1558,21 @@ function openModule(type){
    <div class="module-card" style="margin-top:12px"><h3>🗑️ App-Daten zurücksetzen</h3><div class="muted">Training, Cardio, Schritte, Recovery, Check-ins und Fortschritt werden auf 0/leer gesetzt. Das Konto bleibt bestehen.</div><button class="module-action secondary" style="margin-top:10px" onclick="accountDeleteData()">Alle meine App-Daten löschen</button></div>
    <div class="module-card" style="margin-top:12px"><h3>🧠 Coach-System</h3>
     <div class="muted">Deine Coach-Daten werden lokal mit der App verknüpft. Änderungen an Training, Bewegung, Check-ins und Körper-Checks fließen in die Übersicht ein.</div>
+    <div class="app-health">
+      <div class="app-health-item"><span>Training</span><b id="settingsTrainingHealth">–</b></div>
+      <div class="app-health-item"><span>Cardio</span><b id="settingsCardioHealth">–</b></div>
+      <div class="app-health-item"><span>Mahlzeiten</span><b id="settingsMealsHealth">–</b></div>
+      <div class="app-health-item"><span>Messungen</span><b id="settingsChecksHealth">–</b></div>
+    </div>
     <div class="progress-coach-grid" style="margin-top:12px">
       <div class="progress-coach-stat"><span>Coach Setup</span><b id="settingsCoachSetup">–</b></div>
       <div class="progress-coach-stat"><span>Training</span><b id="settingsTraining">–</b></div>
       <div class="progress-coach-stat"><span>Messungen</span><b id="settingsChecks">–</b></div>
     </div>
-    <button class="module-action" style="margin-top:10px" onclick="openCoachPlan()">Coach öffnen</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="module-action" onclick="openCoachPlan()">Coach öffnen</button>
+      <button class="module-action secondary" onclick="coachOpenSetupAndClose()">Coach neu einrichten</button>
+    </div>
    </div>
    <div class="module-card" style="margin-top:12px"><h3>🏋️ Trainingspläne bearbeiten</h3><div class="mini-note">Eine Zeile pro Übung: <b>Name | Sätze | Wiederholungen</b></div><div class="plan-editor">${['A','B','C','D'].map(p=>`<div class="field"><label>GK ${p}</label><textarea id="planEdit${p}">${plans[p].map(e=>e.join(' | ')).join('\n')}</textarea></div>`).join('')}</div><button class="module-action" onclick="savePlanEditor()">Pläne speichern</button><button class="module-action secondary" onclick="resetPlanEditor()">Standardpläne wiederherstellen</button></div></div>`;
  } else {
@@ -2450,7 +2462,10 @@ function renderProgressCoach(){
 function renderSettingsCoachStatus(){
  const setup=localStorage.getItem('fitness_coach_setup'),sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ const cs=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{sessions:[]};
+ const ns=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{meals:[]};
  set('settingsCoachSetup',setup?'Aktiv':'Offen');set('settingsTraining',sessions.length);set('settingsChecks',(bodyCheckState.history||[]).length);
+ set('settingsTrainingHealth',sessions.length);set('settingsCardioHealth',(cs.sessions||[]).length);set('settingsMealsHealth',(ns.meals||[]).length);set('settingsChecksHealth',(bodyCheckState.history||[]).length);
 }
 </body>
 </html>
