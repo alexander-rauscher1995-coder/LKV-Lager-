@@ -118,6 +118,17 @@ button,input{font:inherit}button{cursor:pointer}
 <div class="module-card"><h3>Makros</h3><p>Protein, Kohlenhydrate und Fett als Dokumentationshilfe.</p><button onclick="toast('Makro-Rechner kommt als nächstes')">Makros öffnen</button></div>
 <div class="module-card"><h3>Aktivität</h3><p>Alltag, Schritte, Training und Cardio übersichtlich erfassen.</p><button onclick="toast('Aktivitätsrechner geöffnet')">Aktivität</button></div>
 <div class="module-card" style="grid-column:1/-1">
+<h3>📊 Persönliche TDEE-Lernkurve</h3>
+<p>Trage mehrere Wochenwerte ein. FITLIFE bildet daraus einen geglätteten persönlichen Erhaltungsbedarf statt sich nur auf einen einzelnen Zeitraum zu verlassen.</p>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0">
+<label style="font-size:11px;color:#7d8495">Ø Kalorien/Tag<input id="learnCalories" type="number" step="10" placeholder="2400" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Gewichtsänderung/Woche (kg)<input id="learnChange" type="number" step="0.01" placeholder="-0.25" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Wochen Daten<input id="learnWeeks" type="number" min="2" max="52" value="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+</div>
+<button onclick="learnTDEE()">Persönlichen TDEE aktualisieren</button>
+<div id="learnResult" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:12px;display:none"></div>
+</div>
+<div class="module-card" style="grid-column:1/-1">
 <h3>📈 Automatische TDEE-Anpassung</h3>
 <p>Wenn du regelmäßig Gewicht und durchschnittliche Kalorien dokumentierst, kann FITLIFE deinen real beobachteten Erhaltungsbedarf schätzen.</p>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0">
@@ -188,6 +199,16 @@ function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumen
  document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Basis-TDEE</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div><div><small>Ruhetag</small><strong style="display:block;font-size:20px">'+restDay.toLocaleString('de-DE')+' kcal</strong></div><div><small>Trainingstag</small><strong style="display:block;font-size:20px">'+trainingDay.toLocaleString('de-DE')+' kcal</strong></div><div style="grid-column:1/-1"><small>Wochenschnitt (Beispiel 5 Training / 2 Ruhe)</small><strong style="display:block;font-size:22px">'+weeklyAvg.toLocaleString('de-DE')+' kcal/Tag</strong></div><div style="grid-column:1/-1;margin-top:2px"><small>Ziel: '+goalText+'</small><strong style="display:block;font-size:20px">'+targetMin.toLocaleString('de-DE')+'–'+targetMax.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der personalisierte TDEE berücksichtigt zusätzlich Schritte, Trainingstage und Cardio. Diese Anpassungen sind Näherungen und sollten mit dem realen Gewichts-/Leistungsverlauf abgeglichen werden. Der Basis-TDEE nutzt den gewählten Aktivitätsfaktor. Ruhe- und Trainingstag sind Näherungen und keine individuelle Kalorienvorgabe.</small>';
 }
 
+function learnTDEE(){
+ const calories=Number(document.getElementById('learnCalories').value);
+ const change=Number(document.getElementById('learnChange').value);
+ const weeks=Number(document.getElementById('learnWeeks').value);
+ if(!calories||!weeks||weeks<2||weeks>52){toast('Bitte gültige Verlaufsdaten eingeben');return}
+ const observed=Math.round(calories + (change*7700/7));
+ const confidence=Math.min(95,50+weeks*8);
+ document.getElementById('learnResult').style.display='block';
+ document.getElementById('learnResult').innerHTML='<b>Persönlicher TDEE</b><strong style="display:block;font-size:25px;margin-top:6px">'+observed.toLocaleString('de-DE')+' kcal/Tag</strong><small style="display:block;color:#8b91a0;margin-top:8px">Datenbasis: '+weeks+' Wochen · geschätzte Genauigkeit: '+confidence+'% (Orientierungswert). Je länger und konsistenter der Verlauf, desto stabiler die Schätzung.</small>';
+}
 function adjustTDEE(){
  const start=Number(document.getElementById('trendStartWeight').value);
  const current=Number(document.getElementById('trendCurrentWeight').value);
