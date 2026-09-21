@@ -144,7 +144,16 @@
       if(summary) summary.after(coach); else main.before(coach);
     }
 
-    if(!sheet.querySelector('.calculator-pro-footer')){
+
+    if(!sheet.querySelector('.calculator-pro-tools')){
+      const tools=document.createElement('div');
+      tools.className='calculator-pro-tools';
+      tools.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px';
+      tools.innerHTML='<button type="button" class="module-action calculator-pro-copy">Zusammenfassung kopieren</button><button type="button" class="module-action calculator-pro-share">Teilen</button>';
+      const summary=document.querySelector('.calculator-pro-coaching') || document.querySelector('.calculator-pro-summary');
+      if(summary) summary.after(tools); else main.before(tools);
+      const getText=()=>{\n        const parts=typeof calcBreakdown==='function'?calcBreakdown():{};\n        const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));\n        const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};\n        return ['Fitness Coach Pro – Rechner','Tagesziel: '+Math.round(target)+' kcal','Grundumsatz: '+Math.round(n(parts.bmr))+' kcal','Alltag/NEAT: +'+Math.round(n(parts.activity))+' kcal','Krafttraining: +'+Math.round(n(parts.training))+' kcal','Cardio: +'+Math.round(n(parts.cardio))+' kcal','Protein: '+(macros.protein ?? macros.prot ?? macros.p ?? 0)+' g','Kohlenhydrate: '+(macros.carbs ?? macros.carbohydrates ?? macros.c ?? 0)+' g','Fett: '+(macros.fat ?? macros.fats ?? macros.f ?? 0)+' g'].join('\\n');\n      };\n      tools.querySelector('.calculator-pro-copy').onclick=async()=>{try{await navigator.clipboard.writeText(getText());tools.querySelector('.calculator-pro-copy').textContent='Kopiert';setTimeout(()=>tools.querySelector('.calculator-pro-copy').textContent='Zusammenfassung kopieren',1400)}catch(e){}};\n      tools.querySelector('.calculator-pro-share').onclick=async()=>{try{if(navigator.share) await navigator.share({title:'Fitness Coach Pro',text:getText()});else await navigator.clipboard.writeText(getText())}catch(e){}};\n    }
+\n    if(!sheet.querySelector('.calculator-pro-footer')){
       const footer=document.createElement('div');
       footer.className='calculator-pro-footer';
       footer.innerHTML=`<div><b>Dein Tagesziel</b><br><span>${target.toLocaleString('de-DE')} kcal · ${targetLabel} ${Math.abs(targetDelta).toLocaleString('de-DE')} kcal</span></div><button class="module-action" type="button">Neu berechnen</button>`;
