@@ -107,6 +107,9 @@ button,input{font:inherit}button{cursor:pointer}
 <label style="font-size:11px;color:#7d8495">Größe (cm)<input id="calcHeight" type="number" value="180" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Körperfett % <span style="color:#a0a5b2">(optional)</span><input id="calcBodyFat" type="number" step="0.1" min="3" max="60" placeholder="z. B. 16" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495;grid-column:1/-1">Ziel<select id="calcGoal" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"><option value="maintain">Gewicht halten</option><option value="loss">Fettverlust</option><option value="gain">Muskelaufbau</option><option value="performance">Performance / Sport</option></select></label>
+<label style="font-size:11px;color:#7d8495">Trainingstage/Woche<input id="calcTrainingDays" type="number" min="0" max="7" value="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Schritte/Tag<input id="calcSteps" type="number" min="0" max="50000" value="8000" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Cardio-Minuten/Woche<input id="calcCardio" type="number" min="0" max="2000" value="120" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495;grid-column:1/-1">Aktivität<select id="calcActivity" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"><option value="1.2">Kaum aktiv – überwiegend Sitzen, wenig Bewegung</option><option value="1.375">Leicht aktiv – 1–3 Trainingstage/Woche</option><option value="1.55" selected>Mittel aktiv – 3–5 Trainingstage/Woche</option><option value="1.725">Sehr aktiv – 6–7 Trainingstage/Woche oder körperlich aktiver Alltag</option><option value="1.9">Extrem aktiv – sehr hoher Trainingsumfang + körperlich aktive Arbeit</option></select></label>
 </div>
 <button onclick="calculateCalories()">Kalorien berechnen</button>
@@ -145,8 +148,8 @@ function showView(id){
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity=1;t.style.transform='translate(-50%,0)';clearTimeout(window.__toast);window.__toast=setTimeout(()=>{t.style.opacity=0;t.style.transform='translate(-50%,15px)'},1800)}
 function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumentiert')}function calculateCalories(){
- const sex=document.getElementById('calcSex').value, goal=document.getElementById('calcGoal').value, age=Number(document.getElementById('calcAge').value), weight=Number(document.getElementById('calcWeight').value), height=Number(document.getElementById('calcHeight').value), bodyFat=Number(document.getElementById('calcBodyFat').value), activity=Number(document.getElementById('calcActivity').value);
- if(!age||!weight||!height||age<18||age>100||weight<30||weight>300||height<120||height>230){toast('Bitte realistische Werte eingeben (Alter 18–100)');return}
+ const sex=document.getElementById('calcSex').value, goal=document.getElementById('calcGoal').value, age=Number(document.getElementById('calcAge').value), weight=Number(document.getElementById('calcWeight').value), height=Number(document.getElementById('calcHeight').value), bodyFat=Number(document.getElementById('calcBodyFat').value), trainingDays=Number(document.getElementById('calcTrainingDays').value), steps=Number(document.getElementById('calcSteps').value), cardio=Number(document.getElementById('calcCardio').value), activity=Number(document.getElementById('calcActivity').value);
+ if(!age||!weight||!height||age<18||age>100||weight<30||weight>300||height<120||height>230||trainingDays<0||trainingDays>7||steps<0||steps>50000||cardio<0||cardio>2000){toast('Bitte realistische Werte eingeben (Alter 18–100)');return}
  let bmr, formula;
  if(bodyFat>=3&&bodyFat<=60){
    const leanMass=weight*(1-bodyFat/100);
@@ -156,16 +159,21 @@ function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumen
    bmr=10*weight+6.25*height-5*age+(sex==='male'?5:-161);
    formula='Mifflin-St Jeor';
  }
- const tdee=bmr*activity;
- const restDay=Math.round(bmr*1.2);
- const trainingDay=Math.round(tdee*1.08);
+ const baseTdee=bmr*activity;
+ const stepFactor=Math.min(0.12,Math.max(-0.04,(steps-5000)*0.000012));
+ const trainingAdj=(trainingDays/7)*0.08;
+ const cardioAdj=Math.min(0.05,(cardio/7)*0.0005);
+ const personalizedTdee=Math.round(baseTdee*(1+stepFactor+trainingAdj+cardioAdj));
+ const tdee=personalizedTdee;
+ const restDay=Math.round(tdee*(trainingDays>0?0.96:1));
+ const trainingDay=Math.round(tdee*(trainingDays>0?1.06:1));
  const weeklyAvg=Math.round((restDay*2+trainingDay*5)/7);
  let targetMin=weeklyAvg,targetMax=weeklyAvg,goalText='Gewicht halten';
  if(goal==='loss'){targetMin=Math.round(weeklyAvg*0.90);targetMax=Math.round(weeklyAvg*0.95);goalText='Fettverlust';}
  if(goal==='gain'){targetMin=Math.round(weeklyAvg*1.05);targetMax=Math.round(weeklyAvg*1.10);goalText='Muskelaufbau';}
  if(goal==='performance'){targetMin=Math.round(weeklyAvg*1.00);targetMax=Math.round(weeklyAvg*1.05);goalText='Performance / Sport';}
  document.getElementById('calcResult').style.display='block';
- document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Basis-TDEE</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div><div><small>Ruhetag</small><strong style="display:block;font-size:20px">'+restDay.toLocaleString('de-DE')+' kcal</strong></div><div><small>Trainingstag</small><strong style="display:block;font-size:20px">'+trainingDay.toLocaleString('de-DE')+' kcal</strong></div><div style="grid-column:1/-1"><small>Wochenschnitt (Beispiel 5 Training / 2 Ruhe)</small><strong style="display:block;font-size:22px">'+weeklyAvg.toLocaleString('de-DE')+' kcal/Tag</strong></div><div style="grid-column:1/-1;margin-top:2px"><small>Ziel: '+goalText+'</small><strong style="display:block;font-size:20px">'+targetMin.toLocaleString('de-DE')+'–'+targetMax.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der Basis-TDEE nutzt den gewählten Aktivitätsfaktor. Ruhe- und Trainingstag sind Näherungen und keine individuelle Kalorienvorgabe.</small>';
+ document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Basis-TDEE</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div><div><small>Ruhetag</small><strong style="display:block;font-size:20px">'+restDay.toLocaleString('de-DE')+' kcal</strong></div><div><small>Trainingstag</small><strong style="display:block;font-size:20px">'+trainingDay.toLocaleString('de-DE')+' kcal</strong></div><div style="grid-column:1/-1"><small>Wochenschnitt (Beispiel 5 Training / 2 Ruhe)</small><strong style="display:block;font-size:22px">'+weeklyAvg.toLocaleString('de-DE')+' kcal/Tag</strong></div><div style="grid-column:1/-1;margin-top:2px"><small>Ziel: '+goalText+'</small><strong style="display:block;font-size:20px">'+targetMin.toLocaleString('de-DE')+'–'+targetMax.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der personalisierte TDEE berücksichtigt zusätzlich Schritte, Trainingstage und Cardio. Diese Anpassungen sind Näherungen und sollten mit dem realen Gewichts-/Leistungsverlauf abgeglichen werden. Der Basis-TDEE nutzt den gewählten Aktivitätsfaktor. Ruhe- und Trainingstag sind Näherungen und keine individuelle Kalorienvorgabe.</small>';
 }
 
 function render(){
