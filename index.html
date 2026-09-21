@@ -2022,11 +2022,25 @@ function setupNext(){setupSaveFields();if(setupStep===0&&(!setupData.age||!setup
  document.getElementById('coachSetup').classList.remove('show');openCoachPlan();toast('Dein Coach-Plan ist bereit ✓');
 }}
 function setupPrev(){setupSaveFields();if(setupStep>0){setupStep--;setupRender()}}
-function setupResult(){const a=Number(setupData.age),h=Number(setupData.height),w=Number(setupData.weight);const b=a&&h&&w?Math.round(10*w+6.25*h-5*a+(setupData.sex==='m'?5:-161)):0;const factor={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8}[setupData.activity]||1.5;const energy=b?Math.round(b*factor):0;return '<div class="setup-result"><div class="setup-result-card primary"><h3>Energiebedarf · Orientierung</h3><div class="setup-number">'+(energy?energy.toLocaleString('de-DE'):'–')+' <small>kcal</small></div><div class="setup-sub">Geschätzter täglicher Bedarf auf Basis deiner Angaben. Kein Diätziel.</div></div><div class="setup-result-card"><h3>Dein Wochenrahmen</h3><div class="setup-list"><div>🎯 <b>'+({weightloss:'Abnehmen – Körper definieren',maintainfitness:'Gewicht halten & Allgemeine Fitness',fitness:'Allgemeine Fitness',strength:'Kraft & Leistung',muscle:'Muskelaufbau'}[setupData.goal]||'Fitness')+'</b></div><div>🏋️ <b>'+setupData.days+'×</b> Krafttraining</div><div>🏃 <b>'+setupData.cardio+'×</b> Cardio</div><div>📈 <b>'+({beginner:'Einsteiger',intermediate:'Fortgeschritten',advanced:'Erfahren'}[setupData.experience]||'')+'</b></div></div></div></div>'}
-function openCoachSetup(){
- closeCoachPlan();
- setupStep=0;setupRender();
- document.getElementById('coachSetup').classList.add('show');
+function setupResult(){
+ const a=Number(setupData.age),h=Number(setupData.height),w=Number(setupData.weight);
+ const b=a&&h&&w?Math.round(10*w+6.25*h-5*a+(setupData.sex==='m'?5:-161)):0;
+ const factor={leicht:1.35,normal:1.5,aktiv:1.65,sehr:1.8}[setupData.activity]||1.5;
+ const energy=b?Math.round(b*factor):0;
+ const goalLabel=({weightloss:'Abnehmen – Körper definieren',maintainfitness:'Gewicht halten & Allgemeine Fitness',fitness:'Allgemeine Fitness',strength:'Kraft & Leistung',muscle:'Muskelaufbau'}[setupData.goal]||'Fitness');
+ const goalNote=setupData.goal==='weightloss'
+   ? 'Dein Energiebedarf bleibt eine Orientierung. Die App legt dafür kein automatisches Kaloriendefizit und kein starres Diätziel fest.'
+   : 'Der angezeigte Energiebedarf ist eine Orientierung auf Basis deiner Angaben.';
+ return '<div class="setup-result">'+
+   '<div class="setup-result-card primary"><h3>Energiebedarf · Orientierung</h3>'+
+   '<div class="setup-number">'+(energy?energy.toLocaleString('de-DE'):'–')+' <small>kcal</small></div>'+
+   '<div class="setup-sub">'+goalNote+'</div></div>'+
+   '<div class="setup-result-card"><h3>Dein Wochenrahmen</h3>'+
+   '<div class="setup-list"><div>🎯 <b>'+goalLabel+'</b></div>'+
+   '<div>🏋️ <b>'+setupData.days+'×</b> Krafttraining</div>'+
+   '<div>🏃 <b>'+setupData.cardio+'×</b> Cardio</div>'+
+   '<div>📈 <b>'+({beginner:'Einsteiger',intermediate:'Fortgeschritten',advanced:'Erfahren'}[setupData.experience]||'')+'</b></div></div></div>'+
+   '</div>';
 }
 </script><script>
 document.addEventListener('DOMContentLoaded',()=>{if(!localStorage.getItem('fitness_coach_onboarded'))setTimeout(openCoachSetup,250);});
