@@ -28,7 +28,6 @@ jobs:
           test -f cloud/sync-adapter.js
           test -f cloud/config.example.js
           test -f cloud/snapshot.js
-          test -f cloud/API.md
           test -f cloud/ACTIVATION.md
           test -f cloud/PRODUCTION.md
           test -f api/health.js
@@ -48,6 +47,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import json
           s = Path("index.html").read_text(encoding="utf-8")
           checks = {
               "<html": "<html" in s.lower(),
@@ -59,6 +59,7 @@ jobs:
               "V149": "V149" in s,
               "release audit": "runReleaseAudit" in s,
               "backup schema": "validateBackupPayload" in s,
+              "cloud status": "fitnessCloudStatus" in s,
           }
           assert checks["<html"] and checks["</html>"]
           assert checks["<script>"] == checks["</script>"]
@@ -66,12 +67,26 @@ jobs:
           assert checks["V149"]
           assert checks["release audit"]
           assert checks["backup schema"]
+          assert checks["cloud status"]
+          json.loads(Path("manifest.json").read_text(encoding="utf-8"))
           print(checks)
           PY
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check cloud/sync-adapter.js
+          node --check cloud/snapshot.js
+          node --check sw.js
+          node --check api/health.js
+          node --check api/_lib/sync.js
+          node --check api/v1/sync.js
+          node --check api/v1/sync/changes.js
 
       - name: Validate cloud layer
         run: |
           grep -q "FITNESS_CLOUD_CONFIG" cloud/sync-adapter.js
+          grep -q "fitness_cloud_sync_queue_v1" cloud/sync-adapter.js
+          grep -q "status:'queued'" cloud/sync-adapter.js
           grep -q "v1/sync" cloud/API.md
           grep -q "backend-required" apple/integration.json
           grep -q "enabled:false" cloud/config.example.js
