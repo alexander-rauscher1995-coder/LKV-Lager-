@@ -27,6 +27,9 @@ jobs:
           test -f cloud/README.md
           test -f cloud/sync-adapter.js
           test -f cloud/config.example.js
+          test -f cloud/runtime-config.js
+          test -f cloud/neon-auth-config.js
+          test -f cloud/neon-auth.js
           test -f cloud/snapshot.js
           test -f cloud/ACTIVATION.md
           test -f cloud/PRODUCTION.md
@@ -45,6 +48,7 @@ jobs:
           test -f watchOS/FitnessCoachWatchConnectivity.swift
           test -f tests/sync.test.js
           test -f tests/snapshot.test.js
+          test -f tests/health.test.js
           test -f package.json
 
       - name: Validate HTML structure
@@ -86,6 +90,7 @@ jobs:
         run: |
           node --check cloud/sync-adapter.js
           node --check cloud/snapshot.js
+          node --check cloud/neon-auth.js
           node --check sw.js
           node --check api/health.js
           node --check api/_lib/sync.js
