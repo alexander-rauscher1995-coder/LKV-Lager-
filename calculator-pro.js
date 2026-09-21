@@ -127,6 +127,20 @@
       if(b)b.appendChild(note);
     }
 
+    if(!sheet.querySelector('.calculator-pro-coaching')){
+      const coach=document.createElement('div');
+      coach.className='calculator-pro-coaching';
+      const weekly=Math.round(target*7);
+      const direction=goal==='lose'?'Defizit-Ziel':goal==='bulk'?'Überschuss-Ziel':'Erhaltungs-Ziel';
+      coach.innerHTML=\`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px">
+        <div class="summary-card"><span>Dein Tagesziel</span><b>\${target.toLocaleString('de-DE')}</b><small>kcal / Tag</small></div>
+        <div class="summary-card"><span>Wochensumme</span><b>\${weekly.toLocaleString('de-DE')}</b><small>kcal / 7 Tage</small></div>
+        <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">\${direction}</b><small>aktuelle Einstellung</small></div>
+      </div>\`;
+      const summary=document.querySelector('.calculator-pro-summary');
+      if(summary) summary.after(coach); else main.before(coach);
+    }
+
     if(!sheet.querySelector('.calculator-pro-footer')){
       const footer=document.createElement('div');
       footer.className='calculator-pro-footer';
@@ -152,6 +166,8 @@
         const macro=document.querySelector('.calculator-pro-macros');
         if(macro) macro.remove();
         const note=document.querySelector('.calculator-pro-disclaimer');
+        const coach=document.querySelector('.calculator-pro-coaching');
+        if(coach) coach.remove();
         if(note) note.remove();
         const footer=document.querySelector('.calculator-pro-footer');
         if(footer) footer.remove();
