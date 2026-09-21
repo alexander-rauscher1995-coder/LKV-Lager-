@@ -213,11 +213,11 @@
       coach.className='calculator-pro-coaching';
       const weekly=Math.round(target*7);
       const direction=goalMode.title;
-      coach.innerHTML=\`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px">
+      coach.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px">
         <div class="summary-card"><span>Dein Tagesziel</span><b>${target.toLocaleString('de-DE')}</b><small>kcal / Tag</small></div>
         <div class="summary-card"><span>Wochensumme</span><b>${weekly.toLocaleString('de-DE')}</b><small>kcal / 7 Tage</small></div>
         <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">${direction}</b><small>${goalMode.desc}</small></div>
-      </div>\`;
+      </div>`;
       const summary=document.querySelector('.calculator-pro-summary');
       if(summary) summary.after(coach); else main.before(coach);
     }
