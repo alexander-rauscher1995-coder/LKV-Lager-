@@ -826,11 +826,11 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
             <div class="smart-footer"><span>⚡ Fokus</span><b id="smartFocus">Heute deinen nächsten sinnvollen Schritt erledigen.</b><button onclick="openModule('coach')">Coach →</button></div>
           </div>
           <div class="card tile span4 home-action" onclick="showView('training')" style="cursor:pointer"><div><div class="section-kicker">HEUTE</div><div class="icon">🏋️</div><h3>Training</h3><div>Heute: <b>GK A – Push</b></div><div class="muted">Brust · Schultern · Trizeps</div><div style="color:var(--green);margin-top:12px">● Geplant</div></div><div class="action-arrow">›</div></div>
-          <div class="card tile span4 home-stat"><div class="stat-label">BEWEGUNG</div><div class="icon" style="color:var(--green)">👟</div><h3>Schritte</h3><div class="big"><span id="homeSteps">0</span> <small class="muted">/ 10.000</small></div><div class="progress-line"><div class="bar"><div id="homeStepFill" class="fill" style="width:0%"></div></div><span id="homeStepPct" class="pct">0%</span></div><div class="muted" style="margin-top:8px">🏃 <span id="homeCardioSummary">Cardio separat erfassen</span></div></div>
-          <div class="card tile span4 home-stat"><div class="stat-label">ERNÄHRUNG</div><div class="icon" style="color:var(--orange);background:rgba(255,174,66,.12)">🔥</div><h3>Kalorien</h3><div class="big">1.920 <small class="muted">/ 2.300 kcal</small></div><div class="progress-line"><div class="bar"><div class="fill orange" style="width:84%"></div></div><span class="pct">84%</span></div></div>
+          <div class="card tile span4 home-stat"><div class="stat-label">BEWEGUNG</div><div class="icon" style="color:var(--green)">👟</div><h3>Schritte</h3><div class="big"><span id="homeSteps">0</span> <small class="muted">heute</small></div><div class="muted" style="margin-top:12px">🏃 <span id="homeCardioSummary">Cardio separat erfassen</span></div></div>
+          <div class="card tile span4 home-stat"><div class="stat-label">ERNÄHRUNG</div><div class="icon" style="color:var(--orange);background:rgba(255,174,66,.12)">🍴</div><h3>Mahlzeiten</h3><div class="big"><span id="homeMeals">0</span> <small class="muted">dokumentiert</small></div><div class="muted" style="margin-top:12px">Tagesübersicht ohne Leistungsdruck.</div></div>
 
-          <div class="card tile span4 home-stat"><div class="stat-label">ERNÄHRUNG</div><div class="icon" style="color:var(--blue);background:rgba(61,168,255,.12)">🍴</div><h3>Protein</h3><div class="big">142 <small class="muted">/ 180 g</small></div><div class="progress-line"><div class="bar"><div class="fill blue" style="width:79%"></div></div><span>79%</span></div></div>
-          <div class="card tile span4 home-stat"><div class="stat-label">HYDRATION</div><div class="icon" style="color:var(--blue);background:rgba(61,168,255,.12)">💧</div><h3>Wasser</h3><div class="big">2,1 <small class="muted">/ 3,0 L</small></div><div class="progress-line"><div class="bar"><div class="fill blue" style="width:70%"></div></div><span>70%</span></div></div>
+          <div class="card tile span4 home-stat"><div class="stat-label">RECOVERY</div><div class="icon" style="color:var(--blue);background:rgba(61,168,255,.12)">🌙</div><h3>Erholung</h3><div class="big"><span id="homeRecovery">–</span></div><div class="muted" style="margin-top:12px">Check-in im Coach aktualisieren.</div></div>
+          <div class="card tile span4 home-stat"><div class="stat-label">HYDRATION</div><div class="icon" style="color:var(--blue);background:rgba(61,168,255,.12)">💧</div><h3>Wasser</h3><div class="big"><span id="homeWater">0</span> <small class="muted">L heute</small></div><div class="muted" style="margin-top:12px">Flüssigkeit nach Bedarf über den Tag verteilt.</div></div><span>70%</span></div></div>
           <div class="card tile span4 home-stat"><div class="stat-label">RECOVERY</div><div class="icon" style="color:var(--purple);background:rgba(157,112,255,.12)">🌙</div><h3>Schlaf</h3><div class="big">6:45 <small class="muted">/ 8:00 h</small></div><div class="progress-line"><div class="bar"><div class="fill purple" style="width:81%"></div></div><span>81%</span></div></div>
 
           <div class="card span7"><div class="row"><h3>Makros heute</h3><span class="muted">Details ›</span></div><div class="macro">
@@ -1755,6 +1755,7 @@ document.querySelectorAll('.quick button').forEach(btn=>btn.addEventListener('cl
  if(btn.textContent.includes('Ernährung'))openModule('nutrition');
 }));
 
+renderHomeLiveStatus();
 function updateHomeCoach(){
  const box=document.getElementById('homeCoachText'); if(!box)return;
  const today=todayISO(); const done=saved.some(x=>x.date&&x.date.slice(0,10)===today);
@@ -2496,6 +2497,16 @@ function runSystemCheck(){
  const ok=checks.filter(x=>x[1]).length,total=checks.length;
  const e=document.getElementById('systemCheckResult');if(e)e.innerHTML=checks.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+ok+'/'+total+' Bereiche aktiv</b>';
  toast(ok===total?'System-Check vollständig ✓':'System-Check: '+ok+'/'+total);
+}
+
+/* V137 HOME LIVE STATUS */
+function renderHomeLiveStatus(){
+ const ns=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{meals:[]};
+ const meals=(ns.meals||[]).filter(x=>x.date===todayISO()).length;
+ const cs=coachWayLoad(),check=cs.checkins?.[todayISO()];
+ const e=document.getElementById('homeMeals');if(e)e.textContent=meals;
+ const r=document.getElementById('homeRecovery');if(r)r.textContent=check==='easy'?'Leicht':check==='hard'?'Anstrengend':check==='right'?'Passend':'Offen';
+ const w=document.getElementById('homeWater');if(w)w.textContent=Number(moduleState.hydration||0).toFixed(1).replace('.',',');
 }
 </body>
 </html>
