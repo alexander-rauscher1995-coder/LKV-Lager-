@@ -749,8 +749,12 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .exercise-adaptive{margin-top:12px;padding:11px 13px;border:1px solid #29363e;border-radius:12px;background:#0d151a;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
 .exercise-adaptive b{font-size:12px;color:#bfe8cc}.exercise-adaptive span{display:block;color:#8f9ca4;font-size:12px;margin-top:3px}.exercise-adaptive strong{color:#63f59a;font-size:12px}
 @media(max-width:600px){.exercise-adaptive{grid-template-columns:1fr}}
-</style><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#071016"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon.svg"></head>
-<body>
+</style><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#071016"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon.svg">
+<style>
+.cloud-live{color:var(--accent)!important;border-color:rgba(99,245,154,.3)!important}
+</style>
+</head>
+<body><div id="cloudStatus" class="pro-health"><span>Cloud-Status wird geprüft …</span></div>
 <div class="app">
   <header class="top">
     <div class="top-inner">
@@ -2714,5 +2718,21 @@ if('serviceWorker' in navigator){
 }
 </script><script>
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.__pwaPrompt=e});
+
+/* V147 CLOUD READY STATUS */
+function fitnessCloudStatus(){
+  const c=window.FitnessCloud&&typeof window.FitnessCloud.status==='function'?window.FitnessCloud.status():{enabled:false,configured:false,pending:0};
+  return c;
+}
+function renderCloudStatus(){
+  const host=document.getElementById('cloudStatus'); if(!host)return;
+  const c=fitnessCloudStatus();
+  host.textContent=c.enabled&&c.configured?'Cloud verbunden':(c.pending?'Offline-Sync '+c.pending+' ausstehend':'Cloud bereit – Backend noch nicht verbunden');
+  host.className='pro-health '+(c.enabled&&c.configured?'cloud-live':'');
+}
+function cloudReadyCheck(){
+  const c=fitnessCloudStatus();
+  return {enabled:!!c.enabled,configured:!!c.configured,pending:Number(c.pending||0),adapter:!!window.FitnessCloud};
+}
 </script></body>
 </html>
