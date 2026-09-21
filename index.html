@@ -1644,7 +1644,7 @@ function importData(event){
  reader.onload=()=>{
    try{
      const p=JSON.parse(reader.result);
-     if(!p || !Array.isArray(p.sessions) || typeof p.trainingData!=='object')throw new Error('invalid');
+     if(!validateBackupPayload(p))throw new Error('invalid');
      localStorage.setItem('fitness_v85_sessions',JSON.stringify(p.sessions));
      localStorage.setItem('fitness_v85_training_data',JSON.stringify(p.trainingData));
      if(Number.isFinite(Number(p.hydration)))localStorage.setItem('fitness_v84_hydration',String(p.hydration));
@@ -2533,5 +2533,113 @@ function runReleaseGuard(){
  const ok=checks.filter(x=>x[1]).length,total=checks.length;
  return {ok,total,checks};
 }
-</body>
+<style>
+/* V141 FINAL PRODUCT LAYER */
+.coach-pro-tools{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pro-tool{background:linear-gradient(145deg,#111d24,#0d151a);border:1px solid #2c3a42;border-radius:18px;padding:16px}
+.pro-tool h3{margin:0 0 6px}.pro-tool .muted{font-size:12px;line-height:1.45}
+.pro-tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pro-tool select,.pro-tool input{width:100%;background:#0a1217;color:#fff;border:1px solid #344049;border-radius:9px;padding:10px}
+.pro-tool-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pro-tool button{border:1px solid #344049;background:#172229;border-radius:10px;padding:9px 12px;cursor:pointer}
+.pro-tool button.primary{background:var(--accent);color:#06100b;border-color:var(--accent)}
+.pro-plan-list{display:grid;gap:7px;margin-top:10px}
+.pro-plan-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 10px;background:#0b1419;border:1px solid #26343c;border-radius:10px}
+.pro-plan-row button{padding:5px 8px}
+.pro-chart{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:120px;margin-top:12px}
+.pro-chart-col{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;font-size:10px;color:#7f8d95}
+.pro-chart-bar{width:100%;max-width:34px;min-height:4px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--accent),#2f9d68)}
+.pro-health{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.pro-health span{padding:6px 9px;border-radius:999px;background:#111d23;border:1px solid #293840;font-size:11px}
+.pro-health .ok{color:var(--accent);border-color:rgba(99,245,154,.3)}
+.pro-mobile-actions{display:none}
+@media(max-width:850px){.coach-pro-tools{grid-template-columns:1fr}.pro-mobile-actions{display:flex;position:sticky;bottom:76px;z-index:8;gap:8px;padding:8px;background:rgba(7,16,22,.92);backdrop-filter:blur(12px);border:1px solid #293740;border-radius:14px}.pro-mobile-actions button{flex:1}.coach-way{overflow-x:hidden}}
+@media(max-width:600px){.pro-tool-grid{grid-template-columns:1fr}.pro-tool{padding:13px}.pro-chart{height:105px}}
+</style>
+<script>
+/* V141 FINAL PRODUCT LAYER */
+const CUSTOM_PLAN_KEY='fitness_custom_plans_v1';
+function customPlans(){try{const x=JSON.parse(localStorage.getItem(CUSTOM_PLAN_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
+function saveCustomPlans(x){localStorage.setItem(CUSTOM_PLAN_KEY,JSON.stringify(x))}
+function customPlanAdd(){
+ const name=(document.getElementById('proExercise')?.value||'').trim();
+ const sets=Math.max(1,Math.min(8,Number(document.getElementById('proSets')?.value)||3));
+ const reps=(document.getElementById('proReps')?.value||'8–12').trim();
+ if(!name){toast('Übung auswählen.');return}
+ const p=customPlans(),current=p.find(x=>x.id===window.__customPlanEditing);
+ if(current)current.exercises.push({name,sets,reps});
+ else{const id='plan_'+Date.now();p.push({id,name:'Mein Coach Plan '+(p.length+1),exercises:[{name,sets,reps}]});window.__customPlanEditing=id}
+ saveCustomPlans(p);renderCustomPlans();toast('Übung hinzugefügt ✓');
+}
+function customPlanNew(){
+ const p=customPlans(),id='plan_'+Date.now();p.push({id,name:'Mein neuer Plan',exercises:[]});saveCustomPlans(p);window.__customPlanEditing=id;renderCustomPlans();toast('Neuer Plan erstellt ✓');
+}
+function customPlanRename(){
+ const p=customPlans(),x=p.find(x=>x.id===window.__customPlanEditing);if(!x)return;
+ const n=prompt('Planname',x.name);if(!n?.trim())return;x.name=n.trim();saveCustomPlans(p);renderCustomPlans();
+}
+function customPlanRemoveExercise(i){
+ const p=customPlans(),x=p.find(x=>x.id===window.__customPlanEditing);if(!x)return;x.exercises.splice(i,1);saveCustomPlans(p);renderCustomPlans();
+}
+function customPlanSelect(id){window.__customPlanEditing=id;renderCustomPlans()}
+function customPlanDelete(){
+ const p=customPlans().filter(x=>x.id!==window.__customPlanEditing);saveCustomPlans(p);window.__customPlanEditing=p[0]?.id||null;renderCustomPlans();toast('Plan gelöscht');
+}
+function renderCustomPlans(){
+ const host=document.getElementById('proPlanList');if(!host)return;
+ const p=customPlans();if(!window.__customPlanEditing)window.__customPlanEditing=p[0]?.id||null;
+ const x=p.find(x=>x.id===window.__customPlanEditing);
+ const names=p.map(x=>'<button onclick="customPlanSelect(\''+x.id+'\')">'+x.name+'</button>').join('');
+ host.innerHTML=x?'<div class="pro-plan-row"><b>'+x.name+'</b><span>'+x.exercises.length+' Übungen</span></div>'+
+   '<div class="pro-plan-list">'+(x.exercises.length?x.exercises.map((e,i)=>'<div class="pro-plan-row"><span>'+e.name+' · '+e.sets+'× '+e.reps+'</span><button onclick="customPlanRemoveExercise('+i+')">Entfernen</button></div>').join(''):'<div class="empty">Noch keine Übungen. Wähle eine Übung und füge sie hinzu.</div>')+'</div>'+
+   '<div class="pro-tool-actions"><button onclick="customPlanRename()">Umbenennen</button><button onclick="customPlanDelete()">Löschen</button></div>':
+   '<div class="empty">Noch kein eigener Plan. Erstelle deinen ersten Plan.</div>';
+ const nav=document.getElementById('proPlanSelect');if(nav)nav.innerHTML=names||'<span class="muted">Keine eigenen Pläne</span>';
+}
+function ensureCoachProTools(){
+ const root=document.getElementById('coachWay');if(!root)return;
+ if(document.getElementById('coachProTools')){renderCustomPlans();renderProProgress();runAppSelfTest();return}
+ const anchor=root.querySelector('.coach-next-action')||root.querySelector('.coach-review-card')||root.lastElementChild;
+ const box=document.createElement('div');box.id='coachProTools';box.className='coach-pro-tools';
+ const exercises=[...new Set(Object.values(plans||{}).flat().map(x=>x[0]))];
+ box.innerHTML='<div class="pro-tool"><div class="section-kicker">PLAN BUILDER</div><h3>Eigener Trainingsplan</h3><div class="muted">Baue einen eigenen Plan und speichere ihn lokal auf diesem Gerät.</div><div class="pro-tool-actions"><button class="primary" onclick="customPlanNew()">＋ Neuer Plan</button><button onclick="customPlanRename()">Planname ändern</button></div><div id="proPlanSelect" class="pro-tool-actions"></div><div class="pro-tool-grid"><select id="proExercise"><option value="">Übung auswählen …</option>'+exercises.map(x=>'<option>'+x+'</option>').join('')+'</select><input id="proSets" type="number" min="1" max="8" value="3" placeholder="Sätze"></div><div class="pro-tool-grid"><input id="proReps" value="8–12" placeholder="Wdh.-Bereich"><button class="primary" onclick="customPlanAdd()">Übung hinzufügen</button></div><div id="proPlanList" class="pro-plan-list"></div></div>'+
+ '<div class="pro-tool"><div class="section-kicker">PROGRESS</div><h3>Leistung & Wochenverlauf</h3><div class="muted">Deine gespeicherten Einheiten und Cardio-Aktivitäten der letzten 7 Tage.</div><div id="proChart" class="pro-chart"></div><div id="proHealth" class="pro-health"></div><div class="pro-tool-actions"><button onclick="showView(\'progress\');renderProgressCoach()">Fortschritt öffnen</button><button onclick="runAppSelfTest()">System prüfen</button></div></div>';
+ if(anchor)anchor.parentNode.insertBefore(box,anchor);else root.appendChild(box);
+ renderCustomPlans();renderProProgress();runAppSelfTest();
+}
+function renderProProgress(){
+ const host=document.getElementById('proChart'),health=document.getElementById('proHealth');if(!host)return;
+ const sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const cs=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{sessions:[]};
+ const labels=[];const counts=[];
+ for(let i=6;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);const iso=d.toISOString().slice(0,10);labels.push(d.toLocaleDateString('de-DE',{weekday:'short'}));counts.push(sessions.filter(x=>String(x.date||'').slice(0,10)===iso).length+(cs.sessions||[]).filter(x=>String(x.date||'').slice(0,10)===iso).length)}
+ const max=Math.max(1,...counts);
+ host.innerHTML=counts.map((n,i)=>'<div class="pro-chart-col"><b>'+n+'</b><div class="pro-chart-bar" style="height:'+Math.max(5,Math.round(n/max*82))+'px"></div><span>'+labels[i]+'</span></div>').join('');
+ if(health)health.innerHTML='<span class="ok">Training '+sessions.length+'</span><span>Cardio '+(cs.sessions||[]).length+'</span><span>Eigene Pläne '+customPlans().length+'</span><span>Backup bereit</span>';
+}
+function runAppSelfTest(){
+ const tests=[
+  ['Navigation',!!document.querySelector('.bottom,.pro-sidebar')],
+  ['Coach',typeof openCoachPlan==='function'&&typeof coachBuildWeek==='function'],
+  ['Training',typeof saveSession==='function'&&typeof startTrainingSession==='function'],
+  ['Ernährung',typeof saveMeal==='function'],
+  ['Cardio',typeof saveCardioSession==='function'],
+  ['Backup',typeof exportData==='function'&&typeof importData==='function'],
+  ['Custom Plans',typeof customPlans==='function'],
+  ['Unique IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()]
+ ];
+ const ok=tests.filter(x=>x[1]).length;
+ const out={ok,total:tests.length,tests};
+ window.__lastSelfTest=out;
+ const e=document.getElementById('systemCheckResult');if(e)e.innerHTML=tests.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+ok+'/'+tests.length+' Bereiche aktiv</b>';
+ return out;
+}
+function validateBackupPayload(p){
+ if(!p||typeof p!=='object'||!Array.isArray(p.sessions)||!p.trainingData||typeof p.trainingData!=='object')return false;
+ if(p.sessions.length>10000)return false;
+ return true;
+}
+function coachFinalRefresh(){try{ensureCoachProTools();renderProProgress();renderProgressCoach();renderHomeLiveStatus();}catch(e){console.warn(e)}}
+const __oldOpenCoachPlan=openCoachPlan;
+openCoachPlan=function(){__oldOpenCoachPlan();setTimeout(coachFinalRefresh,0)};
+</script></body>
 </html>
