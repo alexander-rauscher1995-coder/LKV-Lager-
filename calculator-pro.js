@@ -329,18 +329,18 @@
       macroBox.className='calculator-pro-macros';
       macroBox.innerHTML=`
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Protein</b><small>individuell</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">Bei Jugendlichen keine automatische Grammvorgabe</div>
+          <div class="macro-top"><b>Protein</b><small>Orientierung</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Proteinreiche Lebensmittel regelmäßig einplanen</div>
           <div class="macro-track"><i style="width:72%"></i></div>
         </div>
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Kohlenhydrate</b><small>individuell</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">Nach Alltag, Training und Ernährung einordnen</div>
+          <div class="macro-top"><b>Kohlenhydrate</b><small>Orientierung</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">An Alltag, Training und Hunger/Sättigung orientieren</div>
           <div class="macro-track"><i style="width:58%"></i></div>
         </div>
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Fett</b><small>individuell</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">Keine automatische Zielmenge</div>
+          <div class="macro-top"><b>Fett</b><small>Orientierung</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Vielfältige Fettquellen in ausgewogenen Mahlzeiten</div>
           <div class="macro-track"><i style="width:45%"></i></div>
         </div>`;
       const title=[...breakdown.querySelectorAll('h3')].find(x=>x.textContent.includes('Formel'));
