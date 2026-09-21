@@ -58,6 +58,12 @@ test('validates production snapshot contract',()=>{
   assert.equal(validateSnapshot({...snapshot(),schemaVersion:2}),false);
 });
 
+test('rejects invalid signatures',async()=>{
+  const res=response();
+  await syncHandler({method:'GET',headers:{authorization:'Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyLWEiLCJpc3MiOiJmaXRuZXNzLXRlc3QiLCJhdWQiOiJmaXRuZXNzLWFwaSIsImV4cCI6OTk5OTk5OTk5OX0.invalid'}},res);
+  assert.equal(res.statusCode,401);
+});
+
 test('rejects unauthenticated sync requests',async()=>{
   const res=response();
   await syncHandler({method:'GET',headers:{}},res);
