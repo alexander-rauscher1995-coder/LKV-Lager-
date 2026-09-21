@@ -700,6 +700,10 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .coach-adaptive-refresh{border:1px solid #344049;background:#172128;border-radius:10px;padding:9px 12px;cursor:pointer;white-space:nowrap}
 .coach-adaptive-refresh:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:600px){.coach-adaptive-head{flex-direction:column}.coach-adaptive-refresh{width:100%}}
+</style><style>
+.coach-next-adapt{margin-top:14px;padding:14px;border:1px solid #29363e;border-radius:14px;background:#0d151a}
+.coach-next-adapt b{display:block;font-size:15px;margin-bottom:5px}
+.coach-next-adapt span{color:#9eabb2;font-size:13px;line-height:1.4}
 </style></head>
 <body>
 <div class="app">
@@ -1737,7 +1741,7 @@ document.addEventListener('input',e=>{
         <div class="section-kicker">WOCHENPLAN</div>
         <h2>Deine Woche</h2>
         <div class="coach-week" id="coachWeek"></div>
-        <div class="coach-adaptive-card">
+        <div class="coach-adaptive-card"><div class="coach-next-adapt"><b id="cwNextAdaptiveTitle">Nächster Schritt</b><span id="cwNextAdaptiveNote">–</span></div>
   <div class="coach-adaptive-head">
     <div><div class="section-kicker">ADAPTIVE COACH</div><h3 id="cwAdaptiveFocus">Plan stabil halten</h3></div>
     <button class="coach-adaptive-refresh" onclick="coachAdaptiveRefresh()">Aktualisieren</button>
@@ -1990,7 +1994,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2059,6 +2063,25 @@ function coachRenderAdaptive(){
  if(focus)focus.textContent=a.focus;if(note)note.textContent=a.note;if(stat)stat.textContent=a.completed+' / '+a.planned+' geplante Tage';
 }
 function coachAdaptiveRefresh(){coachRenderAdaptive();toast('Coach-Analyse aktualisiert ✓')}
+</script>
+<script>
+/* V122 ADAPTIVE NEXT SESSION */
+function coachAdaptiveNext(){
+ const a=coachAdaptiveAnalysis(),setup=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ const week=coachBuildWeek(),today=(new Date().getDay()+6)%7;
+ let next=null;
+ for(let step=1;step<=7;step++){const p=week[(today+step)%7];if(p.type!=='Recovery'){next=p;break;}}
+ if(!next)return {title:'Regeneration & Alltag',note:'Heute steht kein weiterer Belastungsblock an.'};
+ if(a.focus==='Regeneration priorisieren')return {title:next.title,note:'Nächste Einheit kontrolliert starten und die Regeneration zwischen den Einheiten priorisieren.'};
+ if(a.focus==='Saubere Progression')return {title:next.title,note:'Nächste Einheit mit sauberer Technik beginnen und nur innerhalb deiner bisherigen Leistung kontrolliert steigern.'};
+ return {title:next.title,note:'Nächste Einheit nach Plan absolvieren und danach den Coach-Check-in speichern.'};
+}
+function coachRenderNextAdaptive(){
+ const n=coachAdaptiveNext();
+ const title=document.getElementById('cwNextAdaptiveTitle'),note=document.getElementById('cwNextAdaptiveNote');
+ if(title)title.textContent=n.title;
+ if(note)note.textContent=n.note;
+}
 </script>
 </body>
 </html>
