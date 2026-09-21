@@ -4,9 +4,8 @@ window.FITNESS_CLOUD_CONFIG={
   apiBaseUrl:'/api'
 };
 
-/* Load production experience layers without exposing server secrets. */
 (function(){
-  ['calculator-pro.js?v=162','training-pro.js?v=1'].forEach(function(src){
+  ['calculator-pro.js?v=162','training-pro.js?v=1','nutrition-pro.js?v=1'].forEach(function(src){
     var s=document.createElement('script');
     s.src='./'+src;
     s.defer=true;
