@@ -1,4 +1,5 @@
 import {createPublicKey, verify as verifySignature} from 'node:crypto';
+import persistence from './persistence.js';
 
 function auth(req){
   const h=req.headers.authorization||'';
@@ -70,10 +71,11 @@ export function validateSnapshot(x){
  */
 export function getPersistence(){
   const adapter=globalThis.FITNESS_PERSISTENCE;
-  if(!adapter||typeof adapter.getSnapshot!=='function'||typeof adapter.putSnapshot!=='function'||typeof adapter.appendChanges!=='function'){
-    return null;
+  if(adapter&&typeof adapter.getSnapshot==='function'&&typeof adapter.putSnapshot==='function'&&typeof adapter.appendChanges==='function'){
+    return adapter;
   }
-  return adapter;
+  if(process.env.FITNESS_DATABASE_URL)return persistence;
+  return null;
 }
 
 export async function readUserSnapshot(subject){
