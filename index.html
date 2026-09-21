@@ -1949,7 +1949,7 @@ document.addEventListener('input',e=>{
 </div>
 <div id="accountModal" class="modal account-modal-pro"><div class="account-window">
   <div class="account-top"><div class="account-brand"><div class="account-logo">F</div><div><div class="section-kicker">FITNESS PRO</div><h2>Dein Konto</h2><div class="muted">Profil & App-Daten</div></div></div><button class="account-x" onclick="accountClose()">×</button></div>
-  <div class="account-status-card"><div class="account-avatar">A</div><div><div class="muted">STATUS</div><b id="accountStatus">Noch kein Konto</b><div class="account-status-line"><span></span> Daten werden auf diesem Gerät gespeichert</div></div></div>
+  <div class="account-status-card"><div class="account-avatar">A</div><div><div class="muted">STATUS</div><b id="accountStatusSidebar">Noch kein Konto</b><div class="account-status-line"><span></span> Daten werden auf diesem Gerät gespeichert</div></div></div>
   <div class="account-tabs"><button class="account-tab active" type="button" onclick="accountTab('login',this)">Anmelden</button><button class="account-tab" type="button" onclick="accountTab('create',this)">Konto erstellen</button></div>
   <div id="accountLoginPane" class="account-pane"><div class="account-copy"><h3>Willkommen zurück</h3><p>Mit deiner E-Mail kannst du dein lokales Fitness-Profil öffnen.</p></div><div class="account-field"><span>✉</span><input id="loginEmail" type="email" placeholder="E-Mail-Adresse" autocomplete="email"></div><button class="account-main-btn" onclick="accountLogin()">Anmelden <b>→</b></button></div>
   <div id="accountCreatePane" class="account-pane" style="display:none"><div class="account-copy"><h3>Neues Profil anlegen</h3><p>Name und E-Mail reichen für dein lokales Profil.</p></div><div class="account-field"><span>◎</span><input id="accountName" placeholder="Dein Name" autocomplete="name"></div><div class="account-field"><span>✉</span><input id="accountEmail" type="email" placeholder="E-Mail-Adresse" autocomplete="email"></div><button class="account-main-btn" onclick="accountCreate()">Profil erstellen <b>→</b></button></div>
@@ -2507,6 +2507,24 @@ function renderHomeLiveStatus(){
  const e=document.getElementById('homeMeals');if(e)e.textContent=meals;
  const r=document.getElementById('homeRecovery');if(r)r.textContent=check==='easy'?'Leicht':check==='hard'?'Anstrengend':check==='right'?'Passend':'Offen';
  const w=document.getElementById('homeWater');if(w)w.textContent=Number(moduleState.hydration||0).toFixed(1).replace('.',',');
+}
+
+/* V138 RELEASE GUARD */
+function runReleaseGuard(){
+ const required=['fitness_coach_setup','fitness_v85_training_data'];
+ const checks=[
+  ['Navigation',!!document.querySelector('.pro-sidebar')||!!document.querySelector('.bottom')],
+  ['Coach',typeof openCoachPlan==='function'&&typeof coachAdaptiveAnalysis==='function'],
+  ['Training',typeof startTrainingSession==='function'&&typeof finishTrainingSession==='function'],
+  ['Ernährung',typeof saveMeal==='function'],
+  ['Bewegung',typeof saveCardioSession==='function'],
+  ['Fortschritt',typeof renderProgressCoach==='function'],
+  ['Backup',typeof exportData==='function'&&typeof importData==='function'],
+  ['System Check',typeof runSystemCheck==='function'],
+  ['Eindeutige IDs',false]
+ ];
+ const ok=checks.filter(x=>x[1]).length,total=checks.length;
+ return {ok,total,checks};
 }
 </body>
 </html>
