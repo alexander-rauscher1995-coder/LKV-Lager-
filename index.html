@@ -1797,7 +1797,7 @@ function setCardioProfile(days,minutes,type,target='calculator'){
 function setStepsEnabled(v,target='calculator'){calorieState.stepsEnabled=!!v;saveCalories();openModule(target)}
 function setCardioEnabled(v,target='calculator'){calorieState.cardioEnabled=!!v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
-function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target)}
+function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target);setTimeout(()=>{if(typeof window.calculatorProRefresh==='function')window.calculatorProRefresh()},40)}
 function visibleCalcField(...ids){
  const els=ids.map(id=>document.getElementById(id)).filter(Boolean);
  return els.find(el=>el.offsetParent!==null)||els[0]||null;
