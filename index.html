@@ -1159,46 +1159,49 @@ function calcBreakdown(){
   const w=Math.max(0,Number(calorieState.weight)||0);
   const steps=Math.max(0,Number(calorieState.steps)||0);
 
-  // Formel-Übersicht:
-  // RMR/BMR = Mifflin-St Jeor
-  // NEAT = sitzender Grundalltag + zusätzliche Schritte
-  // TEA  = Training als Wochenmittel
-  // TEF  = 8 % der Summe aus RMR + NEAT + TEA
-  //
-  // Dadurch sind die Komponenten einzeln nachvollziehbar und werden
-  // nicht zusätzlich über einen hohen Aktivitätsfaktor doppelt gezählt.
-
+  // Saubere Komponentenrechnung:
+  // RMR = Mifflin-St Jeor
+  // NEAT = sitzender Alltag + zusätzlicher Schrittverbrauch
+  // TEA = Krafttraining als Wochenmittel
+  // Cardio = erfasste Cardioeinheiten als Wochenmittel
+  // TEF = 8 % auf RMR + NEAT + TEA + Cardio
   const rmr=b;
 
-  // Sitzende Arbeit als Basis: Aktivitätsfaktor 1,35 enthält einen
-  // normalen sitzenden Alltag. Der Schrittanteil oberhalb von 3.000
-  // wird separat ergänzt.
-  const sedentaryBase=Math.round(rmr*1.35);
-  const neatBase=Math.max(0,sedentaryBase-rmr);
+  // Sitzender Alltag: 1,35 × RMR. Der RMR selbst wird anschließend
+  // separat ausgewiesen, damit er nicht doppelt gezählt wird.
+  const sedentaryTDEE=Math.round(rmr*1.35);
+  const neatBase=Math.max(0,sedentaryTDEE-rmr);
+
+  // 3.000 Schritte gelten als im sitzenden Alltag enthalten.
   const baselineSteps=3000;
   const extraSteps=Math.max(0,steps-baselineSteps);
-  const stepCalories=Math.round(extraSteps*(0.035*w));
+  const stepCalories=Math.round(extraSteps*0.035*w);
   const neat=neatBase+stepCalories;
 
-  // Training: 4 Einheiten/Woche, 60 min, moderate Krafttrainings-
-  // Intensität als konservative Standardannahme. Als Wochenmittel.
+  // Krafttraining als Wochenmittel: 4 × 60 min, moderates Training.
   const sessionsPerWeek=4;
   const minutesPerSession=60;
   const trainingMET=5;
-  const teaPerSession=Math.round((trainingMET*3.5*w/200)*minutesPerSession);
-  const trainingCalories=Math.round(teaPerSession*sessionsPerWeek/7);
+  const teaPerSession=(trainingMET*3.5*w/200)*minutesPerSession;
+  const trainingCalories=Math.round((teaPerSession*sessionsPerWeek)/7);
 
-  const today=todayISO();
-  const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
-  const cardioCalories=calorieState.cardioEnabled ? Math.round(cardioSessions.reduce((sum,x)=>{
+  // Cardio ebenfalls als Wochenmittel statt nur am aktuellen Tag.
+  const cardioSessions=(cardioState.sessions||[]);
+  const cardioLast7=cardioSessions.filter(x=>{
+    const d=new Date(String(x.date||'')+'T12:00:00');
+    if(Number.isNaN(d.getTime())) return false;
+    const diff=(Date.now()-d.getTime())/86400000;
+    return diff>=0 && diff<7;
+  });
+  const cardioWeek=cardioState.cardioEnabled ? cardioLast7.reduce((sum,x)=>{
     const minutes=Math.max(0,Number(x.minutes)||0);
     const type=String(x.type||'').toLowerCase();
     const met=type.includes('laufen')?8:type.includes('rad')?7:type.includes('crosstrainer')?7:type.includes('gehen')?3.5:5;
     return sum+(met*3.5*w/200)*minutes;
-  },0)) : 0;
+  },0) : 0;
+  const cardioCalories=Math.round(cardioWeek/7);
 
-  const tea=trainingCalories+cardioCalories;
-  const preTef=Math.round(rmr+neat+tea);
+  const preTef=Math.round(rmr+neat+trainingCalories+cardioCalories);
   const tef=Math.round(preTef*0.08);
   const total=Math.round(preTef+tef);
 
