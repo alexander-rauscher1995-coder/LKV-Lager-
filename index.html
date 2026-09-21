@@ -1516,6 +1516,10 @@ function openModule(type){
    </div>
    <div class="module-card calculator-breakdown" style="margin-top:12px">
     <div class="calc-result-main"><div class="calc-result-label">Geschätzter Erhaltungsbedarf</div><div class="calc-result-number">${maintenance.toLocaleString('de-DE')} kcal</div><div class="calc-result-sub">Tagesmittel · Schätzung, keine exakte Messung</div></div>
+    <div class="calc-goal-summary" style="margin-top:10px;padding:12px 14px;border:1px solid rgba(99,245,154,.18);border-radius:14px;background:rgba(99,245,154,.045);display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div><div class="muted" style="font-size:11px">GEWÄHLTES ZIEL</div><b>${calorieState.goal==='lose'?'Abnehmen':calorieState.goal==='bulk'?'Aufbau':'Erhalt'}</b></div>
+      <span class="pill">${calorieState.goal==='lose'?'Gewichtsreduktion':calorieState.goal==='bulk'?'Muskelaufbau':'Gewicht halten'}</span>
+    </div>
     <h3 style="margin-top:16px">Formel-Übersicht</h3>
     <div class="calc-component"><div><b>RMR / Grundumsatz</b><small>Mifflin-St Jeor</small></div><b>${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
     <div class="calc-component"><div><b>NEAT / Alltag</b><small>${activityLabels[calorieState.activity]||'Alltag'} · ohne Training</small></div><b>+${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
