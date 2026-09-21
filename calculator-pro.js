@@ -56,6 +56,8 @@
     const weight=n(state.weight)||n(document.getElementById('cwCoach')?.value);
     const steps=n(state.steps)||n(document.getElementById('csteps')?.value);
     const goal=String(state.goal||'maintain');
+    const goalNames={lose:'Abnehmen · neutrale Orientierung',maintain:'Erhalt · neutrale Orientierung',bulk:'Aufbau · neutrale Orientierung',muscle:'Muskelaufbau · neutrale Orientierung',strength:'Kraft & Leistung · neutrale Orientierung',fitness:'Allgemeine Fitness · neutrale Orientierung',recovery:'Erholung · neutrale Orientierung'};
+    const goalName=goalNames[goal]||goalNames.maintain;
 
     const head=sheet.querySelector('.module-head');
     const main=sheet.querySelector('.calculator-main');
@@ -71,13 +73,13 @@
       <div>
         <div class="calculator-pro-kicker">FITNESS COACH PRO · TAGESENERGIE</div>
         <div class="calculator-pro-title">Dein Energie-Dashboard</div>
-        <div class="calculator-pro-sub">Das Tagesziel wird aus deinem geschätzten Erhaltungsbedarf und der gewählten Zielrichtung berechnet.</div>
+        <div class="calculator-pro-sub">Der geschätzte Erhaltungsbedarf bleibt die neutrale Energie-Orientierung. Aktuelle Auswahl: <b>${goalName}</b>.</div>
         <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag · Tagesziel</small></div>
         <div style="margin-top:7px;color:#82919a;font-size:12px">Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b> · Berechnung: ${exactMaintenance.toLocaleString('de-DE')} kcal</div>
       </div>
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
-        <div class="calculator-pro-stat"><span>Zielwert</span><b>${target.toLocaleString('de-DE')}</b><small>kcal</small></div>
+        <div class="calculator-pro-stat"><span>Auswahl</span><b style="font-size:14px">${goalName}</b><small>${target.toLocaleString('de-DE')} kcal Orientierung</small></div>
         <div class="calculator-pro-stat"><span>Gewicht</span><b>${weight.toLocaleString('de-DE')}</b><small>kg</small></div>
         <div class="calculator-pro-stat"><span>Schritte</span><b>${steps.toLocaleString('de-DE')}</b><small>/ Tag</small></div>
       </div>`;
