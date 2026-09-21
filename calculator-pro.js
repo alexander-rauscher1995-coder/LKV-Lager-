@@ -329,19 +329,23 @@
       macroBox.className='calculator-pro-macros';
       macroBox.innerHTML=`
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Protein</b><small>Orientierung</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">Proteinreiche Lebensmittel regelmäßig einplanen</div>
+          <div class="macro-top"><b>Protein</b><small>4 kcal / g</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Energiedichte: ca. 4 kcal pro Gramm</div>
           <div class="macro-track"><i style="width:72%"></i></div>
         </div>
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Kohlenhydrate</b><small>Orientierung</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">An Alltag, Training und Hunger/Sättigung orientieren</div>
+          <div class="macro-top"><b>Kohlenhydrate</b><small>4 kcal / g</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Energiedichte: ca. 4 kcal pro Gramm</div>
           <div class="macro-track"><i style="width:58%"></i></div>
         </div>
         <div class="calculator-pro-macro">
-          <div class="macro-top"><b>Fett</b><small>Orientierung</small></div>
-          <div class="muted" style="font-size:11px;margin-top:4px">Vielfältige Fettquellen in ausgewogenen Mahlzeiten</div>
+          <div class="macro-top"><b>Fett</b><small>9 kcal / g</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Energiedichte: ca. 9 kcal pro Gramm</div>
           <div class="macro-track"><i style="width:45%"></i></div>
+        </div>
+        <div style="grid-column:1/-1;padding:10px 12px;border-radius:12px;background:#0b1419;border:1px solid #26343c;color:#82919a;font-size:11px;line-height:1.45">
+          <b style="color:#eef4f6">Makro-Kalorien</b><br>
+          Protein × 4 · Kohlenhydrate × 4 · Fett × 9. Das sind allgemeine Umrechnungswerte, keine persönlichen Zielmengen.
         </div>`;
       const title=[...breakdown.querySelectorAll('h3')].find(x=>x.textContent.includes('Formel'));
       if(title) title.before(macroBox); else breakdown.prepend(macroBox);
