@@ -1240,7 +1240,9 @@ function calcTarget(){
   const maintenance=calcMaintenance();
   const goal=calorieState.goal;
   if(!maintenance)return 0;
-  // Zielwerte: Erhalt = 0, Abnehmen = 500 kcal Defizit, Aufbau = moderater Überschuss.
+  // Bei Minderjährigen zeigt die App ausschließlich eine neutrale Energie-Orientierung
+  // und erzeugt kein Defizit- oder Überschussziel.
+  if(Number(calorieState.age)<18)return maintenance;
   if(goal==='lose'||goal==='kfa'||goal==='weightloss')return Math.max(0,maintenance-500);
   if(goal==='bulk'||goal==='muscle')return maintenance+300;
   return maintenance;
