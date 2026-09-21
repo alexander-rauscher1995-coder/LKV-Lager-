@@ -748,7 +748,7 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .exercise-adaptive{margin-top:12px;padding:11px 13px;border:1px solid #29363e;border-radius:12px;background:#0d151a;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
 .exercise-adaptive b{font-size:12px;color:#bfe8cc}.exercise-adaptive span{display:block;color:#8f9ca4;font-size:12px;margin-top:3px}.exercise-adaptive strong{color:#63f59a;font-size:12px}
 @media(max-width:600px){.exercise-adaptive{grid-template-columns:1fr}}
-</style></head>
+</style><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#071016"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="icon.svg"></head>
 <body>
 <div class="app">
   <header class="top">
@@ -2083,13 +2083,8 @@ function coachToggleTask(i,on){
 function coachCompleteToday(){const s=coachWayLoad();s.done[todayISO()]=true;coachWaySave(s);coachRenderWeek();toast('Coach-Tag abgeschlossen ✓')}
 function coachCheckin(v){const s=coachWayLoad();s.checkins[todayISO()]=v;coachWaySave(s);coachRenderWeek();toast('Check-in gespeichert ✓')}
 function coachSelectDay(i){const week=coachBuildWeek(),d=week[i],box=document.getElementById('cwDetailTitle');if(box)box.textContent=d.name+' · '+d.title;const tasks=document.getElementById('cwTasks');if(tasks)tasks.innerHTML=d.tasks.map(t=>'<div class="coach-task"><span>'+t+'</span></div>').join('')}
-function coachOpenToday(){
- const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{days:'3'};
- const week=coachBuildWeek(),i=(new Date().getDay()+6)%7;
- if(week[i].type==='Strength'){closeCoachPlan();showView('training');}
- else {toast(week[i].type==='Cardio'?'Heute ist Cardio geplant.':'Heute ist Regeneration geplant.')}
-}
-function openCoachPlan(){coachRenderWeek();document.getElementById('coachWay').classList.add('show');document.body.classList.add('module-open');}
+
+
 function closeCoachPlan(){
  const cw=document.getElementById('coachWay');if(cw){cw.classList.remove('show');cw.style.cssText='';}
  document.body.classList.remove('module-open','coach-way-active');document.body.style.paddingLeft='';
@@ -2102,15 +2097,7 @@ function closeCoachPlan(){
 function coachOpenSetupAndClose(){closeCoachPlan();openCoachSetup()}
 </script><script>
 /* V112 SIDEBAR VIEWS */
-function coachSideView(view,btn){
- document.querySelectorAll('.coach-side-btn').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');
- document.querySelectorAll('.coach-view').forEach(x=>x.classList.remove('active'));
- const el=document.getElementById('coachView-'+view);if(el)el.classList.add('active');
- if(view==='overview')coachRenderWeek();
- if(view==='week')coachRenderWeek();
- if(view==='today')coachRenderWeek();
- if(view==='progress'){const s=coachWayLoad();const days=Object.keys(s.done||{}).length;const x=document.getElementById('cwProgressValue');if(x)x.textContent=days+' Tage abgeschlossen';}
-}
+
 </script>
 <script>
 function coachMountView(v){
@@ -2641,5 +2628,9 @@ function validateBackupPayload(p){
 function coachFinalRefresh(){try{ensureCoachProTools();renderProProgress();renderProgressCoach();renderHomeLiveStatus();}catch(e){console.warn(e)}}
 const __oldOpenCoachPlan=openCoachPlan;
 openCoachPlan=function(){__oldOpenCoachPlan();setTimeout(coachFinalRefresh,0)};
+</script><script>
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
 </script></body>
 </html>
