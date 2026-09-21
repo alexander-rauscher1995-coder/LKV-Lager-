@@ -1,8 +1,8 @@
-/* FITNESS PRO V172 — Calculator experience layer */
+/* FITNESS PRO V173 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v172';
+  const STYLE_ID='fitness-pro-calculator-v173';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -117,6 +117,12 @@
       <div class="summary-card"><span>Krafttraining</span><b>+${n(parts.training).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>
       <div class="summary-card"><span>Cardio</span><b>+${n(parts.cardio).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>`;
     main.before(summary);
+    const sync=document.createElement('div');
+    sync.className='calculator-pro-sync-indicator';
+    sync.style.cssText='margin:0 0 10px;padding:8px 11px;border-radius:10px;background:#0b1419;border:1px solid #26343c;color:#82919a;font-size:11px';
+    sync.innerHTML='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px"></span>Berechnung synchronisiert · Eingaben werden automatisch berücksichtigt';
+    main.before(sync);
+
     const resultSummary=document.createElement('div');
     resultSummary.className='calculator-pro-result-summary';
     resultSummary.style.cssText='margin:0 0 12px;padding:15px;border-radius:16px;background:linear-gradient(145deg,#101d19,#0d171c);border:1px solid rgba(99,245,154,.22)';
