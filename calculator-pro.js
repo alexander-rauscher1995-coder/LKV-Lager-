@@ -149,7 +149,22 @@
 
 
 
-    if(!sheet.querySelector('.calculator-pro-last')){
+
+    if(!sheet.querySelector('.calculator-pro-history')){
+      const history=document.createElement('div');
+      history.className='calculator-pro-history';
+      history.style.cssText='margin-top:12px;padding:14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
+      const key='fitness_calculator_history_v1';
+      const read=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}};
+      const render=()=>{const items=read().slice(0,7);history.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Berechnungsverlauf</div>'+ (items.length?items.map((v,i)=>'<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:'+(i<items.length-1?'1px solid #26343c':'0')+'"><span style="font-size:12px;color:#aab6bd">'+new Date(v.updatedAt).toLocaleString('de-DE')+'</span><b>'+Math.round(n(v.target)).toLocaleString('de-DE')+' kcal</b></div>').join(''):'<div style="font-size:11px;color:#82919a;margin-top:8px">Noch kein Verlauf vorhanden.</div>')};
+      const save=()=>{try{const parts=typeof calcBreakdown==='function'?calcBreakdown():{};const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));const items=read();items.unshift({target,updatedAt:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(items.slice(0,7)));render()}catch(e){}};
+      render();
+      const old=window.calculateAndStay;
+      if(old && !window.__fitnessCalcHistoryWrapped){window.__fitnessCalcHistoryWrapped=true;window.calculateAndStay=function(){const r=old.apply(this,arguments);setTimeout(save,300);return r;};}
+      const last=document.querySelector('.calculator-pro-last');
+      if(last) last.after(history); else main.before(history);
+    }
+\n    if(!sheet.querySelector('.calculator-pro-last')){
       const last=document.createElement('div');
       last.className='calculator-pro-last';
       last.style.cssText='margin-top:12px;padding:13px 14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
