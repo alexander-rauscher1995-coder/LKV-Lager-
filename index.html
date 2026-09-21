@@ -1129,8 +1129,13 @@ const moduleState = {
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
   // Standard: überwiegend sitzende Arbeit.
-  activity: 1.35,
+  activity: 1.2,
   steps: 7000,
+  trainingDays: 4,
+  trainingMinutes: 60,
+  cardioDays: 0,
+  cardioMinutes: 45,
+  cardioType: 'Laufen',
   stepsEnabled: true,
   cardioEnabled: false,
   // Krafttraining wird als Wochenmittel berücksichtigt.
@@ -1150,7 +1155,7 @@ function activityFactor(){
   // Die Auswahl beschreibt den Arbeits-/Alltagslevel; Schritte und Training
   // werden danach separat und kontrolliert berücksichtigt.
   const v=Number(calorieState.activity);
-  return [1.35,1.5,1.65,1.8].includes(v)?v:1.35;
+  return [1.2,1.3,1.4,1.5,1.6].includes(v)?v:1.2;
 }
 function calcBreakdown(){
   const b=calcBMR();
@@ -1186,20 +1191,12 @@ function calcBreakdown(){
   const trainingCalories=Math.round((teaPerSession*sessionsPerWeek)/7);
 
   // Cardio ebenfalls als Wochenmittel statt nur am aktuellen Tag.
-  const cardioSessions=(cardioState.sessions||[]);
-  const cardioLast7=cardioSessions.filter(x=>{
-    const d=new Date(String(x.date||'')+'T12:00:00');
-    if(Number.isNaN(d.getTime())) return false;
-    const diff=(Date.now()-d.getTime())/86400000;
-    return diff>=0 && diff<7;
-  });
-  const cardioWeek=cardioState.cardioEnabled ? cardioLast7.reduce((sum,x)=>{
-    const minutes=Math.max(0,Number(x.minutes)||0);
-    const type=String(x.type||'').toLowerCase();
-    const met=type.includes('laufen')?8:type.includes('rad')?7:type.includes('crosstrainer')?7:type.includes('gehen')?3.5:5;
-    return sum+(met*3.5*w/200)*minutes;
-  },0) : 0;
-  const cardioCalories=Math.round(cardioWeek/7);
+  const cardioDays=Math.max(0,Math.min(7,Number(calorieState.cardioDays)||0));
+  const cardioMinutes=Math.max(0,Math.min(180,Number(calorieState.cardioMinutes)||0));
+  const cardioType=String(calorieState.cardioType||'Laufen').toLowerCase();
+  const cardioMET=cardioType.includes('laufen')?8:cardioType.includes('rad')?7:cardioType.includes('crosstrainer')?7:cardioType.includes('gehen')?3.5:5;
+  const cardioPerSession=(cardioMET*3.5*w/200)*cardioMinutes;
+  const cardioCalories=calorieState.cardioEnabled ? Math.round((cardioPerSession*cardioDays)/7) : 0;
 
   const preTef=Math.round(rmr+neat+trainingCalories+cardioCalories);
   const tef=Math.round(preTef*0.08);
@@ -1773,6 +1770,13 @@ function importData(event){
 }
 function setActivity(v,target='calories'){calorieState.activity=v;saveCalories();openModule(target)}
 function setTrainingProfile(sessions,minutes,target='calculator'){calorieState.trainingDays=Math.max(0,Math.min(7,Number(sessions)||0));calorieState.trainingMinutes=Math.max(0,Math.min(180,Number(minutes)||0));saveCalories();openModule(target)}
+function setCardioProfile(days,minutes,type,target='calculator'){
+ calorieState.cardioDays=Math.max(0,Math.min(7,Number(days)||0));
+ calorieState.cardioMinutes=Math.max(0,Math.min(180,Number(minutes)||0));
+ calorieState.cardioType=String(type||'Laufen');
+ calorieState.cardioEnabled=calorieState.cardioDays>0;
+ saveCalories();openModule(target);
+}
 function setStepsEnabled(v,target='calculator'){calorieState.stepsEnabled=!!v;saveCalories();openModule(target)}
 function setCardioEnabled(v,target='calculator'){calorieState.cardioEnabled=!!v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
