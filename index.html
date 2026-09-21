@@ -2922,5 +2922,37 @@ function ensureDailyFocus(){
  const box=document.createElement('div');box.id='dailyFocus';(panels[1]||host).appendChild(box);renderDailyFocus();
 }
 window.addEventListener('load',()=>setTimeout(ensureDailyFocus,260));
+</script>
+<style>
+/* V154 WEEKLY REPORT */
+.week-report{margin-top:12px;padding:13px;background:#0b151a;border:1px solid #293840;border-radius:13px}.week-report h4{margin:0 0 9px}.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.report-item{padding:9px;background:#101b21;border-radius:10px;font-size:12px}.report-item b{display:block;font-size:17px;margin-bottom:2px}
+</style>
+<script>
+/* V154 WEEKLY REPORT ENGINE */
+function weeklyReportData(){
+ const r=smartWeeklyReview(),rec=recoveryData(),g=r.goal||{};
+ const tp=Math.min(100,Math.round(r.training/Math.max(1,Number(g.trainingTarget||4))*100));
+ const cp=Math.min(100,Math.round(r.runs/Math.max(1,Number(g.cardioTarget||2))*100));
+ return {...r,recovery:rec.score,trainingPct:tp,cardioPct:cp,overall:Math.round((tp+cp+Math.round(r.activeDays/7*100)+Math.round(r.mealDays/7*100))/4)};
+}
+function renderWeeklyReport(){
+ const host=document.getElementById('weeklyReport');if(!host)return;
+ const r=weeklyReportData();
+ host.innerHTML='<div class="week-report"><h4>Wochenabschluss</h4><div class="report-grid">'+
+ '<div class="report-item"><small>Training</small><b>'+r.training+'</b>'+r.trainingPct+'% vom Ziel</div>'+
+ '<div class="report-item"><small>Cardio</small><b>'+r.runs+'</b>'+r.cardioPct+'% vom Ziel</div>'+
+ '<div class="report-item"><small>Aktive Tage</small><b>'+r.activeDays+'/7</b>'+Math.round(r.activeDays/7*100)+'%</div>'+
+ '<div class="report-item"><small>Recovery</small><b>'+r.recovery+'%</b>Belastungsstatus</div>'+
+ '<div class="report-item"><small>Ernährung</small><b>'+r.mealDays+'/7</b>dokumentierte Tage</div>'+
+ '<div class="report-item"><small>Gesamt</small><b>'+r.overall+'%</b>Wochenfortschritt</div>'+
+ '</div></div>';
+}
+function ensureWeeklyReport(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('weeklyReport')){renderWeeklyReport();return}
+ const panels=host.querySelectorAll('.smart-panel');if(!panels.length)return;
+ const box=document.createElement('div');box.id='weeklyReport';(panels[0]||host).appendChild(box);renderWeeklyReport();
+}
+window.addEventListener('load',()=>setTimeout(ensureWeeklyReport,300));
 </script></body>
 </html>
