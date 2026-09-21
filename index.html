@@ -1151,9 +1151,9 @@ function calcTarget(){
   const maintenance=calcMaintenance();
   const goal=calorieState.goal;
   if(!maintenance)return 0;
-  /* Coach-Ziele bleiben gesundheitsorientiert: kein aggressives Defizit. */
-  if(goal==='lose'||goal==='kfa'||goal==='weightloss')return maintenance;
-  if(goal==='bulk'||goal==='muscle')return Math.round(maintenance*1.05);
+  // Zielwerte: Erhalt = 0, Abnehmen = 500 kcal Defizit, Aufbau = moderater Überschuss.
+  if(goal==='lose'||goal==='kfa'||goal==='weightloss')return Math.max(0,maintenance-500);
+  if(goal==='bulk'||goal==='muscle')return maintenance+300;
   return maintenance;
 }
 function goalLabel(){
