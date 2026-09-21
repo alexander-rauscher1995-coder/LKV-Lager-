@@ -1098,7 +1098,14 @@ const moduleState = {
 };
 const calorieState = JSON.parse(localStorage.getItem('fitness_v86_calories')||'null') || {
   age: 31, height: 180, weight: 80, sex: 'm',
-  activity: 1.5, steps: 0, stepsEnabled: false, cardioEnabled: false, training: 'rest', goal: 'maintain',
+  // Standard: überwiegend sitzende Arbeit.
+  activity: 1.35,
+  steps: 7000,
+  stepsEnabled: true,
+  cardioEnabled: false,
+  // Krafttraining wird als Wochenmittel berücksichtigt.
+  training: 'train',
+  goal: 'maintain',
   intake: 0, protein: 0, carbs: 0, fat: 0,
   history: []
 };
