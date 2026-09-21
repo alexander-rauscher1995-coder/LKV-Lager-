@@ -145,7 +145,16 @@
     }
 
 
-    if(!sheet.querySelector('.calculator-pro-tools')){
+
+    if(!sheet.querySelector('.calculator-pro-method')){
+      const method=document.createElement('div');
+      method.className='calculator-pro-method';
+      method.style.cssText='margin-top:12px;padding:14px;border:1px solid #26343c;border-radius:14px;background:#0d171c';
+      method.innerHTML='<div style="font-size:11px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Berechnung transparent</div><div style="font-size:14px;font-weight:800;margin-top:5px">Grundumsatz → Aktivität → Training/Cardio → Tagesziel</div><div style="font-size:11px;color:#82919a;line-height:1.45;margin-top:5px">Die einzelnen Bausteine werden separat dargestellt, damit Änderungen bei Eingaben nachvollziehbar bleiben.</div>';
+      const tools=document.querySelector('.calculator-pro-tools');
+      if(tools) tools.after(method); else main.before(method);
+    }
+\n    if(!sheet.querySelector('.calculator-pro-tools')){
       const tools=document.createElement('div');
       tools.className='calculator-pro-tools';
       tools.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px';
