@@ -1555,6 +1555,11 @@ function openModule(type){
    <div class="setting-row"><div><b>Daten sichern</b><div class="muted">Training exportieren oder wiederherstellen.</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="module-action secondary" onclick="exportData()">Export</button><label class="module-action secondary" style="cursor:pointer"><input id="importFile" class="file-input" type="file" accept="application/json" onchange="importData(event)">Import</label></div></div>
    <div class="setting-row"><div><b>Lokale Daten</b><div class="muted">Die Trainingsdaten bleiben auf diesem Gerät.</div></div><button class="module-action secondary" onclick="toast('Lokale Speicherung aktiv.')">Info</button></div>
    <div class="module-card" style="margin-top:12px"><h3>👤 Konto</h3><div id="accountStatus" class="mini-note">Konto wird geladen …</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="module-action" onclick="accountOpen()">Konto verwalten</button>${currentAccount?'<button class="module-action secondary" onclick="accountLogout()">Abmelden</button>':''}</div></div>
+   <div class="module-card" style="margin-top:12px"><h3>🛠️ System-Check</h3>
+    <div class="muted">Prüft die wichtigsten App-Bausteine und zeigt dir, ob die Coach-Kette vollständig geladen ist.</div>
+    <div id="systemCheckResult" class="mini-note" style="margin-top:10px">Noch nicht geprüft.</div>
+    <button class="module-action secondary" style="margin-top:10px" onclick="runSystemCheck()">System prüfen</button>
+   </div>
    <div class="module-card" style="margin-top:12px"><h3>🗑️ App-Daten zurücksetzen</h3><div class="muted">Training, Cardio, Schritte, Recovery, Check-ins und Fortschritt werden auf 0/leer gesetzt. Das Konto bleibt bestehen.</div><button class="module-action secondary" style="margin-top:10px" onclick="accountDeleteData()">Alle meine App-Daten löschen</button></div>
    <div class="module-card" style="margin-top:12px"><h3>🧠 Coach-System</h3>
     <div class="muted">Deine Coach-Daten werden lokal mit der App verknüpft. Änderungen an Training, Bewegung, Check-ins und Körper-Checks fließen in die Übersicht ein.</div>
@@ -1609,7 +1614,7 @@ function openModule(type){
 function accountTab(tab,btn){document.querySelectorAll('.account-tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const login=document.getElementById('accountLoginPane'),create=document.getElementById('accountCreatePane');if(login)login.style.display=tab==='login'?'block':'none';if(create)create.style.display=tab==='create'?'block':'none';}
 function exportData(){
  const payload={
-   version:'V87',
+   version:'V136',
    exportedAt:new Date().toISOString(),
    sessions:saved,
    trainingData:getTrainingData(),
@@ -1620,7 +1625,11 @@ function exportData(){
    bodycheck:bodyCheckState,
    nutrition:nutritionState,
    calories:calorieState,
-   plans:JSON.parse(localStorage.getItem('fitness_v94_plans')||'null')
+   plans:JSON.parse(localStorage.getItem('fitness_v94_plans')||'null'),
+   coachSetup:JSON.parse(localStorage.getItem('fitness_coach_setup')||'null'),
+   coachWay:JSON.parse(localStorage.getItem('fitness_coach_way')||'null'),
+   trainingSession:JSON.parse(localStorage.getItem('fitness_training_session')||'null'),
+   appSettings:{compact:!!moduleState.compact}
  };
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
  const url=URL.createObjectURL(blob);
@@ -1644,6 +1653,9 @@ function importData(event){
      if(p.coach && typeof p.coach==='object')localStorage.setItem(coachKey,JSON.stringify(p.coach));
      if(p.bodycheck && typeof p.bodycheck==='object')localStorage.setItem(bodyCheckKey,JSON.stringify(p.bodycheck));
      if(p.nutrition && typeof p.nutrition==='object')localStorage.setItem(nutritionKey,JSON.stringify(p.nutrition));
+     if(p.coachSetup && typeof p.coachSetup==='object')localStorage.setItem('fitness_coach_setup',JSON.stringify(p.coachSetup));
+     if(p.coachWay && typeof p.coachWay==='object')localStorage.setItem('fitness_coach_way',JSON.stringify(p.coachWay));
+     if(p.trainingSession && typeof p.trainingSession==='object')localStorage.setItem('fitness_training_session',JSON.stringify(p.trainingSession));
      if(p.calories && typeof p.calories==='object')localStorage.setItem('fitness_v86_calories',JSON.stringify(p.calories));
      if(p.plans && typeof p.plans==='object')localStorage.setItem('fitness_v94_plans',JSON.stringify(p.plans));
      toast('Backup importiert ✓');
@@ -2466,6 +2478,24 @@ function renderSettingsCoachStatus(){
  const ns=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{meals:[]};
  set('settingsCoachSetup',setup?'Aktiv':'Offen');set('settingsTraining',sessions.length);set('settingsChecks',(bodyCheckState.history||[]).length);
  set('settingsTrainingHealth',sessions.length);set('settingsCardioHealth',(cs.sessions||[]).length);set('settingsMealsHealth',(ns.meals||[]).length);set('settingsChecksHealth',(bodyCheckState.history||[]).length);
+}
+
+/* V136 SYSTEM CHECK */
+function runSystemCheck(){
+ const checks=[
+  ['Coach Setup',!!localStorage.getItem('fitness_coach_setup')],
+  ['Training',typeof getTrainingData==='function'],
+  ['Training Session',typeof startTrainingSession==='function'&&typeof finishTrainingSession==='function'],
+  ['Ernährung',typeof saveMeal==='function'],
+  ['Cardio',typeof saveCardioSession==='function'],
+  ['Fortschritt',typeof renderProgressCoach==='function'],
+  ['Körper-Check',typeof saveBodyCheck==='function'],
+  ['Backup',typeof exportData==='function'&&typeof importData==='function'],
+  ['Coach',typeof coachNextAction==='function'&&typeof coachAdaptiveAnalysis==='function']
+ ];
+ const ok=checks.filter(x=>x[1]).length,total=checks.length;
+ const e=document.getElementById('systemCheckResult');if(e)e.innerHTML=checks.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+ok+'/'+total+' Bereiche aktiv</b>';
+ toast(ok===total?'System-Check vollständig ✓':'System-Check: '+ok+'/'+total);
 }
 </body>
 </html>
