@@ -1119,18 +1119,26 @@ function calcBreakdown(){
   const b=calcBMR();
   if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
   const w=Number(calorieState.weight)||0;
-  // Mehrstufiges Modell: Grundumsatz + Alltagsaktivität + Schritte.
-  // Die Schritte werden nur oberhalb einer normalen Basisbewegung ergänzt,
-  // damit sie nicht vollständig doppelt mit dem Aktivitätsfaktor zählen.
+
+  // Basismodell: Grundumsatz × Alltagsfaktor.
+  // "Sitzend" bleibt der Standard; Schritte und Training werden separat
+  // und nur teilweise ergänzt, damit Bewegung nicht doppelt gezählt wird.
   const baseTotal=Math.round(b*activityFactor());
   const steps=Math.max(0,Number(calorieState.steps)||0);
   const baselineSteps=3000;
   const extraSteps=Math.max(0,steps-baselineSteps);
   const stepAdjustment=Math.round(extraSteps*0.0005*w);
-  const adjustedTotal=Math.max(b,baseTotal+stepAdjustment);
+
+  // Krafttraining als Wochenmittel: 4 Einheiten/Woche ≈ 4/7 der
+  // angenommenen Trainingseinheiten. training='train' bedeutet heute Training.
+  const trainingPerSession=calorieState.training==='train' ? Math.round(5.5*w) : 0;
+  const trainingWeeklyAverage=Math.round(trainingPerSession*4/7);
+
+  const adjustedTotal=Math.max(b,baseTotal+stepAdjustment+trainingWeeklyAverage);
   const activityCalories=Math.max(0,baseTotal-b);
   const stepCalories=stepAdjustment;
-  const trainingCalories=0;
+  const trainingCalories=trainingWeeklyAverage;
+
   const today=todayISO();
   const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
   const cardioCalories=calorieState.cardioEnabled ? Math.round(cardioSessions.reduce((sum,x)=>{
@@ -1139,13 +1147,14 @@ function calcBreakdown(){
     const met=type.includes('laufen')?8:type.includes('rad')?7:type.includes('crosstrainer')?7:type.includes('gehen')?3.5:5;
     return sum+(met*3.5*w/200)*minutes;
   },0)) : 0;
-  // TEF als moderate Näherung; er wird nicht nochmals auf einzelne Mahlzeiten addiert.
+
+  // Der Aktivitätsfaktor dient hier bereits als TDEE-Näherung.
+  // Kein zusätzlicher TEF-Aufschlag, um Doppelzählung zu vermeiden.
   const preTef=adjustedTotal+cardioCalories;
-  const tef=Math.round(preTef*0.08);
-  const total=Math.round(preTef+tef);
+  const tef=0;
+  const total=Math.round(preTef);
   return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
 }
-
 function calcMaintenance(){
   // Erhalt wird auf einen gut lesbaren 100-kcal-Wert aufgerundet.
   return Math.ceil(calcBreakdown().total/100)*100;
