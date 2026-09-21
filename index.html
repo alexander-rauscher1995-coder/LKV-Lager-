@@ -1155,29 +1155,38 @@ function activityFactor(){
 function calcBreakdown(){
   const b=calcBMR();
   if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
+
   const w=Math.max(0,Number(calorieState.weight)||0);
   const steps=Math.max(0,Number(calorieState.steps)||0);
 
-  // Genauere Erhaltsschätzung:
-  // 1) Grundumsatz nach Mifflin-St Jeor
-  // 2) sitzender Alltag als Basis
-  // 3) Schritte separat mit konservativer Geh-Schätzung
-  // 4) Krafttraining als Wochenmittel statt nur am Trainingstag
-  const baseTotal=Math.round(b*activityFactor());
-  const activityCalories=Math.max(0,baseTotal-b);
+  // Formel-Übersicht:
+  // RMR/BMR = Mifflin-St Jeor
+  // NEAT = sitzender Grundalltag + zusätzliche Schritte
+  // TEA  = Training als Wochenmittel
+  // TEF  = 8 % der Summe aus RMR + NEAT + TEA
+  //
+  // Dadurch sind die Komponenten einzeln nachvollziehbar und werden
+  // nicht zusätzlich über einen hohen Aktivitätsfaktor doppelt gezählt.
 
-  // Nur Schritte oberhalb der im sitzenden Alltag bereits enthaltenen Basis.
+  const rmr=b;
+
+  // Sitzende Arbeit als Basis: Aktivitätsfaktor 1,35 enthält einen
+  // normalen sitzenden Alltag. Der Schrittanteil oberhalb von 3.000
+  // wird separat ergänzt.
+  const sedentaryBase=Math.round(rmr*1.35);
+  const neatBase=Math.max(0,sedentaryBase-rmr);
   const baselineSteps=3000;
   const extraSteps=Math.max(0,steps-baselineSteps);
   const stepCalories=Math.round(extraSteps*(0.035*w));
+  const neat=neatBase+stepCalories;
 
-  // 4 Krafttrainings/Woche als Beispielprofil; der Zuschlag ist ein
-  // Wochenmittel und wird nicht zusätzlich am Ruhetag als volle Einheit gezählt.
+  // Training: 4 Einheiten/Woche, 60 min, moderate Krafttrainings-
+  // Intensität als konservative Standardannahme. Als Wochenmittel.
   const sessionsPerWeek=4;
-  const trainingMinutes=60;
+  const minutesPerSession=60;
   const trainingMET=5;
-  const trainingPerSession=Math.round((trainingMET*3.5*w/200)*trainingMinutes);
-  const trainingCalories=Math.round(trainingPerSession*sessionsPerWeek/7);
+  const teaPerSession=Math.round((trainingMET*3.5*w/200)*minutesPerSession);
+  const trainingCalories=Math.round(teaPerSession*sessionsPerWeek/7);
 
   const today=todayISO();
   const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
@@ -1188,12 +1197,21 @@ function calcBreakdown(){
     return sum+(met*3.5*w/200)*minutes;
   },0)) : 0;
 
-  const preTef=Math.max(b,baseTotal+stepCalories+trainingCalories)+cardioCalories;
-  // Kein zusätzlicher TEF-Aufschlag: Der Aktivitätsfaktor ist bereits eine
-  // TDEE-Näherung. So wird Energie nicht doppelt gezählt.
-  const tef=0;
-  const total=Math.round(preTef);
-  return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
+  const tea=trainingCalories+cardioCalories;
+  const preTef=Math.round(rmr+neat+tea);
+  const tef=Math.round(preTef*0.08);
+  const total=Math.round(preTef+tef);
+
+  return {
+    bmr:rmr,
+    activity:neatBase,
+    steps:stepCalories,
+    training:trainingCalories,
+    cardio:cardioCalories,
+    preTef,
+    tef,
+    total
+  };
 }
 function calcMaintenance(){
   // Erhalt wird auf einen gut lesbaren 100-kcal-Wert aufgerundet.
