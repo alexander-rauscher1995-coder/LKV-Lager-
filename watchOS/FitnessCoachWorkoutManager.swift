@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import HealthKit
 
 final class FitnessCoachWorkoutManager: NSObject, ObservableObject {
@@ -58,6 +59,7 @@ extension FitnessCoachWorkoutManager: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
         DispatchQueue.main.async { self.running = toState == .running }
     }
+
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
         DispatchQueue.main.async { self.running = false }
     }
@@ -81,5 +83,6 @@ extension FitnessCoachWorkoutManager: HKLiveWorkoutBuilderDelegate {
             }
         }
     }
+
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
 }
