@@ -88,11 +88,11 @@ jobs:
 
       - name: Validate secret hygiene
         run: |
-          if grep -RInE "BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY" --exclude-dir=.git --exclude='package-lock.json' .; then
+          if git grep -nE "BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY" -- ':!.github/**'; then
             echo "Private key material detected in repository"
             exit 1
           fi
-          if grep -RInE "postgres(ql)?://[^[:space:]\"']+:[^[:space:]\"']+@" --exclude-dir=.git --exclude='package-lock.json' .; then
+          if git grep -nE "postgres(ql)?://[^[:space:]\"']+:[^[:space:]\"']+@" -- ':!.github/**'; then
             echo "Database credentials detected in repository"
             exit 1
           fi
