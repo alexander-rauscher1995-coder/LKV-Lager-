@@ -1,8 +1,8 @@
-/* FITNESS PRO V170 — Calculator experience layer */
+/* FITNESS PRO V171 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v170';
+  const STYLE_ID='fitness-pro-calculator-v171';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -99,6 +99,13 @@
       <div class="summary-card"><span>Krafttraining</span><b>+${n(parts.training).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>
       <div class="summary-card"><span>Cardio</span><b>+${n(parts.cardio).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>`;
     main.before(summary);
+    const resultSummary=document.createElement('div');
+    resultSummary.className='calculator-pro-result-summary';
+    resultSummary.style.cssText='margin:0 0 12px;padding:15px;border-radius:16px;background:linear-gradient(145deg,#101d19,#0d171c);border:1px solid rgba(99,245,154,.22)';
+    resultSummary.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Ergebnis kompakt</div><div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:9px;margin-top:10px"><div class="summary-card"><span>Tagesbedarf</span><b style="font-size:25px">'+target.toLocaleString('de-DE')+'</b><small>kcal / Tag</small></div><div class="summary-card"><span>Grundumsatz</span><b>'+bmr.toLocaleString('de-DE')+'</b><small>kcal</small></div><div class="summary-card"><span>Zielmodus</span><b style="font-size:15px">'+goalMode.title+'</b><small>'+goalMode.desc+'</small></div></div>';
+    main.before(resultSummary);
+
+
 
     if(!main.querySelector('.calculator-pro-mode')){
       const mode=document.createElement('div');
