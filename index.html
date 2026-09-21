@@ -3005,5 +3005,28 @@ function ensureQuickActions(){
  panel.appendChild(box);
 }
 window.addEventListener('load',()=>setTimeout(ensureQuickActions,380));
+</script>
+<style>
+/* V157 PRODUCTION STATUS */
+.production-status{margin-top:10px;padding:10px 12px;border-radius:11px;border:1px solid #293840;background:#0d171c;font-size:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.production-dot{width:9px;height:9px;border-radius:50%;background:#89979f;display:inline-block;margin-right:6px}.production-status.live .production-dot{background:var(--green);box-shadow:0 0 10px rgba(72,233,133,.5)}.production-status.pending .production-dot{background:var(--yellow)}
+</style>
+<script>
+/* V157 PRODUCTION STATUS */
+function renderProductionStatus(){
+ const host=document.getElementById('productionStatus');if(!host)return;
+ const c=fitnessCloudStatus();
+ const live=!!c.enabled&&!!c.configured;
+ const pending=!live&&Number(c.pending||0)>0;
+ host.className='production-status '+(live?'live':pending?'pending':'');
+ host.innerHTML='<span><i class="production-dot"></i><b>'+ (live?'Cloud verbunden':pending?'Offline-Sync ausstehend':'Cloud vorbereitet') +'</b></span><span>'+ (live?'Synchronisierung aktiv':pending?c.pending+' Daten warten':'Lokaler Betrieb aktiv') +'</span>';
+}
+function ensureProductionStatus(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('productionStatus')){renderProductionStatus();return}
+ const panel=host.querySelector('.smart-panel');if(!panel)return;
+ const box=document.createElement('div');box.id='productionStatus';panel.appendChild(box);renderProductionStatus();
+}
+window.addEventListener('load',()=>setTimeout(ensureProductionStatus,420));
+window.addEventListener('fitness-cloud-status',renderProductionStatus);
 </script></body>
 </html>
