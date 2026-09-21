@@ -444,6 +444,9 @@ body.coach-way-active{padding-left:0!important}
 /* V127 COACH PLAN ADAPTATION */
 .coach-adapt-card{margin-top:12px;padding:16px;border:1px solid rgba(99,245,154,.20);border-radius:16px;background:linear-gradient(145deg,rgba(99,245,154,.07),#0d151a)}
 .coach-adapt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.coach-adapt-actions button{border-radius:11px;padding:10px 13px;cursor:pointer}.coach-adapt-apply{border:0;background:#63f59a;color:#06100b;font-weight:800}.coach-adapt-later{border:1px solid #344049;background:#172128;color:#fff}.coach-adapt-status{margin-top:9px;color:#8f9ca4;font-size:12px}.coach-adapt-status.ok{color:#63f59a}
+
+/* V128 COACH NEXT ACTION */
+.coach-next-action{margin-top:12px;padding:17px;border-radius:17px;border:1px solid rgba(99,245,154,.24);background:linear-gradient(135deg,rgba(99,245,154,.10),rgba(13,21,26,.98));display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.coach-next-action h3{margin:0 0 5px}.coach-next-action p{margin:0;color:#9aa7af;font-size:13px;line-height:1.45}.coach-next-action button{border:0;background:#63f59a;color:#06100b;font-weight:800;border-radius:11px;padding:11px 14px;cursor:pointer}.coach-next-action small{display:block;color:#71818a;text-transform:uppercase;letter-spacing:.1em;font-size:10px;font-weight:800;margin-bottom:6px}@media(max-width:600px){.coach-next-action{grid-template-columns:1fr}.coach-next-action button{width:100%}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1774,6 +1777,10 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
+<div class="coach-next-action">
+  <div><small>NÄCHSTE AKTION</small><h3 id="cwNextActionTitle">Coach vorbereiten</h3><p id="cwNextActionNote">Der Coach verbindet deinen Wochenplan mit deiner nächsten sinnvollen Aktion.</p></div>
+  <button onclick="coachRunNextAction()">Jetzt öffnen →</button>
+</div>
 <div class="coach-adapt-card">
   <div class="section-kicker">PLAN ANPASSEN</div>
   <h3 style="margin:0">Dein nächster Plan-Schritt</h3>
@@ -2047,7 +2054,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachRenderNextAction();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2254,6 +2261,27 @@ function coachDismissSuggestion(){
  const s=coachWayLoad();s.planSuggestionDismissed=new Date().toISOString();coachWaySave(s);
  const status=document.getElementById('cwPlanAdaptStatus');if(status)status.textContent='Für später gespeichert.';
  toast('Vorschlag für später gespeichert');
+}
+
+/* V128 CLOSED LOOP COACH */
+function coachNextAction(){
+ const week=coachBuildWeek(),today=(new Date().getDay()+6)%7,state=coachWayLoad();
+ const p=week[today];
+ if(p.type==='Strength'&&!state.done[todayISO()])return {type:'training',title:p.title,note:'Heute ist eine Kraft-Einheit geplant. Öffne sie und dokumentiere deine wichtigsten Sätze.'};
+ if(p.type==='Cardio'&&!state.done[todayISO()])return {type:'cardio',title:p.title,note:'Heute ist Cardio geplant. Öffne die Einheit und halte die Session danach fest.'};
+ if(p.type==='Recovery'&&!state.checkins[todayISO()])return {type:'checkin',title:'Kurzer Check-in',note:'Heute steht Regeneration im Fokus. Speichere kurz, wie sich der Tag angefühlt hat.'};
+ const next=coachAdaptiveNext();return {type:'next',title:next.title,note:next.note};
+}
+function coachRenderNextAction(){
+ const a=coachNextAction(),t=document.getElementById('cwNextActionTitle'),n=document.getElementById('cwNextActionNote');
+ if(t)t.textContent=a.title;if(n)n.textContent=a.note;
+}
+function coachRunNextAction(){
+ const a=coachNextAction();
+ if(a.type==='training'){coachOpenToday();return;}
+ if(a.type==='cardio'){closeCoachPlan();openModule('cardio');return;}
+ if(a.type==='checkin'){coachSetMode('checkin');toast('Check-in für heute öffnen ✓');return;}
+ toast('Nächster Coach-Schritt: '+a.title);
 }
 </body>
 </html>
