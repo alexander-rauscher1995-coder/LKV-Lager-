@@ -41,6 +41,15 @@
   .calculator-pro-section-label i{width:22px;height:1px;background:rgba(99,245,154,.5);display:block}
   .calculator-pro-flow button{transition:.18s ease}.calculator-pro-flow button:hover{border-color:rgba(99,245,154,.45)!important;transform:translateY(-1px)}
   .calculator-pro-person-grid .pitem{transition:.18s ease}.calculator-pro-person-grid .pitem:hover{border-color:rgba(99,245,154,.28);transform:translateY(-1px)}
+  .calculator-pro-new{display:grid;gap:12px}
+  .calculator-pro-card{padding:18px;border:1px solid #26343c;border-radius:18px;background:linear-gradient(145deg,#101a20,#0c151a);box-shadow:0 10px 28px rgba(0,0,0,.14)}
+  .calculator-pro-card.accent{border-color:rgba(99,245,154,.24);background:radial-gradient(circle at 90% 0%,rgba(99,245,154,.11),transparent 35%),linear-gradient(145deg,#12221b,#0c151a)}
+  .calculator-pro-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.calculator-pro-card-head h3{margin:0;font-size:17px}.calculator-pro-card-head p{margin:4px 0 0;color:#82919a;font-size:11px;line-height:1.4}
+  .calculator-pro-badge{font-size:9px;color:#7f918a;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+  .calculator-pro-form{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px}.calculator-pro-field label{display:block;font-size:9px;color:#82919a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}.calculator-pro-field input,.calculator-pro-field select{width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid #2b3a42;background:#0b1419;color:#eef4f6;font-size:14px;outline:none}.calculator-pro-field input:focus,.calculator-pro-field select:focus{border-color:rgba(99,245,154,.55);box-shadow:0 0 0 3px rgba(99,245,154,.07)}
+  .calculator-pro-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}.calculator-pro-choice button{padding:13px;border-radius:13px;border:1px solid #2b3a42;background:#0b1419;color:#eef4f6;text-align:left;cursor:pointer}.calculator-pro-choice button.active{border-color:rgba(99,245,154,.65);background:rgba(99,245,154,.08)}.calculator-pro-choice b{display:block;font-size:13px}.calculator-pro-choice small{display:block;color:#82919a;margin-top:3px;font-size:10px}
+  .calculator-pro-result{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:9px;margin-top:13px}.calculator-pro-result .r{padding:14px;border-radius:14px;background:#0b1419;border:1px solid #26343c}.calculator-pro-result span{display:block;color:#82919a;font-size:9px;text-transform:uppercase;letter-spacing:.08em}.calculator-pro-result b{display:block;font-size:24px;margin-top:4px}.calculator-pro-result small{color:#82919a}
+  @media(max-width:700px){.calculator-pro-form{grid-template-columns:repeat(2,1fr)}.calculator-pro-choice,.calculator-pro-result{grid-template-columns:1fr}.calculator-pro-card{padding:15px}}
   .calculator-pro-person{margin:0 0 12px;padding:18px;border-radius:18px;border:1px solid rgba(99,245,154,.22);background:radial-gradient(circle at 85% 10%,rgba(99,245,154,.10),transparent 35%),linear-gradient(135deg,#12221b,#10181d);box-shadow:0 8px 24px rgba(0,0,0,.12)}
   .calculator-pro-person-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.calculator-pro-person-head b{font-size:18px;font-weight:850}.calculator-pro-person-head span{font-size:10px;color:#7f918a;text-transform:uppercase;letter-spacing:.12em}
   .calculator-pro-person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.calculator-pro-person-grid .pitem{padding:12px;border-radius:14px;background:rgba(7,16,22,.5);border:1px solid rgba(153,176,187,.12)}.calculator-pro-person-grid small{display:block;color:#82919a;font-size:10px;text-transform:uppercase;letter-spacing:.07em}.calculator-pro-person-grid b{display:block;font-size:19px;margin-top:5px}
@@ -66,6 +75,87 @@
     };
     sheet.addEventListener('input',()=>{clearTimeout(window.__fitnessCalcLiveTimer);window.__fitnessCalcLiveTimer=setTimeout(refresh,180)});
     sheet.addEventListener('change',refresh);
+  }
+
+  function buildNewCalculatorShell(){
+    const sheet=document.getElementById('moduleSheet');
+    const main=sheet?.querySelector('.calculator-main');
+    if(!sheet||!main||sheet.__newCalculatorBuilt) return;
+    sheet.__newCalculatorBuilt=true;
+    main.style.display='none';
+
+    const shell=document.createElement('div');
+    shell.className='calculator-pro-new';
+    const get=(id)=>document.getElementById(id);
+    const state=window.calorieState||{};
+    const activity=Number(state.activity||1.2);
+    const goal=String(state.goal||'maintain');
+    shell.innerHTML=`
+      <div class="calculator-pro-card accent">
+        <div class="calculator-pro-card-head"><div><h3>1 · Person</h3><p>Deine Ausgangsdaten für die Berechnung.</p></div><span class="calculator-pro-badge">Basis</span></div>
+        <div class="calculator-pro-form">
+          <div class="calculator-pro-field"><label>Alter</label><input id="proAge" type="number" min="1" max="120" value="${state.age||''}"></div>
+          <div class="calculator-pro-field"><label>Größe · cm</label><input id="proHeight" type="number" min="80" max="230" value="${state.height||''}"></div>
+          <div class="calculator-pro-field"><label>Gewicht · kg</label><input id="proWeight" type="number" min="25" max="250" step="0.1" value="${state.weight||''}"></div>
+          <div class="calculator-pro-field"><label>Geschlecht</label><select id="proSex"><option value="m" ${state.sex==='m'?'selected':''}>Männlich</option><option value="f" ${state.sex==='f'?'selected':''}>Weiblich</option></select></div>
+        </div>
+      </div>
+      <div class="calculator-pro-card">
+        <div class="calculator-pro-card-head"><div><h3>2 · Aktivität</h3><p>Alltag, Training und Cardio werden separat berücksichtigt.</p></div><span class="calculator-pro-badge">Aktivität</span></div>
+        <div class="calculator-pro-form">
+          <div class="calculator-pro-field"><label>Alltag</label><select id="proActivity"><option value="1.2">Wenig aktiv</option><option value="1.375">Leicht aktiv</option><option value="1.55">Moderat aktiv</option><option value="1.725">Sehr aktiv</option><option value="1.9">Extrem aktiv</option></select></div>
+          <div class="calculator-pro-field"><label>Schritte / Tag</label><input id="proSteps" type="number" min="0" max="50000" step="500" value="${state.steps||0}"></div>
+          <div class="calculator-pro-field"><label>Krafttraining / Woche</label><select id="proTrainingDays">${[0,1,2,3,4,5,6,7].map(v=>'<option value="'+v+'" '+(Number(state.trainingDays||0)===v?'selected':'')+'>'+v+'×</option>').join('')}</select></div>
+          <div class="calculator-pro-field"><label>Minuten / Einheit</label><select id="proTrainingMinutes">${[30,45,60,75,90,120].map(v=>'<option value="'+v+'" '+(Number(state.trainingMinutes||60)===v?'selected':'')+'>'+v+' min</option>').join('')}</select></div>
+        </div>
+      </div>
+      <div class="calculator-pro-card">
+        <div class="calculator-pro-card-head"><div><h3>3 · Ziel & Profil</h3><p>Die Zielauswahl verändert bei Minderjährigen nicht die Energie-Vorgabe.</p></div><span class="calculator-pro-badge">Ziel</span></div>
+        <div class="calculator-pro-choice">
+          <button type="button" data-pro-goal="lose" class="${goal==='lose'?'active':''}"><b>Abnehmen</b><small>neutrale Orientierung</small></button>
+          <button type="button" data-pro-goal="maintain" class="${goal==='maintain'?'active':''}"><b>Erhalt</b><small>neutrale Orientierung</small></button>
+          <button type="button" data-pro-goal="bulk" class="${goal==='bulk'?'active':''}"><b>Aufbau</b><small>neutrale Orientierung</small></button>
+        </div>
+      </div>
+      <div class="calculator-pro-card accent">
+        <div class="calculator-pro-card-head"><div><h3>4 · Ergebnis</h3><p>Deine aktuelle Energie-Orientierung wird automatisch aktualisiert.</p></div><span class="calculator-pro-badge">Live</span></div>
+        <div class="calculator-pro-result">
+          <div class="r"><span>Tagesbedarf</span><b id="proResultTarget">–</b><small>kcal / Tag</small></div>
+          <div class="r"><span>Grundumsatz</span><b id="proResultBmr">–</b><small>kcal</small></div>
+          <div class="r"><span>Modus</span><b id="proResultMode" style="font-size:15px">–</b><small>Berechnungsprofil</small></div>
+        </div>
+      </div>`;
+    sheet.querySelector('.module-head')?.after(shell);
+    const sync=()=>{
+      try{
+        const map=[['proAge','caCoach'],['proHeight','chCoach'],['proWeight','cwCoach'],['proSex','csCoach'],['proSteps','csteps'],['proTrainingDays','calcTrainingDays'],['proTrainingMinutes','calcTrainingMinutes']];
+        map.forEach(([a,b])=>{const v=get(a),t=get(b);if(v&&t)t.value=v.value;});
+        if(typeof setActivity==='function') setActivity(Number(get('proActivity')?.value||1.2),'calculator');
+        if(typeof setTrainingProfile==='function') setTrainingProfile(get('proTrainingDays')?.value||0,get('proTrainingMinutes')?.value||60,'calculator');
+        map.forEach(([a,b])=>get(b)?.dispatchEvent(new Event('input',{bubbles:true})));
+        if(typeof calculateAndStay==='function') calculateAndStay();
+        renderResult();
+      }catch(e){}
+    };
+    const renderResult=()=>{
+      try{
+        const p=typeof calcBreakdown==='function'?calcBreakdown():{};
+        const target=typeof calcTarget==='function'?Number(calcTarget()):Number(p.total||0);
+        const mode={lose:'Abnehmen',maintain:'Erhalt',bulk:'Aufbau'}[String(window.calorieState?.goal||'maintain')]||'Erhalt';
+        get('proResultTarget').textContent=Math.round(target).toLocaleString('de-DE');
+        get('proResultBmr').textContent=Math.round(Number(p.bmr||0)).toLocaleString('de-DE');
+        get('proResultMode').textContent=mode;
+      }catch(e){}
+    };
+    get('proActivity').value=String(activity);
+    [...shell.querySelectorAll('input,select')].forEach(el=>el.addEventListener('input',sync));
+    [...shell.querySelectorAll('select')].forEach(el=>el.addEventListener('change',sync));
+    shell.querySelectorAll('[data-pro-goal]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(typeof setCalorieGoal==='function') setCalorieGoal(btn.dataset.proGoal,'calculator');
+      shell.querySelectorAll('[data-pro-goal]').forEach(x=>x.classList.toggle('active',x===btn));
+      renderResult();
+    }));
+    sync();
   }
 
   function enhance(){
@@ -479,6 +569,7 @@
       if(!sheet || !sheet.classList.contains('module-calculator')) return;
       const main=sheet.querySelector('.calculator-main');
       if(!main) return;
+      buildNewCalculatorShell();
       ['.calculator-pro-hero','.calculator-pro-summary','.calculator-pro-macros','.calculator-pro-disclaimer','.calculator-pro-coaching','.calculator-pro-footer','.calculator-pro-goals'].forEach(sel=>{document.querySelectorAll(sel).forEach(el=>el.remove())});
       enhance();
     }catch(e){console.warn(e)}
@@ -490,7 +581,7 @@
     window.__fitnessCalculatorProInstalled=true;
     window.openModule=function(type){
       base.apply(this,arguments);
-      if(type==='calculator') setTimeout(()=>{enhance();installLive()},20);
+      if(type==='calculator') setTimeout(()=>{buildNewCalculatorShell();enhance();installLive()},20);
     };
   }
   document.addEventListener('DOMContentLoaded',()=>{install();setTimeout(install,500);setTimeout(install,1500)});
