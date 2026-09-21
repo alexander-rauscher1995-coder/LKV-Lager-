@@ -102,7 +102,7 @@
     if(!CONFIG.enabled||!CONFIG.authUrl)return;
     mountUI();ensureHeader();
     try{
-      const mod=await import('https://cdn.jsdelivr.net/npm/@neondatabase/auth@0.5.0-beta/+esm');
+      const mod=await import('https://cdn.jsdelivr.net/npm/@neondatabase/neon-js/+esm');
       state.client=mod.createAuthClient(CONFIG.authUrl);
       state.ready=true;
       await refresh();
