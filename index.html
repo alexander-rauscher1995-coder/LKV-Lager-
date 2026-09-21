@@ -107,13 +107,15 @@ button,input{font:inherit}button{cursor:pointer}
 
 <section id="progress" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">FORTSCHRITT</div><h1>Dein Verlauf</h1></div><button class="back" onclick="showView('home')">← Home</button></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📊 Deine Daten</h3><button onclick="exportData()">Daten exportieren</button></div><div id="historyList" class="mini-list"></div></div>
-<div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📈 Gewichtstrend</h3><span style="font-size:10px;color:#8b91a0">letzte 30 Check-ins</span></div><div id="weightChart" style="height:180px;display:flex;align-items:flex-end;gap:5px;padding:12px 4px;background:var(--surface2);border-radius:12px"></div></div>
+<div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📉 Trendgewicht</h3><span style="font-size:10px;color:#8b91a0">7-Tage-Trend</span></div><div id="trendWeightValue" style="font-size:24px;font-weight:850;margin-bottom:8px">—</div><div id="weightChart" style="height:180px;display:flex;align-items:flex-end;gap:5px;padding:12px 4px;background:var(--surface2);border-radius:12px"></div></div>
+<div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📸 Fortschrittsfotos</h3><span style="font-size:10px;color:#8b91a0">lokal gespeichert</span></div><input id="progressPhoto" type="file" accept="image/*" multiple style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"><div id="photoPreview" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"></div><small style="display:block;color:#8b91a0;margin-top:8px">Fotos bleiben in diesem Browser. Für eine spätere Geräte-Synchronisierung wäre ein Konto-Speicher nötig.</small></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📏 Körpermaße</h3><span style="font-size:10px;color:#8b91a0">cm</span></div>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
 <label style="font-size:11px;color:#7d8495">Taille<input id="measureWaist" type="number" step="0.1" placeholder="85" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Brust<input id="measureChest" type="number" step="0.1" placeholder="100" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Arm<input id="measureArm" type="number" step="0.1" placeholder="35" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Hüfte<input id="measureHip" type="number" step="0.1" placeholder="95" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Bauch<input id="measureBelly" type="number" step="0.1" placeholder="85" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Oberschenkel<input id="measureThigh" type="number" step="0.1" placeholder="55" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 </div><button style="margin-top:10px" onclick="saveMeasurements()">Maße speichern</button><div id="measurementStatus" style="font-size:11px;color:#8b91a0;margin-top:8px"></div></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>😴 Schlaf &amp; Aktivität</h3></div><div id="activityStats" class="mini-list"></div></div>
@@ -246,8 +248,18 @@ function adjustTDEE(){
  document.getElementById('trendResult').style.display='block';
  document.getElementById('trendResult').innerHTML='<b>Beobachteter Verlauf</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div><small>Gewichtsänderung</small><strong style="display:block;font-size:19px">'+(delta>=0?'+':'')+delta.toFixed(1).replace('.',',')+' kg</strong></div><div><small>Ø pro Woche</small><strong style="display:block;font-size:19px">'+(changePerWeek>=0?'+':'')+changePerWeek.toFixed(2).replace('.',',')+' kg</strong></div><div style="grid-column:1/-1"><small>Geschätzter beobachteter Erhaltungsbedarf</small><strong style="display:block;font-size:22px">'+observedTdee.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Das ist eine Näherung aus Kalorienzufuhr und Gewichtsverlauf. Tagesgewicht schwankt durch Wasser, Glykogen und Verdauung. Für sinnvollere Ergebnisse möglichst Trendgewicht und mindestens 2–4 Wochen Daten verwenden.</small>';
 }
+function updateTrendWeight(){
+ const h=(state.history||[]).map(x=>Number(x.weight)).filter(Boolean);
+ const recent=h.slice(-7);
+ const el=document.getElementById('trendWeightValue');
+ if(el)el.textContent=recent.length?(recent.reduce((a,b)=>a+b,0)/recent.length).toFixed(1).replace('.',',')+' kg':'—';
+}
+function loadPhotos(){
+ const p=document.getElementById('progressPhoto'),box=document.getElementById('photoPreview');if(!p||!box)return;
+ p.onchange=()=>{box.innerHTML='';Array.from(p.files||[]).slice(0,6).forEach(file=>{const img=document.createElement('img');img.src=URL.createObjectURL(file);img.style.cssText='width:100%;height:110px;object-fit:cover;border-radius:10px';box.appendChild(img)})};
+}
 function saveMeasurements(){
- const fields=['Waist','Chest','Arm','Hip','Thigh'];
+ const fields=['Waist','Chest','Arm','Hip','Belly','Thigh'];
  const m={date:new Date().toLocaleDateString('de-DE')};
  fields.forEach(k=>m[k.toLowerCase()]=Number(document.getElementById('measure'+k).value||0));
  if(!Object.values(m).slice(1).some(Boolean)){toast('Bitte mindestens ein Maß eingeben');return}
@@ -287,7 +299,8 @@ function render(){
  document.getElementById('steps').textContent=Number(state.steps||0).toLocaleString('de-DE');
  document.getElementById('meals').textContent=state.meals||0;document.getElementById('meal2').textContent=state.meals||0;
  document.getElementById('cal').textContent=state.calories?Number(state.calories).toLocaleString('de-DE'):'—';document.getElementById('mealbar').style.width=Math.min(100,(state.meals||0)*25)+'%';
- ['Waist','Chest','Arm','Hip','Thigh'].forEach(k=>{const el=document.getElementById('measure'+k);if(el&&state.measurements?.length)el.value=state.measurements[state.measurements.length-1][k.toLowerCase()]||''});
+ ['Waist','Chest','Arm','Hip','Belly','Thigh'].forEach(k=>{const el=document.getElementById('measure'+k);if(el&&state.measurements?.length)el.value=state.measurements[state.measurements.length-1][k.toLowerCase()]||''});
+ updateTrendWeight();loadPhotos();
  const qs=document.getElementById('quickWeight');if(qs)qs.value=state.weight||'';
  const qst=document.getElementById('quickSteps');if(qst)qst.value=state.steps||'';
  const qc=document.getElementById('quickCalories');if(qc)qc.value=state.calories||'';
