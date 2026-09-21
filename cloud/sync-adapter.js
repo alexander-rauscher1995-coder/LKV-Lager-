@@ -15,7 +15,7 @@
   }
   function revision(){return Number(localStorage.getItem(REVISION_KEY)||0)||0}
   function saveRevision(value){if(Number.isFinite(Number(value)))localStorage.setItem(REVISION_KEY,String(value))}
-  function config(){return window.FITNESS_CLOUD_CONFIG||{enabled:false,apiBaseUrl:''}}
+  function config(){return window.FITNESS_CLOUD_CONFIG||{enabled:true,apiBaseUrl:'/api'}}
   function queue(){try{const x=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
   function saveQueue(x){localStorage.setItem(QUEUE_KEY,JSON.stringify(x.slice(-MAX_QUEUE)))}
   function enqueue(payload){
@@ -25,7 +25,7 @@
     saveQueue(filtered);
     return filtered.length;
   }
-  async function token(){const fn=config().getToken;return typeof fn==='function'?await fn():null}
+  async function token(){const fn=config().getToken;if(typeof fn==='function')return await fn();if(window.FitnessAuth&&typeof window.FitnessAuth.getJWTToken==='function')return await window.FitnessAuth.getJWTToken();return null}
   async function request(path,options={}){
     const c=config();
     if(!c.enabled||!c.apiBaseUrl)throw new Error('Cloud backend not configured');
