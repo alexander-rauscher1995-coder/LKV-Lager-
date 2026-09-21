@@ -91,7 +91,7 @@ jobs:
           grep -q "backend-required" apple/integration.json
           grep -q "enabled:false" cloud/config.example.js
           grep -q "schemaVersion" cloud/snapshot.js
-          grep -q "fitness-coach-v5" sw.js
+          grep -q "fitness-coach-v6" sw.js
 
       - name: Validate native integration markers
         run: |
