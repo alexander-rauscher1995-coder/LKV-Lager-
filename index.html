@@ -156,8 +156,11 @@ function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumen
    formula='Mifflin-St Jeor';
  }
  const tdee=bmr*activity;
+ const restDay=Math.round(bmr*1.2);
+ const trainingDay=Math.round(tdee*1.08);
+ const weeklyAvg=Math.round((restDay*2+trainingDay*5)/7);
  document.getElementById('calcResult').style.display='block';
- document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Erhaltungsbedarf (TDEE)</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der TDEE nutzt den gewählten Aktivitätsfaktor. Für mehr Genauigkeit kannst du den Körperfettanteil angeben. Der echte Tagesbedarf schwankt von Tag zu Tag.</small>';
+ document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Basis-TDEE</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div><div><small>Ruhetag</small><strong style="display:block;font-size:20px">'+restDay.toLocaleString('de-DE')+' kcal</strong></div><div><small>Trainingstag</small><strong style="display:block;font-size:20px">'+trainingDay.toLocaleString('de-DE')+' kcal</strong></div><div style="grid-column:1/-1"><small>Wochenschnitt (Beispiel 5 Training / 2 Ruhe)</small><strong style="display:block;font-size:22px">'+weeklyAvg.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der Basis-TDEE nutzt den gewählten Aktivitätsfaktor. Ruhe- und Trainingstag sind Näherungen und keine individuelle Kalorienvorgabe.</small>';
 }
 
 function render(){
