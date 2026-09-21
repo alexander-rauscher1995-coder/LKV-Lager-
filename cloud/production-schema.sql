@@ -27,3 +27,12 @@ create index if not exists fitness_changes_user_revision_idx
 
 -- Application-level authorization must always scope queries by authenticated user_id.
 -- Do not use device_id as the authorization boundary.
+
+
+-- Recommended integrity checks for production migrations:
+-- revision must be non-negative and change revisions must be positive.
+alter table fitness_snapshots
+  add constraint fitness_snapshots_revision_nonnegative check (revision >= 0);
+
+alter table fitness_changes
+  add constraint fitness_changes_revision_positive check (revision > 0);
