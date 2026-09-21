@@ -59,14 +59,17 @@
     const main=sheet.querySelector('.calculator-main');
     if(!main) return;
 
-    const hero=document.createElement('div');
+    const weeklyAvg = maintenance ? Math.round(maintenance) : 0;
+    const targetDelta = target - maintenance;
+    const targetLabel = targetDelta < 0 ? 'Defizit' : targetDelta > 0 ? 'Überschuss' : 'Erhalt';
+\n    const hero=document.createElement('div');
     hero.className='calculator-pro-hero';
     hero.innerHTML=`
       <div>
         <div class="calculator-pro-kicker">FITNESS COACH PRO · TAGESENERGIE</div>
         <div class="calculator-pro-title">Dein Energie-Dashboard</div>
         <div class="calculator-pro-sub">Alle wichtigen Werte auf einen Blick – mit transparenter Aufschlüsselung der Berechnung.</div>
-        <div class="calculator-pro-number">${maintenance.toLocaleString('de-DE')} <small>kcal / Tag</small></div>
+        <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag</small></div>
       </div>
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
@@ -144,7 +147,7 @@
     if(!sheet.querySelector('.calculator-pro-footer')){
       const footer=document.createElement('div');
       footer.className='calculator-pro-footer';
-      footer.innerHTML=`<div><b>Berechnung bereit</b><br><span>${maintenance.toLocaleString('de-DE')} kcal Tagesmittel</span></div><button class="module-action" type="button">Neu berechnen</button>`;
+      footer.innerHTML=`<div><b>Dein Tagesziel</b><br><span>${target.toLocaleString('de-DE')} kcal · ${targetLabel} ${Math.abs(targetDelta).toLocaleString('de-DE')} kcal</span></div><button class="module-action" type="button">Neu berechnen</button>`;
       footer.querySelector('button').onclick=()=>typeof calculateAndStay==='function'&&calculateAndStay();
       sheet.appendChild(footer);
     }
