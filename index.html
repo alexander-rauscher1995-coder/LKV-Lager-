@@ -117,6 +117,18 @@ button,input{font:inherit}button{cursor:pointer}
 </div>
 <div class="module-card"><h3>Makros</h3><p>Protein, Kohlenhydrate und Fett als Dokumentationshilfe.</p><button onclick="toast('Makro-Rechner kommt als nächstes')">Makros öffnen</button></div>
 <div class="module-card"><h3>Aktivität</h3><p>Alltag, Schritte, Training und Cardio übersichtlich erfassen.</p><button onclick="toast('Aktivitätsrechner geöffnet')">Aktivität</button></div>
+<div class="module-card" style="grid-column:1/-1">
+<h3>📈 Automatische TDEE-Anpassung</h3>
+<p>Wenn du regelmäßig Gewicht und durchschnittliche Kalorien dokumentierst, kann FITLIFE deinen real beobachteten Erhaltungsbedarf schätzen.</p>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0">
+<label style="font-size:11px;color:#7d8495">Startgewicht (kg)<input id="trendStartWeight" type="number" step="0.1" placeholder="z. B. 80" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Aktuelles Gewicht (kg)<input id="trendCurrentWeight" type="number" step="0.1" placeholder="z. B. 79.2" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Ø Kalorien/Tag<input id="trendCalories" type="number" step="10" placeholder="z. B. 2400" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Zeitraum (Tage)<input id="trendDays" type="number" min="14" max="365" value="28" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+</div>
+<button onclick="adjustTDEE()">TDEE anhand Verlauf prüfen</button>
+<div id="trendResult" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:12px;display:none"></div>
+</div>
 <div class="module-card"><h3>Genauigkeit</h3><p>Ohne Körperfettanteil wird Mifflin-St Jeor verwendet. Mit Körperfettanteil nutzt FITLIFE Katch-McArdle und berechnet die fettfreie Masse. Beide Verfahren bleiben Schätzungen.</p></div>
 </div></div></section>
 
@@ -176,6 +188,20 @@ function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumen
  document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Basis-TDEE</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div><div><small>Ruhetag</small><strong style="display:block;font-size:20px">'+restDay.toLocaleString('de-DE')+' kcal</strong></div><div><small>Trainingstag</small><strong style="display:block;font-size:20px">'+trainingDay.toLocaleString('de-DE')+' kcal</strong></div><div style="grid-column:1/-1"><small>Wochenschnitt (Beispiel 5 Training / 2 Ruhe)</small><strong style="display:block;font-size:22px">'+weeklyAvg.toLocaleString('de-DE')+' kcal/Tag</strong></div><div style="grid-column:1/-1;margin-top:2px"><small>Ziel: '+goalText+'</small><strong style="display:block;font-size:20px">'+targetMin.toLocaleString('de-DE')+'–'+targetMax.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Berechnung: '+formula+'. Der personalisierte TDEE berücksichtigt zusätzlich Schritte, Trainingstage und Cardio. Diese Anpassungen sind Näherungen und sollten mit dem realen Gewichts-/Leistungsverlauf abgeglichen werden. Der Basis-TDEE nutzt den gewählten Aktivitätsfaktor. Ruhe- und Trainingstag sind Näherungen und keine individuelle Kalorienvorgabe.</small>';
 }
 
+function adjustTDEE(){
+ const start=Number(document.getElementById('trendStartWeight').value);
+ const current=Number(document.getElementById('trendCurrentWeight').value);
+ const calories=Number(document.getElementById('trendCalories').value);
+ const days=Number(document.getElementById('trendDays').value);
+ if(!start||!current||!calories||!days||days<14){toast('Bitte mindestens 14 Tage und alle Werte eingeben');return}
+ const delta=start-current;
+ const kgPerDay=delta/days;
+ const estimatedAdjustment=kgPerDay*7700;
+ const observedTdee=Math.round(calories+estimatedAdjustment);
+ const changePerWeek=(delta/days)*7;
+ document.getElementById('trendResult').style.display='block';
+ document.getElementById('trendResult').innerHTML='<b>Beobachteter Verlauf</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div><small>Gewichtsänderung</small><strong style="display:block;font-size:19px">'+(delta>=0?'+':'')+delta.toFixed(1).replace('.',',')+' kg</strong></div><div><small>Ø pro Woche</small><strong style="display:block;font-size:19px">'+(changePerWeek>=0?'+':'')+changePerWeek.toFixed(2).replace('.',',')+' kg</strong></div><div style="grid-column:1/-1"><small>Geschätzter beobachteter Erhaltungsbedarf</small><strong style="display:block;font-size:22px">'+observedTdee.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Das ist eine Näherung aus Kalorienzufuhr und Gewichtsverlauf. Tagesgewicht schwankt durch Wasser, Glykogen und Verdauung. Für sinnvollere Ergebnisse möglichst Trendgewicht und mindestens 2–4 Wochen Daten verwenden.</small>';
+}
 function render(){
  document.getElementById('weight').textContent=state.weight?Number(state.weight).toFixed(1).replace('.',',')+' kg':'—';
  document.getElementById('steps').textContent=Number(state.steps||0).toLocaleString('de-DE');
