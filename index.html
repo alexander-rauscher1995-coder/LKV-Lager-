@@ -1383,10 +1383,10 @@ function openModule(type){
    <div class="module-card calculator-main">
     <div class="section-kicker">DEINE DATEN</div>
     <div class="calorie-inputs">
-      <div class="field"><label>Alter</label><input id="ca" type="number" value="${calorieState.age}"></div>
-      <div class="field"><label>Größe (cm)</label><input id="ch" type="number" value="${calorieState.height}"></div>
-      <div class="field"><label>Gewicht (kg)</label><input id="cw" type="number" value="${calorieState.weight}"></div>
-      <div class="field"><label>Geschlecht</label><select id="cs"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
+      <div class="field"><label>Alter</label><input id="caCoach" type="number" value="${calorieState.age}"></div>
+      <div class="field"><label>Größe (cm)</label><input id="chCoach" type="number" value="${calorieState.height}"></div>
+      <div class="field"><label>Gewicht (kg)</label><input id="cwCoach" type="number" value="${calorieState.weight}"></div>
+      <div class="field"><label>Geschlecht</label><select id="csCoach"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
     <div class="segmented"><button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35,'calculator')">Wenig aktiv</button><button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">Normal</button><button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65,'calculator')">Aktiv</button><button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8,'calculator')">Sehr aktiv</button></div>
@@ -1669,8 +1669,12 @@ function setStepsEnabled(v,target='calculator'){calorieState.stepsEnabled=!!v;sa
 function setCardioEnabled(v,target='calculator'){calorieState.cardioEnabled=!!v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
 function setCalorieGoal(v,target='calories'){calorieState.goal=v;saveCalories();openModule(target)}
+function visibleCalcField(...ids){
+ const els=ids.map(id=>document.getElementById(id)).filter(Boolean);
+ return els.find(el=>el.offsetParent!==null)||els[0]||null;
+}
 function readCalculatorInputs(){
- const a=Number(document.getElementById('ca')?.value),h=Number(document.getElementById('ch')?.value),w=Number(document.getElementById('cw')?.value),s=document.getElementById('cs')?.value;
+ const a=Number(visibleCalcField('ca','caCoach')?.value),h=Number(visibleCalcField('ch','chCoach')?.value),w=Number(visibleCalcField('cw','cwCoach')?.value),s=visibleCalcField('cs','csCoach')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte Alter, Größe und Gewicht prüfen.');return false}
  calorieState.age=a;calorieState.height=h;calorieState.weight=w;calorieState.sex=s==='f'?'f':'m';
  const steps=Number(document.getElementById('csteps')?.value);
@@ -2424,8 +2428,11 @@ function coachRenderDailyCenter(){
  const training=document.getElementById('cwDailyTraining'),tn=document.getElementById('cwDailyTrainingNote');
  if(training)training.textContent=p.title;
  if(tn)tn.textContent=s.done[todayISO()]?'Heute bereits abgeschlossen ✓':(p.type==='Recovery'?'Regeneration & Alltag im Fokus.':'Geplante Einheit noch offen.');
- const meals=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'[]')||[], cardio=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'[]')||[];
- const today=new Date().toISOString().slice(0,10),m=meals.filter(x=>String(x.date||'').slice(0,10)===today).length,c=cardio.filter(x=>String(x.date||'').slice(0,10)===today).length;
+ const nutrition=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{meals:[]};
+ const cardio=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{steps:0,sessions:[]};
+ const meals=Array.isArray(nutrition)?nutrition:(nutrition.meals||[]);
+ const movement=Array.isArray(cardio)?cardio:(cardio.sessions||[]);
+ const today=new Date().toISOString().slice(0,10),m=meals.filter(x=>String(x.date||'').slice(0,10)===today).length,c=movement.filter(x=>String(x.date||'').slice(0,10)===today).length;
  const data=document.getElementById('cwDailyData'),note=document.getElementById('cwDailyDataNote');
  if(data)data.textContent=m+' Mahlzeiten · '+c+' Bewegungen';
  if(note)note.textContent='Die Daten fließen in deinen Tagesüberblick ein.';
