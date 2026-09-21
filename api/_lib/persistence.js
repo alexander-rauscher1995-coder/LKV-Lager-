@@ -27,9 +27,11 @@ export async function putSnapshot(userId,snapshot){
   const client=await db.connect();
   try{
     await client.query('begin');
+    await client.query('select pg_advisory_xact_lock(hashtext($1))',[userId]);
     const current=(await client.query('select revision, snapshot from fitness_snapshots where user_id=$1 for update',[userId])).rows[0];
+    const changeRow=(await client.query('select max(revision) as revision from fitness_changes where user_id=$1',[userId])).rows[0];
     const base=Number(snapshot.baseRevision||0);
-    const currentRevision=Number(current?.revision||0);
+    const currentRevision=Math.max(Number(current?.revision||0),Number(changeRow?.revision||0));
     if(current && base!==currentRevision){
       await client.query('rollback');
       return {revision:currentRevision,conflicts:[{type:'revision-conflict',expected:base,actual:currentRevision}]};
@@ -47,8 +49,10 @@ export async function appendChanges(userId,changes){
   const client=await db.connect();
   try{
     await client.query('begin');
+    await client.query('select pg_advisory_xact_lock(hashtext($1))',[userId]);
     const current=(await client.query('select revision from fitness_snapshots where user_id=$1 for update',[userId])).rows[0];
-    const currentRevision=Number(current?.revision||0);
+    const changeRow=(await client.query('select max(revision) as revision from fitness_changes where user_id=$1',[userId])).rows[0];
+    const currentRevision=Math.max(Number(current?.revision||0),Number(changeRow?.revision||0));
     const requestedBase=Number(changes?.[0]?.baseRevision||currentRevision);
     if(requestedBase!==currentRevision){
       await client.query('rollback');
@@ -56,6 +60,7 @@ export async function appendChanges(userId,changes){
     }
     const next=currentRevision+1;
     await client.query('insert into fitness_changes(user_id,revision,device_id,changed_at,changes) values($1,$2,$3,$4,$5::jsonb)',[userId,next,String(changes?.[0]?.deviceId||'unknown'),new Date(),JSON.stringify(changes)]);
+    await client.query('update fitness_snapshots set revision=$2,updated_server_at=now() where user_id=$1',[userId,next]);
     await client.query('commit');
     return {revision:next,conflicts:[]};
   }catch(error){await client.query('rollback').catch(()=>{});throw error}
