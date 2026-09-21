@@ -75,6 +75,9 @@ jobs:
           print(checks)
           PY
 
+      - name: Install test dependencies
+        run: npm install --ignore-scripts
+
       - name: Run cloud integration tests
         run: npm test
 
