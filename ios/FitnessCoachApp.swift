@@ -26,15 +26,21 @@ struct ContentView: View {
         NavigationStack {
             List {
                 Section("Heute") {
-                    Label("(health.steps) Schritte", systemImage: "figure.walk")
+                    Label("\(health.steps) Schritte", systemImage: "figure.walk")
                     Label(health.heartRateText, systemImage: "heart.fill")
-                    Label("(health.activeCalories) kcal aktiv", systemImage: "flame.fill")
+                    Label("\(health.activeCalories) kcal aktiv", systemImage: "flame.fill")
                 }
                 Section("Apple Watch") {
-                    Label(watch.isReachable ? "Verbunden" : "Bereit für Verbindung",
-                          systemImage: watch.isReachable ? "applewatch" : "applewatch.slash")
+                    Label(
+                        watch.isReachable ? "Verbunden" : "Bereit für Verbindung",
+                        systemImage: watch.isReachable ? "applewatch" : "applewatch.slash"
+                    )
                     Button("Training an Watch senden") {
                         watch.send(command: "startTraining")
+                    }
+                    if let event = watch.lastWatchEvent, !event.isEmpty {
+                        Label(event, systemImage: "checkmark.circle")
+                            .font(.footnote)
                     }
                 }
             }
