@@ -85,6 +85,7 @@ export function validateSnapshot(x){
   if(!x||typeof x!=='object'||Array.isArray(x))return false;
   if(x.schemaVersion!==1||typeof x.deviceId!=='string'||x.deviceId.length<8||x.deviceId.length>200||typeof x.updatedAt!=='string'||typeof x.data!=='object'||!x.data||Array.isArray(x.data))return false;
   if(!Number.isFinite(Date.parse(x.updatedAt)))return false;
+  if(x.baseRevision!==undefined&&(!Number.isInteger(Number(x.baseRevision))||Number(x.baseRevision)<0))return false;
   return JSON.stringify(x).length<=1000000;
 }
 
