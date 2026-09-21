@@ -1136,7 +1136,10 @@ function calcBreakdown(){
   return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
 }
 
-function calcMaintenance(){return calcBreakdown().total}
+function calcMaintenance(){
+  // Erhalt wird auf einen gut lesbaren 100-kcal-Wert aufgerundet.
+  return Math.ceil(calcBreakdown().total/100)*100;
+}
 function dietMacroTargets(){return macroTargets()}
 function macroTargets(){
   const t=calcTarget();
