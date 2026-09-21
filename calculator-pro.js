@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v163';
+  const STYLE_ID='fitness-pro-calculator-v164';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -283,11 +283,23 @@
         const weight=Number(pick('cwCoach','cw')?.value);
         const sex=pick('csCoach','cs')?.value;
         const steps=Number(document.getElementById('csteps')?.value);
+        const trainingDays=Number(document.getElementById('calcTrainingDays')?.value);
+        const trainingMinutes=Number(document.getElementById('calcTrainingMinutes')?.value);
+        const cardioDays=Number(document.getElementById('calcCardioDays')?.value);
+        const cardioMinutes=Number(document.getElementById('calcCardioMinutes')?.value);
+        const cardioType=document.getElementById('calcCardioType')?.value;
         if(Number.isFinite(age)&&age>0) calorieState.age=age;
         if(Number.isFinite(height)&&height>0) calorieState.height=height;
         if(Number.isFinite(weight)&&weight>0) calorieState.weight=weight;
         if(sex==='m'||sex==='f') calorieState.sex=sex;
         if(Number.isFinite(steps)&&steps>=0) calorieState.steps=Math.min(50000,Math.round(steps));
+        if(Number.isFinite(trainingDays)) calorieState.trainingDays=Math.max(0,Math.min(7,trainingDays));
+        if(Number.isFinite(trainingMinutes)) calorieState.trainingMinutes=Math.max(0,Math.min(180,trainingMinutes));
+        if(Number.isFinite(cardioDays)) calorieState.cardioDays=Math.max(0,Math.min(7,cardioDays));
+        if(Number.isFinite(cardioMinutes)) calorieState.cardioMinutes=Math.max(0,Math.min(180,cardioMinutes));
+        if(cardioType) calorieState.cardioType=String(cardioType);
+        if(Number.isFinite(cardioDays)) calorieState.cardioEnabled=cardioDays>0;
+        if(typeof saveCalories==='function') saveCalories();
       }catch(e){}
     };
     const refresh=()=>{ clearTimeout(timer); timer=setTimeout(()=>{
@@ -314,7 +326,6 @@
     },180); };
     sheet.addEventListener('input',refresh,{passive:true});
     sheet.addEventListener('change',()=>{syncFromFields();refresh()},{passive:true});
-    sheet.addEventListener('change',refresh,{passive:true});
     refresh();
   }
 
