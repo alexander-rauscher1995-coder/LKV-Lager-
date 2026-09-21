@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v162';
+  const STYLE_ID='fitness-pro-calculator-v163';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -49,6 +49,7 @@
     const maintenance=Math.round(n(parts.total));
     const target=typeof calcTarget==='function'?n(calcTarget()):maintenance;
     const bmr=Math.round(n(parts.bmr));
+    const displayMaintenance=maintenance;
     const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};
     const state=window.calorieState||{};
     const weight=n(state.weight)||n(document.getElementById('cwCoach')?.value);
@@ -68,8 +69,9 @@
       <div>
         <div class="calculator-pro-kicker">FITNESS COACH PRO · TAGESENERGIE</div>
         <div class="calculator-pro-title">Dein Energie-Dashboard</div>
-        <div class="calculator-pro-sub">Alle wichtigen Werte auf einen Blick – mit transparenter Aufschlüsselung der Berechnung.</div>
-        <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag</small></div>
+        <div class="calculator-pro-sub">Das Tagesziel wird aus deinem geschätzten Erhaltungsbedarf und der gewählten Zielrichtung berechnet.</div>
+        <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag · Tagesziel</small></div>
+        <div style="margin-top:7px;color:#82919a;font-size:12px">Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b></div>
       </div>
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
@@ -273,8 +275,24 @@
     if(!sheet || !sheet.classList.contains('module-calculator') || sheet.__proLive) return;
     sheet.__proLive=true;
     let timer;
+    const syncFromFields=()=>{
+      try{
+        const pick=(...ids)=>ids.map(id=>document.getElementById(id)).find(el=>el && el.offsetParent!==null) || ids.map(id=>document.getElementById(id)).find(Boolean);
+        const age=Number(pick('caCoach','ca')?.value);
+        const height=Number(pick('chCoach','ch')?.value);
+        const weight=Number(pick('cwCoach','cw')?.value);
+        const sex=pick('csCoach','cs')?.value;
+        const steps=Number(document.getElementById('csteps')?.value);
+        if(Number.isFinite(age)&&age>0) calorieState.age=age;
+        if(Number.isFinite(height)&&height>0) calorieState.height=height;
+        if(Number.isFinite(weight)&&weight>0) calorieState.weight=weight;
+        if(sex==='m'||sex==='f') calorieState.sex=sex;
+        if(Number.isFinite(steps)&&steps>=0) calorieState.steps=Math.min(50000,Math.round(steps));
+      }catch(e){}
+    };
     const refresh=()=>{ clearTimeout(timer); timer=setTimeout(()=>{
       try{
+        syncFromFields();
         const main=sheet.querySelector('.calculator-main');
         if(!main) return;
         const before=document.querySelector('.calculator-pro-hero');
@@ -295,6 +313,7 @@
       }catch(e){}
     },180); };
     sheet.addEventListener('input',refresh,{passive:true});
+    sheet.addEventListener('change',()=>{syncFromFields();refresh()},{passive:true});
     sheet.addEventListener('change',refresh,{passive:true});
     refresh();
   }
