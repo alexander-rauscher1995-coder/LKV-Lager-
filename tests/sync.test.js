@@ -90,11 +90,11 @@ test('isolates snapshots by authenticated user',async()=>{
 test('increments revision and reports conflict metadata',async()=>{
   db.clear();
   let res=response();
-  await syncHandler(req('PUT','user-a',snapshot('device-a')),res);
+  await syncHandler(req('PUT','conflict-user',snapshot('device-a')),res);
   assert.equal(res.payload.revision,1);
 
   res=response();
-  await syncHandler(req('PUT','user-a',snapshot('device-b')),res);
+  await syncHandler(req('PUT','conflict-user',snapshot('device-b')),res);
   assert.equal(res.statusCode,409);
   assert.equal(res.payload.revision,1);
   assert.equal(Array.isArray(res.payload.conflicts),true);
@@ -115,11 +115,11 @@ test('supports restore by writing then reading the same snapshot',async()=>{
 test('accepts bounded change batches and rejects oversized batches',async()=>{
   db.clear();
   let res=response();
-  await changesHandler(req('POST','user-a',{changes:Array.from({length:500},(_,i)=>({id:i}))}),res);
+  await changesHandler(req('POST','changes-user',{changes:Array.from({length:500},(_,i)=>({id:i}))}),res);
   assert.equal(res.statusCode,200);
 
   res=response();
-  await changesHandler(req('POST','user-a',{changes:Array.from({length:501},(_,i)=>({id:i}))}),res);
+  await changesHandler(req('POST','changes-user',{changes:Array.from({length:501},(_,i)=>({id:i}))}),res);
   assert.equal(res.statusCode,400);
   assert.equal(res.payload.error,'invalid_changes');
 });
