@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- V176 release marker: Radical Editorial Performance Cockpit -->
+<!-- V177 release marker: Coachway-inspired client experience -->
 <html lang="de">
 <head>
 <meta charset="utf-8">
@@ -498,6 +498,13 @@ body.coach-way-active{padding-left:0!important}
 /* V135 FINAL POLISH */
 .app-health{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.app-health-item{padding:11px;border:1px solid #29363e;border-radius:12px;background:#0d151a}.app-health-item span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.app-health-item b{display:block;margin-top:5px;font-size:16px}@media(max-width:700px){.app-health{grid-template-columns:repeat(2,1fr)}}
  .native-apple-status{position:fixed;right:18px;bottom:18px;z-index:9999;max-width:360px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 12px 30px rgba(0,0,0,.25);font-size:13px}.native-apple-status b{display:block;margin-bottom:4px}.native-apple-status span{color:var(--muted)}
+
+/* COACHWAY-INSPIRED CLIENT EXPERIENCE V177 */
+:root{--cw-bg:#f7f7f4;--cw-card:#fff;--cw-ink:#171817;--cw-muted:#747872;--cw-line:#e5e6e1;--cw-accent:#d9f85b;--cw-radius:22px}
+body{background:var(--cw-bg)!important;color:var(--cw-ink)!important}.app{background:var(--cw-bg)!important}.top{background:var(--cw-bg)!important;color:var(--cw-ink);min-height:190px;padding:28px 5vw 22px}.top:after{display:none}.greeting,.quote,.date,.day{color:var(--cw-muted)}.name{color:var(--cw-ink)}.circle{border-color:#d8d9d4;color:var(--cw-muted)}.day.active .circle{background:var(--cw-ink);color:#fff;border-color:var(--cw-ink)}.day.done .circle{background:var(--cw-accent);color:var(--cw-ink);border-color:var(--cw-accent)}
+.shell{margin:-5px auto 0}.card{background:var(--cw-card)!important;color:var(--cw-ink);border:1px solid var(--cw-line);box-shadow:0 5px 20px rgba(24,25,22,.05);border-radius:var(--cw-radius)}.muted,.macro-name,.sets>div{color:var(--cw-muted)!important}.hero-title,.hero-copy,.card h3,.big,.macro-val,.exercise-name{color:var(--cw-ink)}.hero-tip{border-color:var(--cw-line);color:var(--cw-ink)}.bar{background:#eceee8}.fill{background:var(--cw-ink)}.icon{background:var(--cw-accent);color:var(--cw-ink)}.quick button{background:#fff;border-color:var(--cw-line);color:var(--cw-ink)}.quick button:first-child{background:var(--cw-accent);border-color:var(--cw-accent)}
+.bottom{background:rgba(255,255,255,.96);border-color:var(--cw-line);box-shadow:0 10px 35px rgba(24,25,22,.12)}.nav{color:#858983}.nav.active{color:var(--cw-ink);background:var(--cw-accent)}.training-page{color:var(--cw-ink)}.pill{background:#fff;border-color:var(--cw-line);color:var(--cw-ink)}.pill.active{background:var(--cw-accent);border-color:var(--cw-accent);color:var(--cw-ink)}.input{background:#fff;border-color:var(--cw-line);color:var(--cw-ink)}.primary{background:var(--cw-ink);color:#fff}.secondary{background:#fff;border-color:var(--cw-line);color:var(--cw-ink)}
+@media(max-width:600px){.top{min-height:170px}.shell{padding-bottom:120px}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
