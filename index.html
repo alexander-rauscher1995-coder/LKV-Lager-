@@ -1116,10 +1116,12 @@ function calcBreakdown(){
   const b=calcBMR();
   if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
   const w=Number(calorieState.weight)||0;
+  // Der Aktivitätsfaktor bildet Alltag + normale Bewegung bereits ab.
+  // Deshalb keinen zusätzlichen TEF-Prozentsatz aufschlagen.
   const baseTotal=Math.round(b*activityFactor());
   const activityCalories=Math.max(0,baseTotal-b);
-  const trainingCalories=0;
   const stepCalories=0;
+  const trainingCalories=0;
   const today=todayISO();
   const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
   const cardioCalories=calorieState.cardioEnabled ? Math.round(cardioSessions.reduce((sum,x)=>{
@@ -1129,8 +1131,8 @@ function calcBreakdown(){
     return sum+(met*3.5*w/200)*minutes;
   },0)) : 0;
   const preTef=baseTotal+cardioCalories;
-  const tef=Math.round(preTef*0.08);
-  const total=Math.round(preTef+tef);
+  const tef=0;
+  const total=Math.round(preTef);
   return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
 }
 
