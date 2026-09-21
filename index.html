@@ -1109,28 +1109,31 @@ function calcBMR(){
   return Math.round(10*w + 6.25*h - 5*a + (calorieState.sex==='m'?5:-161));
 }
 function activityFactor(){
-  const map={1.35:1.20,1.5:1.25,1.65:1.30,1.8:1.35};
-  return map[Number(calorieState.activity)]||1.25;
+  const v=Number(calorieState.activity);
+  return [1.35,1.5,1.65,1.8].includes(v)?v:1.5;
 }
 function calcBreakdown(){
-  const b=calcBMR(); if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
-  const w=Number(calorieState.weight)||0, h=Number(calorieState.height)||0;
+  const b=calcBMR();
+  if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
+  const w=Number(calorieState.weight)||0;
+  const baseTotal=Math.round(b*activityFactor());
+  const activityCalories=Math.max(0,baseTotal-b);
+  const trainingCalories=0;
   const stepCalories=0;
-  const activityCalories=Math.max(0,Math.round(b*(activityFactor()-1)));
-  const trainingCalories=calorieState.training==='training'?Math.round(b*0.045):0;
   const today=todayISO();
   const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
   const cardioCalories=calorieState.cardioEnabled ? Math.round(cardioSessions.reduce((sum,x)=>{
     const minutes=Math.max(0,Number(x.minutes)||0);
     const type=String(x.type||'').toLowerCase();
     const met=type.includes('laufen')?8:type.includes('rad')?7:type.includes('crosstrainer')?7:type.includes('gehen')?3.5:5;
-    return sum + (met*3.5*w/200)*minutes;
+    return sum+(met*3.5*w/200)*minutes;
   },0)) : 0;
-  const preTef=Math.round(b+activityCalories+stepCalories+trainingCalories+cardioCalories);
+  const preTef=baseTotal+cardioCalories;
   const tef=Math.round(preTef*0.08);
   const total=Math.round(preTef+tef);
-  return {bmr:b,activity:activityCalories,steps:Math.round(stepCalories),training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
+  return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
 }
+
 function calcMaintenance(){return calcBreakdown().total}
 function dietMacroTargets(){return macroTargets()}
 function macroTargets(){
