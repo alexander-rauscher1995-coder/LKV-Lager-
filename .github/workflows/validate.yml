@@ -86,6 +86,10 @@ jobs:
       - name: Run cloud integration tests
         run: npm test
 
+      - name: Validate secret hygiene
+        run: |
+          ! grep -RInE "(sk-[A-Za-z0-9]{20,}|postgres(ql)?://[^[:space:]\"']+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY)" --exclude-dir=.git --exclude='package-lock.json' . || (echo "Potential secret detected in repository" && exit 1)
+
       - name: Validate JavaScript syntax
         run: |
           node --check cloud/sync-adapter.js
