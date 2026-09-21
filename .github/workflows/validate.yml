@@ -30,6 +30,9 @@ jobs:
           test -f cloud/snapshot.js
           test -f cloud/API.md
           test -f cloud/ACTIVATION.md
+          test -f cloud/PRODUCTION.md
+          test -f api/health.js
+          test -f api/README.md
           test -f apple/integration.json
           test -f ios/FitnessCoachApp.swift
           test -f ios/HealthKitManager.swift
