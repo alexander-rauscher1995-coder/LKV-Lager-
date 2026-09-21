@@ -454,6 +454,9 @@ body.coach-way-active{padding-left:0!important}
 
 /* V130 DAILY NUTRITION & CARDIO CENTER */
 .coach-daily-center{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.coach-daily-card{padding:16px;border:1px solid #29363e;border-radius:16px;background:#0d151a}.coach-daily-card h3{margin:0 0 7px}.coach-daily-value{font-size:28px;font-weight:850}.coach-daily-sub{font-size:12px;color:#8f9ca4;margin-top:4px}.coach-daily-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.coach-daily-actions button{border:1px solid #344049;background:#172128;border-radius:10px;padding:9px 12px;cursor:pointer}.coach-daily-actions button.primary-mini{background:#63f59a;color:#06100b;border-color:#63f59a;font-weight:800}@media(max-width:700px){.coach-daily-center{grid-template-columns:1fr}}
+
+/* V131 DAILY SYNC */
+.coach-sync-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.coach-sync-item{padding:12px;border:1px solid #27343b;border-radius:12px;background:#0d151a}.coach-sync-item span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800}.coach-sync-item b{display:block;font-size:16px;margin-top:5px}.coach-sync-item.ok b{color:#63f59a}.coach-sync-item.open b{color:#dce3e7}.coach-sync-note{margin-top:10px;color:#8f9ca4;font-size:12px}@media(max-width:700px){.coach-sync-grid{grid-template-columns:repeat(2,1fr)}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1800,6 +1803,16 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
+<div class="coach-review-card">
+  <div class="section-kicker">TAGES-SYNC</div><h3 style="margin:0">Coach Datenstatus</h3>
+  <div class="coach-sync-grid">
+    <div class="coach-sync-item" id="cwSyncTraining"><span>Training</span><b>–</b></div>
+    <div class="coach-sync-item" id="cwSyncNutrition"><span>Ernährung</span><b>–</b></div>
+    <div class="coach-sync-item" id="cwSyncMovement"><span>Bewegung</span><b>–</b></div>
+    <div class="coach-sync-item" id="cwSyncCheckin"><span>Check-in</span><b>–</b></div>
+  </div>
+  <div class="coach-sync-note" id="cwSyncNote">Der Coach verbindet die heutigen Daten automatisch.</div>
+</div>
 <div class="coach-daily-center">
   <div class="coach-daily-card">
     <div class="section-kicker">DAILY CENTER</div><h3>Heute im Überblick</h3>
@@ -2091,7 +2104,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachRenderNextAction();coachRenderDailyCenter();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachRenderNextAction();coachRenderDailyCenter();coachRenderDailySync();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2359,6 +2372,23 @@ function coachRenderDailyCenter(){
  const data=document.getElementById('cwDailyData'),note=document.getElementById('cwDailyDataNote');
  if(data)data.textContent=m+' Mahlzeiten · '+c+' Bewegungen';
  if(note)note.textContent='Die Daten fließen in deinen Tagesüberblick ein.';
+}
+
+/* V131 DAILY SYNC ENGINE */
+function coachRenderDailySync(){
+ const state=coachWayLoad(),today=todayISO(),training=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const nutrition=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{meals:[]};
+ const cardio=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{steps:0,sessions:[]};
+ const done=!!state.done[today],mealCount=(nutrition.meals||[]).filter(x=>x.date===today).length;
+ const moveSessions=(cardio.sessions||[]).filter(x=>x.date===today).length,steps=Number(cardio.steps)||0;
+ const todayTraining=training.some(x=>String(x.date||'').slice(0,10)===today);
+ const set=(id,val,ok)=>{const el=document.getElementById(id);if(!el)return;const b=el.querySelector('b');if(b)b.textContent=val;el.classList.toggle('ok',!!ok);el.classList.toggle('open',!ok)};
+ set('cwSyncTraining',done||todayTraining?'Erfasst':'Offen',done||todayTraining);
+ set('cwSyncNutrition',mealCount?mealCount+' erfasst':'Offen',mealCount>0);
+ set('cwSyncMovement',moveSessions||steps?((moveSessions||0)+' Session'+(moveSessions===1?'':'s')+(steps?' · '+steps+' Schritte':'')):'Offen',!!(moveSessions||steps));
+ set('cwSyncCheckin',state.checkins[today]?'Erledigt':'Offen',!!state.checkins[today]);
+ const open=[!done&&!todayTraining,!mealCount,!(moveSessions||steps),!state.checkins[today]].filter(Boolean).length;
+ const note=document.getElementById('cwSyncNote');if(note)note.textContent=open?'Noch '+open+' Bereich'+(open===1?'':'e')+' offen – du kannst die Daten nach und nach ergänzen.':'Tagesdaten sind vollständig im Coach Center angekommen ✓';
 }
 </body>
 </html>
