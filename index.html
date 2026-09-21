@@ -2896,5 +2896,31 @@ function ensureMilestones(){
 }
 function milestoneRefresh(){try{ensureMilestones();renderMilestones()}catch(e){console.warn(e)}}
 window.addEventListener('load',()=>setTimeout(milestoneRefresh,220));
+</script>
+<style>
+/* V153 DAILY FOCUS */
+.focus-box{margin-top:12px;padding:13px;background:linear-gradient(145deg,#102019,#0c171c);border:1px solid rgba(72,233,133,.24);border-radius:13px}.focus-box b{font-size:16px}.focus-main{font-size:14px;line-height:1.45;margin-top:5px}.focus-reason{font-size:12px;color:#8f9da5;margin-top:5px}
+</style>
+<script>
+/* V153 DAILY FOCUS ENGINE */
+function dailyFocus(){
+ const r=smartWeeklyReview(),rec=recoveryData(),g=r.goal||{};
+ if(rec.score<50)return {title:'Regeneration priorisieren',text:'Heute Belastung reduzieren und Erholung einplanen.',reason:'Recovery '+rec.score+'%'};
+ if(r.training<Number(g.trainingTarget||4))return {title:'Krafttraining priorisieren',text:'Eine geplante Trainingseinheit würde dein Wochenziel voranbringen.',reason:r.training+'/'+Number(g.trainingTarget||4)+' Trainingseinheiten'};
+ if(r.runs<Number(g.cardioTarget||2))return {title:'Cardio priorisieren',text:'Eine Cardioeinheit würde dein Wochenziel ergänzen.',reason:r.runs+'/'+Number(g.cardioTarget||2)+' Cardioeinheiten'};
+ if(r.mealDays<5)return {title:'Ernährung dokumentieren',text:'Heute Mahlzeiten und Tageswerte vollständig erfassen.',reason:r.mealDays+'/7 Ernährungstage'};
+ return {title:'Konstanz halten',text:'Deine wichtigsten Wochenziele sind gut unterwegs. Fokus auf saubere Ausführung und Erholung.',reason:r.activeDays+'/7 aktive Tage'};
+}
+function renderDailyFocus(){
+ const host=document.getElementById('dailyFocus');if(!host)return;
+ const f=dailyFocus();host.innerHTML='<div class="focus-box"><b>Dein Fokus heute: '+f.title+'</b><div class="focus-main">'+f.text+'</div><div class="focus-reason">'+f.reason+'</div></div>';
+}
+function ensureDailyFocus(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('dailyFocus')){renderDailyFocus();return}
+ const panels=host.querySelectorAll('.smart-panel');if(!panels.length)return;
+ const box=document.createElement('div');box.id='dailyFocus';(panels[1]||host).appendChild(box);renderDailyFocus();
+}
+window.addEventListener('load',()=>setTimeout(ensureDailyFocus,260));
 </script></body>
 </html>
