@@ -1990,5 +1990,37 @@ function openCalculatorFull(){
 </script><script>
 /* V118 PLAN BUILDER */
 function coachRebuildNow(){localStorage.setItem('fitness_coach_plan_updated',new Date().toISOString());closeCoachPlan();openCoachSetup()}
-</script></body>
+</script>
+<script>
+/* V120 COACH -> TRAINING BRIDGE */
+function coachPlanKeyForTitle(title){
+ const t=(title||'').toLowerCase();
+ if(t.includes('ganzkörper a')||t.includes('oberkörper')||t.includes('push')) return 'A';
+ if(t.includes('ganzkörper b')||t.includes('unterkörper')||t.includes('pull')) return 'B';
+ if(t.includes('ganzkörper c')||t.includes('legs')) return 'C';
+ if(t.includes('gk d')) return 'D';
+ return 'A';
+}
+function coachOpenToday(){
+ const week=coachBuildWeek(),i=(new Date().getDay()+6)%7,p=week[i];
+ if(p.type==='Strength'){
+   currentPlan=coachPlanKeyForTitle(p.title);
+   showView('training');
+   const pills=document.querySelectorAll('#plans .pill');
+   pills.forEach(x=>x.classList.toggle('active',x.dataset.plan===currentPlan));
+   renderPlan();
+   toast(p.title+' geöffnet ✓');
+ }else if(p.type==='Cardio'){
+   closeCoachPlan();
+   openModule('cardio');
+ }else{
+   toast('Heute steht Regeneration & Alltag im Fokus.');
+ }
+}
+function coachPreviewExercises(title){
+ const key=coachPlanKeyForTitle(title),list=plans[key]||[];
+ return list.slice(0,4).map(e=>e[0]).join(' · ');
+}
+</script>
+</body>
 </html>
