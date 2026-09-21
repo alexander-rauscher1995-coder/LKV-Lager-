@@ -1,8 +1,8 @@
-/* FITNESS PRO V169 — Calculator experience layer */
+/* FITNESS PRO V170 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v169';
+  const STYLE_ID='fitness-pro-calculator-v170';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -107,6 +107,18 @@
       mode.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Berechnungsmodus</div><div style="font-size:16px;font-weight:850;margin-top:4px">'+goalMode.title+'</div><div style="font-size:11px;color:#82919a;margin-top:4px">'+goalMode.desc+'</div><div style="font-size:11px;color:#aab6bd;margin-top:8px">Die App zeigt hier bewusst nur eine neutrale Energie-Orientierung. Es werden keine Minus- oder Plus-Kalorien als Vorgabe ausgegeben.</div>';
       main.before(mode);
     }
+
+    if(!main.querySelector('.calculator-pro-daytype')){
+      const day=document.createElement('div');
+      day.className='calculator-pro-daytype';
+      day.style.cssText='margin:0 0 12px;padding:13px 14px;border-radius:14px;background:#101a20;border:1px solid #26343c';
+      const training=n(state.trainingDays)>0;
+      const cardio=n(state.cardioDays)>0;
+      const active=training||cardio;
+      day.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Tagesprofil</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px"><div class="summary-card"><span>Alltag</span><b>'+ (steps>0?'✓':'–') +'</b><small>'+steps.toLocaleString('de-DE')+' Schritte</small></div><div class="summary-card"><span>Training</span><b>'+ (training?'✓':'–') +'</b><small>'+n(state.trainingDays)+' Tage/Woche</small></div><div class="summary-card"><span>Cardio</span><b>'+ (cardio?'✓':'–') +'</b><small>'+n(state.cardioDays)+' Tage/Woche</small></div></div><div style="font-size:11px;color:#82919a;margin-top:9px">'+(active?'Aktivität wird im neutralen Tagesbedarf berücksichtigt.':'Ruhe-/Alltagsprofil wird verwendet.')+'</div>';
+      main.before(day);
+    }
+
 
     const goalStep=[...main.querySelectorAll('.calc-step')].find(x=>x.textContent.includes('Ziel'));
     if(goalStep){
