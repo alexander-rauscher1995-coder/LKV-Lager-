@@ -2864,5 +2864,37 @@ function ensureRecoveryWidget(){
 }
 function recoveryRefresh(){try{ensureRecoveryWidget();renderRecovery()}catch(e){console.warn(e)}}
 window.addEventListener('load',()=>setTimeout(recoveryRefresh,180));
+</script>
+<style>
+/* V152 GOAL MILESTONES */
+.milestone-list{display:grid;gap:8px;margin-top:12px}.milestone{background:#0b151a;border:1px solid #293840;border-radius:12px;padding:11px 12px}.milestone-head{display:flex;justify-content:space-between;gap:10px}.milestone-bar{height:7px;background:#28353d;border-radius:99px;overflow:hidden;margin-top:8px}.milestone-bar i{display:block;height:100%;background:var(--green);border-radius:99px}.milestone small{color:#89979f}
+</style>
+<script>
+/* V152 GOAL MILESTONES */
+const MILESTONE_KEY='fitness_milestones_v1';
+function milestoneLoad(){try{return JSON.parse(localStorage.getItem(MILESTONE_KEY)||'{}')||{}}catch{return{}}}
+function milestoneSave(x){localStorage.setItem(MILESTONE_KEY,JSON.stringify(x))}
+function renderMilestones(){
+ const host=document.getElementById('milestoneWidget');if(!host)return;
+ const g=smartLoad(),r=smartWeeklyReview(),m=milestoneLoad();
+ const items=[
+  {name:'Training',value:r.training,target:Number(g.trainingTarget||4),unit:'Einheiten'},
+  {name:'Cardio',value:r.runs,target:Number(g.cardioTarget||2),unit:'Einheiten'},
+  {name:'Aktive Tage',value:r.activeDays,target:7,unit:'Tage'},
+  {name:'Ernährung dokumentiert',value:r.mealDays,target:7,unit:'Tage'}
+ ];
+ host.innerHTML='<div class="recovery-card"><b>Wochenziele</b><div class="milestone-list">'+items.map(x=>{
+   const p=Math.min(100,Math.round(x.value/Math.max(1,x.target)*100));
+   return '<div class="milestone"><div class="milestone-head"><span>'+x.name+'</span><b>'+x.value+'/'+x.target+'</b></div><div class="milestone-bar"><i style="width:'+p+'%"></i></div><small>'+x.unit+' · '+p+'%</small></div>';
+ }).join('')+'</div></div>';
+}
+function ensureMilestones(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('milestoneWidget')){renderMilestones();return}
+ const panels=host.querySelectorAll('.smart-panel');if(!panels.length)return;
+ const box=document.createElement('div');box.id='milestoneWidget';(panels[0]||host).appendChild(box);renderMilestones();
+}
+function milestoneRefresh(){try{ensureMilestones();renderMilestones()}catch(e){console.warn(e)}}
+window.addEventListener('load',()=>setTimeout(milestoneRefresh,220));
 </script></body>
 </html>
