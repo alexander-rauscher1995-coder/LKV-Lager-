@@ -460,6 +460,9 @@ body.coach-way-active{padding-left:0!important}
 
 /* V132 RECOVERY CHECK-IN */
 .recovery-check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.recovery-check{padding:14px;border:1px solid #2b3840;background:#0d151a;border-radius:14px;cursor:pointer;text-align:left}.recovery-check:hover{border-color:#63f59a}.recovery-check b{display:block;margin-bottom:4px}.recovery-check span{font-size:12px;color:#8f9ca4}.recovery-check.selected{border-color:#63f59a;background:rgba(99,245,154,.08)}@media(max-width:600px){.recovery-check-grid{grid-template-columns:1fr}}
+
+/* V133 PROGRESS COACH SUMMARY */
+.progress-coach{padding:17px;border:1px solid rgba(99,245,154,.20);border-radius:17px;background:linear-gradient(145deg,rgba(99,245,154,.07),#0d151a);margin-bottom:12px}.progress-coach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.progress-coach-stat{padding:12px;border:1px solid #29363e;border-radius:12px;background:#0d151a}.progress-coach-stat span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800}.progress-coach-stat b{display:block;font-size:20px;margin-top:5px}.progress-coach-note{margin-top:11px;color:#9aa7af;font-size:12px;line-height:1.45}@media(max-width:600px){.progress-coach-grid{grid-template-columns:1fr}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1468,6 +1471,15 @@ function openModule(type){
     <div class="module-card"><h3>Einheiten</h3><div class="module-value">${count}</div><div class="muted">gespeicherte Trainings</div></div>
     <div class="module-card"><h3>Letzte Einheit</h3><div class="module-value">${count?'GK '+saved[count-1].plan:'–'}</div><div class="muted">${count?new Date(saved[count-1].date).toLocaleDateString('de-DE'):'Noch keine Einheit'}</div></div>
    </div>
+   <div class="progress-coach">
+  <div class="section-kicker">COACH FORTSCHRITT</div><h3 style="margin:0">Entwicklung der letzten 7 Tage</h3>
+  <div class="progress-coach-grid">
+    <div class="progress-coach-stat"><span>Training</span><b id="pcTraining">–</b></div>
+    <div class="progress-coach-stat"><span>Cardio</span><b id="pcCardio">–</b></div>
+    <div class="progress-coach-stat"><span>Dokumentation</span><b id="pcQuality">–</b></div>
+  </div>
+  <div class="progress-coach-note" id="pcNote">Der Coach fasst deine Aktivität neutral zusammen.</div>
+</div>
    <div class="module-card" style="margin-top:12px"><h3>Aktuelle Leistungswerte</h3>
    ${rows.length?`<div class="metric-list">${rows.map(r=>`<div class="metric-row"><span>${r.name}</span><b>${r.max} kg</b><div class="bar"><div class="fill" style="width:${Math.min(100,Math.max(8,r.max/2))}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Noch keine Gewichte gespeichert. Trage im Training Gewicht und Wiederholungen ein.</div>'}
    </div>
@@ -1565,6 +1577,7 @@ function openModule(type){
    if(stored&&preview)preview.innerHTML='<img src="'+stored+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';
    if(photo)photo.onchange=()=>{const f=photo.files?.[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{localStorage.setItem('fitness_v98_body_photo',reader.result);if(preview)preview.innerHTML='<img src="'+reader.result+'" style="max-width:220px;border-radius:14px;border:1px solid #344049;display:block">';toast('Bild gespeichert ✓')};reader.readAsDataURL(f)};
  }
+ if(type==='progress')renderProgressCoach();
  modal.classList.add('open');
  document.body.classList.add('module-open');
  const bottomNav=document.querySelector('.bottom'); if(bottomNav) bottomNav.style.display='none';
@@ -2407,6 +2420,18 @@ function recoveryCheckin(value,btn){
  if(typeof coachRenderAdaptive==='function')coachRenderAdaptive();
  if(typeof coachWeeklyReview==='function')coachWeeklyReview();
  toast('Check-in gespeichert ✓');
+}
+
+/* V133 PROGRESS COACH ENGINE */
+function renderProgressCoach(){
+ const sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[],start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-6);
+ const recent=sessions.filter(x=>{const d=new Date(x.date);return !Number.isNaN(d.getTime())&&d>=start});
+ const cs=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{sessions:[]};
+ const cardio=(cs.sessions||[]).filter(x=>new Date((x.date||'')+'T12:00:00')>=start).length;
+ const ratios=recent.filter(x=>Number(x.total)>0).map(x=>Number(x.completed||0)/Number(x.total));
+ const avg=ratios.length?Math.round(ratios.reduce((a,b)=>a+b,0)/ratios.length*100):0;
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('pcTraining',recent.length);set('pcCardio',cardio);set('pcQuality',ratios.length?avg+'%':'–');
+ const note=document.getElementById('pcNote');if(note)note.textContent=recent.length?'Deine gespeicherten Einheiten bilden die Grundlage für die nächste Coach-Auswertung.':'Noch keine Trainingsdaten für die aktuelle 7-Tage-Auswertung.';
 }
 </body>
 </html>
