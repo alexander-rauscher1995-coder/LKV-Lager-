@@ -23,6 +23,11 @@ jobs:
           test -f manifest.json
           test -f sw.js
           test -f icon.svg
+          test -f cloud/API.md
+          test -f cloud/README.md
+          test -f cloud/sync-adapter.js
+          test -f cloud/config.example.js
+          test -f apple/integration.json
           test -f ios/FitnessCoachApp.swift
           test -f ios/HealthKitManager.swift
           test -f ios/WatchConnectivityManager.swift
@@ -54,6 +59,13 @@ jobs:
           assert checks["backup schema"]
           print(checks)
           PY
+
+      - name: Validate cloud layer
+        run: |
+          grep -q "FITNESS_CLOUD_CONFIG" cloud/sync-adapter.js
+          grep -q "v1/sync" cloud/API.md
+          grep -q "backend-required" apple/integration.json
+          grep -q "enabled:false" cloud/config.example.js
 
       - name: Validate native integration markers
         run: |
