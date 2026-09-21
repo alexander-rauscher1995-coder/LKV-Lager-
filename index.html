@@ -1116,11 +1116,15 @@ function calcBreakdown(){
   const b=calcBMR();
   if(!b)return {bmr:0,activity:0,steps:0,training:0,cardio:0,preTef:0,tef:0,total:0};
   const w=Number(calorieState.weight)||0;
-  // Der Aktivitätsfaktor bildet Alltag + normale Bewegung bereits ab.
-  // Deshalb keinen zusätzlichen TEF-Prozentsatz aufschlagen.
+  // Der Aktivitätsfaktor bildet den normalen Alltag ab.
+  // Wenn Schritte eingetragen sind, wird der Wert feinjustiert:
+  // 7.000 Schritte = neutral, mehr/weniger Schritte verändern den Bedarf leicht.
   const baseTotal=Math.round(b*activityFactor());
-  const activityCalories=Math.max(0,baseTotal-b);
-  const stepCalories=0;
+  const steps=Number(calorieState.steps)||0;
+  const stepAdjustment=steps>0 ? Math.round((steps-7000)*0.04*w) : 0;
+  const adjustedTotal=Math.max(b,baseTotal+stepAdjustment);
+  const activityCalories=Math.max(0,adjustedTotal-b);
+  const stepCalories=stepAdjustment;
   const trainingCalories=0;
   const today=todayISO();
   const cardioSessions=(cardioState.sessions||[]).filter(x=>x.date===today);
@@ -1130,7 +1134,7 @@ function calcBreakdown(){
     const met=type.includes('laufen')?8:type.includes('rad')?7:type.includes('crosstrainer')?7:type.includes('gehen')?3.5:5;
     return sum+(met*3.5*w/200)*minutes;
   },0)) : 0;
-  const preTef=baseTotal+cardioCalories;
+  const preTef=adjustedTotal+cardioCalories;
   const tef=0;
   const total=Math.round(preTef);
   return {bmr:b,activity:activityCalories,steps:stepCalories,training:trainingCalories,cardio:cardioCalories,preTef,tef,total};
