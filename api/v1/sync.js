@@ -1,7 +1,7 @@
 import {requireAuth,validateSnapshot,readUserSnapshot,writeUserSnapshot,json} from '../../_lib/sync.js';
 
 export default async function handler(req,res){
-  const auth=requireAuth(req,res); if(!auth)return;
+  const auth=await requireAuth(req,res); if(!auth)return;
   if(!globalThis.FITNESS_PERSISTENCE && !process.env.FITNESS_DATABASE_URL)return json(res,503,{error:'persistence_not_configured'});
 
   if(req.method==='GET'){
