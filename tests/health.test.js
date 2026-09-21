@@ -14,8 +14,7 @@ function response(){
 const ENV_KEYS=[
   'FITNESS_DATABASE_URL',
   'FITNESS_AUTH_ISSUER',
-  'FITNESS_AUTH_AUDIENCE',
-  'FITNESS_JWT_PUBLIC_KEY'
+  'FITNESS_AUTH_JWKS_URL'
 ];
 
 test('health reports backend readiness only when all production settings exist',async()=>{
@@ -31,8 +30,7 @@ test('health reports backend readiness only when all production settings exist',
 
     process.env.FITNESS_DATABASE_URL='postgresql://test';
     process.env.FITNESS_AUTH_ISSUER='issuer';
-    process.env.FITNESS_AUTH_AUDIENCE='audience';
-    process.env.FITNESS_JWT_PUBLIC_KEY='public-key';
+    process.env.FITNESS_AUTH_JWKS_URL='https://example.com/.well-known/jwks.json';
 
     res=response();
     await healthHandler({},res);
@@ -42,8 +40,7 @@ test('health reports backend readiness only when all production settings exist',
     assert.deepEqual(res.payload.requiredEnvironment,{
       databaseUrl:true,
       authIssuer:true,
-      authAudience:true,
-      jwtPublicKey:true
+      authJwksUrl:true
     });
   }finally{
     ENV_KEYS.forEach(k=>{
