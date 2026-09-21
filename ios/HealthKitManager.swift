@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import Combine
 
 @MainActor
 final class HealthKitManager: ObservableObject {
@@ -11,7 +12,7 @@ final class HealthKitManager: ObservableObject {
 
     var heartRateText: String {
         guard let heartRate else { return "Herzfrequenz –" }
-        return "(Int(heartRate.rounded())) BPM"
+        return "\(Int(heartRate.rounded())) BPM"
     }
 
     func requestAuthorization() async {
@@ -53,7 +54,9 @@ final class HealthKitManager: ObservableObject {
         return await withCheckedContinuation { continuation in
             let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
             let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { _, samples, _ in
-                let value = (samples?.first as? HKQuantitySample)?.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                let value = (samples?.first as? HKQuantitySample)?.quantity.doubleValue(
+                    for: HKUnit.count().unitDivided(by: .minute())
+                )
                 continuation.resume(returning: value)
             }
             store.execute(query)
