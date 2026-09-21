@@ -36,6 +36,11 @@
   @media(max-width:700px){.calculator-pro-hero{grid-template-columns:1fr}.calculator-pro-side{grid-template-columns:repeat(2,1fr)}.calculator-pro-summary,.calculator-pro-goals,.calculator-pro-macros{grid-template-columns:1fr}.calculator-pro-footer{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}}
   `;
   document.head.appendChild(style);
+  .calculator-pro-person{margin:0 0 12px;padding:16px;border-radius:16px;border:1px solid rgba(99,245,154,.22);background:linear-gradient(135deg,#101d19,#0d171c)}
+  .calculator-pro-person-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.calculator-pro-person-head b{font-size:15px}.calculator-pro-person-head span{font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em}
+  .calculator-pro-person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.calculator-pro-person-grid .pitem{padding:10px;border-radius:11px;background:#101a20;border:1px solid #26343c}.calculator-pro-person-grid small{display:block;color:#82919a;font-size:9px;text-transform:uppercase}.calculator-pro-person-grid b{display:block;font-size:16px;margin-top:3px}
+  @media(max-width:700px){.calculator-pro-person-grid{grid-template-columns:repeat(2,1fr)}}
+
 
   function n(v){return Number.isFinite(Number(v))?Number(v):0}
   function pct(v,max){return max?Math.min(100,Math.max(0,Math.round(v/max*100))):0}
@@ -60,6 +65,16 @@
 
   function enhance(){
     const sheet=document.getElementById('moduleSheet');
+    if(!sheet.querySelector('.calculator-pro-person')){
+      const person=document.createElement('div');
+      person.className='calculator-pro-person';
+      const age=n(state.age), height=n(state.height), pw=n(state.weight);
+      const sex=state.sex==='f'?'Weiblich':state.sex==='m'?'Männlich':'–';
+      person.innerHTML='<div class="calculator-pro-person-head"><b>Personendaten</b><span>Schritt 1 · Grundlage</span></div><div class="calculator-pro-person-grid"><div class="pitem"><small>Alter</small><b>'+ (age||'–') +' Jahre</b></div><div class="pitem"><small>Größe</small><b>'+ (height||'–') +' cm</b></div><div class="pitem"><small>Gewicht</small><b>'+ (pw||'–') +' kg</b></div><div class="pitem"><small>Geschlecht</small><b>'+sex+'</b></div></div>';
+      const main=sheet.querySelector('.calculator-main');
+      if(main) main.before(person);
+    }
+
     // Guided calculator flow: Person → Aktivität → Ziel → Ergebnis
     if(!sheet.querySelector('.calculator-pro-flow')){
       const flow=document.createElement('div');
