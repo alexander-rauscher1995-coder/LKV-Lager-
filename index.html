@@ -691,6 +691,15 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .setup-fields{grid-template-columns:repeat(2,1fr)}
 .plan-refresh-badge{display:block;text-align:center;margin:16px 0;padding:11px;border-radius:12px;background:rgba(99,245,154,.07);border:1px solid rgba(99,245,154,.16);color:#a6c3b0;font-size:12px}
 @media(max-width:600px){.setup-fields{grid-template-columns:1fr}}
+</style><style>
+.coach-adaptive-card{margin:0 0 16px;padding:18px 20px;border:1px solid rgba(99,245,154,.20);border-radius:18px;background:linear-gradient(135deg,rgba(99,245,154,.08),rgba(15,24,30,.96));box-shadow:0 16px 35px rgba(0,0,0,.20)}
+.coach-adaptive-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.coach-adaptive-head h3{margin:0;font-size:21px}
+.coach-adaptive-note{margin-top:7px;color:#aebbc2;line-height:1.45;max-width:780px}
+.coach-adaptive-stat{display:inline-block;margin-top:12px;padding:7px 10px;border-radius:999px;background:rgba(99,245,154,.08);color:#b9e8c9;font-size:12px;font-weight:800}
+.coach-adaptive-refresh{border:1px solid #344049;background:#172128;border-radius:10px;padding:9px 12px;cursor:pointer;white-space:nowrap}
+.coach-adaptive-refresh:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:600px){.coach-adaptive-head{flex-direction:column}.coach-adaptive-refresh{width:100%}}
 </style></head>
 <body>
 <div class="app">
@@ -1728,7 +1737,15 @@ document.addEventListener('input',e=>{
         <div class="section-kicker">WOCHENPLAN</div>
         <h2>Deine Woche</h2>
         <div class="coach-week" id="coachWeek"></div>
-        <div class="coach-today">
+        <div class="coach-adaptive-card">
+  <div class="coach-adaptive-head">
+    <div><div class="section-kicker">ADAPTIVE COACH</div><h3 id="cwAdaptiveFocus">Plan stabil halten</h3></div>
+    <button class="coach-adaptive-refresh" onclick="coachAdaptiveRefresh()">Aktualisieren</button>
+  </div>
+  <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
+  <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
+</div>
+<div class="coach-today">
           <div class="section-kicker">HEUTE IM DETAIL</div>
           <div class="coach-way-card" style="padding:15px;background:#0d151a">
             <h3 id="cwDetailTitle">Tagesplan</h3>
@@ -1973,7 +1990,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
