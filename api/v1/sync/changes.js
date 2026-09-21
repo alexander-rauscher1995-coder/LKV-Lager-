@@ -1,7 +1,13 @@
-import {requireAuth,json} from '../../../_lib/sync.js';
+import {requireAuth,writeUserChanges,json} from '../../../_lib/sync.js';
 
 export default async function handler(req,res){
   const auth=requireAuth(req,res); if(!auth)return;
   if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'});
-  return json(res,501,{error:'database_not_configured',message:'Configure the production persistence adapter before enabling cloud sync.'});
+  if(!globalThis.FITNESS_PERSISTENCE)return json(res,503,{error:'persistence_not_configured'});
+
+  const changes=req.body?.changes;
+  if(!Array.isArray(changes)||changes.length>500)return json(res,400,{error:'invalid_changes'});
+  const result=await writeUserChanges(auth.subject,changes);
+  if(!result)return json(res,503,{error:'persistence_not_configured'});
+  return json(res,200,{status:'ok',revision:result.revision??null,conflicts:result.conflicts||[]});
 }
