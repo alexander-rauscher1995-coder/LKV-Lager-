@@ -1518,8 +1518,8 @@ function openModule(type){
     <div class="calc-component"><div><b>TEF / Thermischer Effekt</b><small>8 % der vorherigen Komponenten</small></div><b>+${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
     <div class="calc-component" style="border-bottom:0;padding-top:14px"><div><b>Gesamt</b></div><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
     <div class="mini-note">Die einzelnen Bausteine sind transparent getrennt. Für die persönliche Praxis ist die tatsächliche Entwicklung über mehrere Wochen aussagekräftiger als eine einzelne Formel.</div>
-   </div>
-} else if(type==='bodycheck'){
+   </div>`;
+ } else if(type==='bodycheck'){
 
    const last=latestBodyCheck();
    const history=(bodyCheckState.history||[]).slice().reverse();
