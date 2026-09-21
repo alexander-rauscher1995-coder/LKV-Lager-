@@ -2988,5 +2988,22 @@ function ensureAchievements(){
  const box=document.createElement('div');box.id='achievementWidget';(panels[1]||host).appendChild(box);renderAchievements();
 }
 window.addEventListener('load',()=>setTimeout(ensureAchievements,340));
+</script>
+<style>
+/* V156 QUICK ACTIONS */
+.smart-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.smart-quick button{border:1px solid #30404a;background:#111d23;border-radius:12px;padding:11px 8px;cursor:pointer}.smart-quick button:hover{border-color:#48e985;transform:translateY(-1px)}.smart-quick b{display:block;font-size:13px;margin-top:4px}
+@media(max-width:600px){.smart-quick{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script>
+/* V156 QUICK ACTIONS */
+function ensureQuickActions(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('smartQuickActions'))return;
+ const panel=host.querySelector('.smart-panel');if(!panel)return;
+ const box=document.createElement('div');box.id='smartQuickActions';box.className='smart-quick';
+ box.innerHTML='<button onclick="showView(\'training\')">🏋️<b>Training</b></button><button onclick="openModule(\'nutrition\')">🍽️<b>Ernährung</b></button><button onclick="openModule(\'cardio\')">🏃<b>Cardio</b></button><button onclick="openModule(\'body\')">📏<b>Körper</b></button>';
+ panel.appendChild(box);
+}
+window.addEventListener('load',()=>setTimeout(ensureQuickActions,380));
 </script></body>
 </html>
