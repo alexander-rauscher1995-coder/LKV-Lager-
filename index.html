@@ -1505,6 +1505,13 @@ function openModule(type){
        <div class="field"><label>Art</label><select id="calcCardioType" onchange="setCardioProfile(document.getElementById('calcCardioDays').value,document.getElementById('calcCardioMinutes').value,this.value,'calculator')">${['Laufen','Radfahren','Crosstrainer','Gehen','Sonstiges'].map(t=>`<option ${(calorieState.cardioType||'Laufen')===t?'selected':''}>${t}</option>`).join('')}</select></div>
       </div>
     </div>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">6</span><div><div class="calc-step-title">Ziel</div><div class="calc-step-desc">Wähle das gewünschte Ziel für die Orientierung.</div></div></div>
+      <div class="calc-method">
+       <button class="${calorieState.goal==='lose'?'active':''}" onclick="setCalorieGoal('lose','calculator')">Abnehmen</button>
+       <button class="${calorieState.goal==='maintain'?'active':''}" onclick="setCalorieGoal('maintain','calculator')">Erhalt</button>
+       <button class="${calorieState.goal==='bulk'?'active':''}" onclick="setCalorieGoal('bulk','calculator')">Aufbau</button>
+      </div>
+    </div>
     <button class="module-action" onclick="calculateAndStay()">Neu berechnen</button>
    </div>
    <div class="module-card calculator-breakdown" style="margin-top:12px">
