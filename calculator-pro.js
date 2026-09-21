@@ -327,15 +327,22 @@
     if(breakdown && !breakdown.querySelector('.calculator-pro-macros')){
       const macroBox=document.createElement('div');
       macroBox.className='calculator-pro-macros';
-      const items=[
-        ['Protein',macros.protein ?? macros.prot ?? macros.p,4],
-        ['Kohlenhydrate',macros.carbs ?? macros.carbohydrates ?? macros.c,4],
-        ['Fett',macros.fat ?? macros.fats ?? macros.f,9]
-      ];
-      macroBox.innerHTML=items.map(([label,val,kcal])=>{
-        const grams=n(val), calories=grams*kcal;
-        return `<div class="calculator-pro-macro"><div class="macro-top"><b>${grams} g</b><small>${calories.toLocaleString('de-DE')} kcal</small></div><div class="muted" style="font-size:11px;margin-top:4px">${label}</div><div class="macro-track"><i style="width:${pct(calories,Math.max(1,target))}%"></i></div></div>`;
-      }).join('');
+      macroBox.innerHTML=`
+        <div class="calculator-pro-macro">
+          <div class="macro-top"><b>Protein</b><small>individuell</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Bei Jugendlichen keine automatische Grammvorgabe</div>
+          <div class="macro-track"><i style="width:72%"></i></div>
+        </div>
+        <div class="calculator-pro-macro">
+          <div class="macro-top"><b>Kohlenhydrate</b><small>individuell</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Nach Alltag, Training und Ernährung einordnen</div>
+          <div class="macro-track"><i style="width:58%"></i></div>
+        </div>
+        <div class="calculator-pro-macro">
+          <div class="macro-top"><b>Fett</b><small>individuell</small></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Keine automatische Zielmenge</div>
+          <div class="macro-track"><i style="width:45%"></i></div>
+        </div>`;
       const title=[...breakdown.querySelectorAll('h3')].find(x=>x.textContent.includes('Formel'));
       if(title) title.before(macroBox); else breakdown.prepend(macroBox);
     }
@@ -487,7 +494,7 @@
         const parts=typeof calcBreakdown==='function'?calcBreakdown():{};
         const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));
         const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};
-        return ['Fitness Coach Pro – Rechner','Tagesziel: '+Math.round(target)+' kcal','Grundumsatz: '+Math.round(n(parts.bmr))+' kcal','Alltag/NEAT: +'+Math.round(n(parts.activity))+' kcal','Krafttraining: +'+Math.round(n(parts.training))+' kcal','Cardio: +'+Math.round(n(parts.cardio))+' kcal','Protein: '+(macros.protein ?? macros.prot ?? macros.p ?? 0)+' g','Kohlenhydrate: '+(macros.carbs ?? macros.carbohydrates ?? macros.c ?? 0)+' g','Fett: '+(macros.fat ?? macros.fats ?? macros.f ?? 0)+' g'].join('\
+        return ['Fitness Coach Pro – Rechner','Tagesziel: '+Math.round(target)+' kcal','Grundumsatz: '+Math.round(n(parts.bmr))+' kcal','Alltag/NEAT: +'+Math.round(n(parts.activity))+' kcal','Krafttraining: +'+Math.round(n(parts.training))+' kcal','Cardio: +'+Math.round(n(parts.cardio))+' kcal','Makros: individuelle Orientierung ohne automatische Grammvorgaben'].join('\
 ');
       };
       tools.querySelector('.calculator-pro-copy').onclick=async()=>{try{await navigator.clipboard.writeText(getText());tools.querySelector('.calculator-pro-copy').textContent='Kopiert';setTimeout(()=>tools.querySelector('.calculator-pro-copy').textContent='Zusammenfassung kopieren',1400)}catch(e){}};
