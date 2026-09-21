@@ -71,6 +71,7 @@ button,input{font:inherit}button{cursor:pointer}
 <label style="font-size:11px;color:#7d8495">Gewicht (kg)<input id="quickWeight" type="number" step="0.1" placeholder="80,0" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Schritte<input id="quickSteps" type="number" min="0" placeholder="8000" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Kalorien<input id="quickCalories" type="number" min="0" placeholder="2400" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">KFA (%)<input id="quickKfa" type="number" step="0.1" min="3" max="60" placeholder="16" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 <label style="font-size:11px;color:#7d8495">Schlaf (h)<input id="quickSleep" type="number" step="0.1" min="0" max="24" placeholder="8" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
 </div>
 <button style="margin-top:12px" onclick="saveCheckin()">Check-in speichern</button>
@@ -108,6 +109,7 @@ button,input{font:inherit}button{cursor:pointer}
 <section id="progress" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">FORTSCHRITT</div><h1>Dein Verlauf</h1></div><button class="back" onclick="showView('home')">← Home</button></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📊 Deine Daten</h3><button onclick="exportData()">Daten exportieren</button></div><div id="historyList" class="mini-list"></div></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📉 Trendgewicht</h3><span style="font-size:10px;color:#8b91a0">7-Tage-Trend</span></div><div id="trendWeightValue" style="font-size:24px;font-weight:850;margin-bottom:8px">—</div><div id="weightChart" style="height:180px;display:flex;align-items:flex-end;gap:5px;padding:12px 4px;background:var(--surface2);border-radius:12px"></div></div>
+<div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📈 KFA &amp; Bauch-Trend</h3><span style="font-size:10px;color:#8b91a0">Verlauf</span></div><div id="bodyTrend" class="mini-list"></div></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📸 Fortschrittsfotos</h3><span style="font-size:10px;color:#8b91a0">lokal gespeichert</span></div><input id="progressPhoto" type="file" accept="image/*" multiple style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"><div id="photoPreview" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"></div><small style="display:block;color:#8b91a0;margin-top:8px">Fotos bleiben in diesem Browser. Für eine spätere Geräte-Synchronisierung wäre ein Konto-Speicher nötig.</small></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📏 Körpermaße</h3><span style="font-size:10px;color:#8b91a0">cm</span></div>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
@@ -187,7 +189,7 @@ button,input{font:inherit}button{cursor:pointer}
 </div>
 <div id="toast" style="position:fixed;left:50%;bottom:25px;transform:translate(-50%,15px);opacity:0;z-index:100;background:#171827;color:#fff;padding:11px 16px;border-radius:11px;font-size:12px;transition:.2s"></div>
 <script>
-const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,history:[],workouts:[],measurements:[]};
+const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,kfa:'',history:[],workouts:[],measurements:[]};
 function save(){localStorage.setItem('fitlife_state',JSON.stringify(state));render();}
 function showView(id){
  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -270,12 +272,12 @@ function saveCheckin(){
  const weight=document.getElementById('quickWeight').value;
  const steps=Number(document.getElementById('quickSteps').value||0);
  const calories=Number(document.getElementById('quickCalories').value||0);
- const sleep=Number(document.getElementById('quickSleep').value||0);
+ const kfa=Number(document.getElementById('quickKfa').value||0); const sleep=Number(document.getElementById('quickSleep').value||0);
  if(!weight&&!steps&&!calories&&!sleep){toast('Bitte mindestens einen Wert eingeben');return}
  if(weight) state.weight=weight;
- state.steps=steps; state.calories=calories; state.sleep=sleep;
+ state.steps=steps; state.calories=calories; state.kfa=kfa; state.sleep=sleep;
  state.history=state.history||[];
- state.history.push({date:new Date().toLocaleDateString('de-DE'),weight:weight||state.weight,steps,calories,sleep});
+ state.history.push({date:new Date().toLocaleDateString('de-DE'),weight:weight||state.weight,kfa,steps,calories,sleep});
  state.history=state.history.slice(-30);
  save(); toast('Check-in gespeichert');
 }
@@ -304,9 +306,10 @@ function render(){
  const qs=document.getElementById('quickWeight');if(qs)qs.value=state.weight||'';
  const qst=document.getElementById('quickSteps');if(qst)qst.value=state.steps||'';
  const qc=document.getElementById('quickCalories');if(qc)qc.value=state.calories||'';
- const qsl=document.getElementById('quickSleep');if(qsl)qsl.value=state.sleep||'';
+ const qk=document.getElementById('quickKfa');if(qk)qk.value=state.kfa||''; const qsl=document.getElementById('quickSleep');if(qsl)qsl.value=state.sleep||'';
  const hs=document.getElementById('historyList');if(hs){const h=(state.history||[]).slice().reverse().slice(0,7);hs.innerHTML=h.length?h.map(x=>'<div class="mini-row"><span>'+x.date+' · '+(x.weight||'—')+' kg · '+(x.steps||0).toLocaleString('de-DE')+' Schritte</span><b>'+(x.calories||0)+' kcal</b></div>').join(''):'<span style="color:#8b91a0;font-size:11px">Noch keine Check-ins.</span>';}
  const chart=document.getElementById('weightChart');if(chart){const vals=(state.history||[]).map(x=>Number(x.weight)).filter(Boolean).slice(-30);if(vals.length){const min=Math.min(...vals),max=Math.max(...vals),range=Math.max(.1,max-min);chart.innerHTML=vals.map(v=>'<div title="'+v.toFixed(1)+' kg" style="flex:1;min-width:4px;height:'+Math.max(8,((v-min)/range)*135+25)+'px;background:var(--purple);border-radius:5px 5px 2px 2px"></div>').join('')}else chart.innerHTML='<span style="font-size:11px;color:#8b91a0">Noch keine Gewichtsdaten vorhanden.</span>';}
+ const bt=document.getElementById('bodyTrend');if(bt){const h=(state.history||[]).slice().reverse().filter(x=>x.kfa||x.weight).slice(0,10);const ms=(state.measurements||[]).slice().reverse().filter(x=>x.belly).slice(0,10);bt.innerHTML=(h.length?h.map(x=>'<div class="mini-row"><span>'+x.date+' · Gewicht '+(x.weight||'—')+' kg</span><b>KFA '+(x.kfa||'—')+'%</b></div>').join(''):'')+(ms.length?ms.map(x=>'<div class="mini-row"><span>'+x.date+' · Bauch</span><b>'+x.belly+' cm</b></div>').join(''):'')||'<span style="color:#8b91a0;font-size:11px">Noch keine KFA- oder Bauchdaten.</span>';}
  const ast=document.getElementById('activityStats');if(ast){const h=state.history||[];const avgSteps=h.length?Math.round(h.reduce((s,x)=>s+Number(x.steps||0),0)/h.length):0;const avgSleep=h.length?(h.reduce((s,x)=>s+Number(x.sleep||0),0)/h.length).toFixed(1):'—';ast.innerHTML='<div class="mini-row"><span>Ø Schritte</span><b>'+avgSteps.toLocaleString('de-DE')+'</b></div><div class="mini-row"><span>Ø Schlaf</span><b>'+avgSleep+' h</b></div><div class="mini-row"><span>Check-ins</span><b>'+h.length+'</b></div>';}
  document.getElementById('nutritionText').textContent=state.meals?'Heute wurden '+state.meals+' Mahlzeit(en) dokumentiert.':'Noch keine Mahlzeiten dokumentiert.';
 }
