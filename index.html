@@ -2039,5 +2039,26 @@ function coachPreviewExercises(title){
  return list.slice(0,4).map(e=>e[0]).join(' · ');
 }
 </script>
+<script>
+/* V121 ADAPTIVE COACH ANALYSIS */
+function coachAdaptiveAnalysis(){
+ const state=coachWayLoad(),setup=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ const training=JSON.parse(localStorage.getItem('fitness_v85_training_data')||'{}')||{};
+ const sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const week=coachBuildWeek(),planned=week.filter(x=>x.type!=='Recovery').length,completed=Object.keys(state.done||{}).length;
+ const checks=Object.values(state.checkins||{}).slice(-7);
+ let focus='Plan stabil halten',note='Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.';
+ if(checks.includes('hard')){focus='Regeneration priorisieren';note='Die letzten Check-ins zeigen höhere Belastung. Die nächste Einheit bleibt kontrolliert und technisch sauber.';}
+ else if(completed>=Math.max(2,Math.ceil(planned*.7))){focus='Saubere Progression';note='Deine geplanten Einheiten werden regelmäßig abgeschlossen. Technik und kontrollierte Steigerungen bleiben im Fokus.';}
+ else if(sessions.length===0){focus='Routine aufbauen';note='Starte mit den geplanten Einheiten und sammle zuerst verlässliche Trainingsdaten.';}
+ return {focus,note,completed,planned,dataCount:Object.keys(training).length,goal:coachGoalLabel(setup.goal)};
+}
+function coachRenderAdaptive(){
+ const a=coachAdaptiveAnalysis();
+ const focus=document.getElementById('cwAdaptiveFocus'),note=document.getElementById('cwAdaptiveNote'),stat=document.getElementById('cwAdaptiveStat');
+ if(focus)focus.textContent=a.focus;if(note)note.textContent=a.note;if(stat)stat.textContent=a.completed+' / '+a.planned+' geplante Tage';
+}
+function coachAdaptiveRefresh(){coachRenderAdaptive();toast('Coach-Analyse aktualisiert ✓')}
+</script>
 </body>
 </html>
