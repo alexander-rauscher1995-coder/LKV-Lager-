@@ -447,6 +447,10 @@ body.coach-way-active{padding-left:0!important}
 
 /* V128 COACH NEXT ACTION */
 .coach-next-action{margin-top:12px;padding:17px;border-radius:17px;border:1px solid rgba(99,245,154,.24);background:linear-gradient(135deg,rgba(99,245,154,.10),rgba(13,21,26,.98));display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.coach-next-action h3{margin:0 0 5px}.coach-next-action p{margin:0;color:#9aa7af;font-size:13px;line-height:1.45}.coach-next-action button{border:0;background:#63f59a;color:#06100b;font-weight:800;border-radius:11px;padding:11px 14px;cursor:pointer}.coach-next-action small{display:block;color:#71818a;text-transform:uppercase;letter-spacing:.1em;font-size:10px;font-weight:800;margin-bottom:6px}@media(max-width:600px){.coach-next-action{grid-template-columns:1fr}.coach-next-action button{width:100%}}
+
+/* V129 TRAINING SESSION FLOW */
+.training-session-bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:14px;padding:16px 18px;border:1px solid #29363e;border-radius:17px;background:linear-gradient(145deg,#111b21,#0c1419)}
+.training-session-status{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}.training-session-chip{padding:6px 9px;border-radius:999px;background:#151f25;border:1px solid #29363e;color:#aebbc2;font-size:11px}.training-session-chip strong{color:#63f59a}.training-session-actions{display:flex;gap:8px;flex-wrap:wrap}.training-session-actions button{border-radius:11px;padding:10px 13px;cursor:pointer}.training-start{border:0;background:#63f59a;color:#06100b;font-weight:800}.training-finish{border:1px solid #344049;background:#172128;color:#fff}.training-coach-note{margin-top:10px;color:#8f9ca4;font-size:12px;line-height:1.4}@media(max-width:600px){.training-session-bar{grid-template-columns:1fr}.training-session-actions button{flex:1}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -848,7 +852,22 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
             <button class="pill active" data-plan="A">GK A</button><button class="pill" data-plan="B">GK B</button><button class="pill" data-plan="C">GK C</button><button class="pill" data-plan="D">GK D</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom:14px;padding:16px 18px">
+        <div class="training-session-bar">
+  <div>
+    <div class="section-kicker">TRAINING SESSION</div>
+    <b id="trainingSessionTitle">Bereit für deine Einheit</b>
+    <div class="training-session-status">
+      <span class="training-session-chip">Status <strong id="trainingSessionStatus">Bereit</strong></span>
+      <span class="training-session-chip">Start <strong id="trainingSessionStart">–</strong></span>
+    </div>
+    <div class="training-coach-note" id="trainingSessionNote">Starte die Einheit, dokumentiere deine Sätze und speichere sie am Ende für den Coach.</div>
+  </div>
+  <div class="training-session-actions">
+    <button class="training-start" onclick="startTrainingSession()">▶ Training starten</button>
+    <button class="training-finish" onclick="finishTrainingSession()">✓ Abschließen</button>
+  </div>
+</div>
+<div class="card" style="margin-bottom:14px;padding:16px 18px">
           <div class="row"><div><div class="muted">LETZTES TRAINING</div><b id="lastSession">Noch keine gespeicherte Einheit</b><div class="muted" id="trainingCoachHint" style="margin-top:6px">Trage deine Sätze ein – der nächste Stand wird automatisch übernommen.</div></div><div style="color:var(--green)">● bereit</div></div>
         </div>
         <div id="exerciseList"></div>
@@ -955,6 +974,7 @@ function renderPlan(){
  }).join('');
  updateTrainingProgress();
  coachRenderExerciseInsights();
+ renderTrainingSession();
 }
 function updateTrainingProgress(){
  const boxes=[...document.querySelectorAll('#exerciseList .check input')];
@@ -2282,6 +2302,33 @@ function coachRunNextAction(){
  if(a.type==='cardio'){closeCoachPlan();openModule('cardio');return;}
  if(a.type==='checkin'){coachSetMode('checkin');toast('Check-in für heute öffnen ✓');return;}
  toast('Nächster Coach-Schritt: '+a.title);
+}
+
+/* V129 TRAINING SESSION FLOW ENGINE */
+function trainingSessionState(){return JSON.parse(localStorage.getItem('fitness_training_session')||'null')||{started:false,start:null,plan:null};}
+function saveTrainingSessionState(s){localStorage.setItem('fitness_training_session',JSON.stringify(s));}
+function renderTrainingSession(){
+ const s=trainingSessionState(),title=document.getElementById('trainingSessionTitle'),status=document.getElementById('trainingSessionStatus'),start=document.getElementById('trainingSessionStart'),note=document.getElementById('trainingSessionNote');
+ if(!title)return;
+ if(s.started){title.textContent='Einheit läuft · GK '+currentPlan;status.textContent='Läuft';start.textContent=s.start?new Date(s.start).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}):'–';note.textContent='Dokumentiere deine Sätze in Ruhe. Nach dem Speichern kann der Coach die Einheit auswerten.';}
+ else{title.textContent='Bereit für deine Einheit';status.textContent='Bereit';start.textContent='–';note.textContent='Starte die Einheit, dokumentiere deine Sätze und speichere sie am Ende für den Coach.';}
+}
+function startTrainingSession(){
+ const s=trainingSessionState();
+ if(!s.started){s.started=true;s.start=new Date().toISOString();s.plan=currentPlan;saveTrainingSessionState(s);}
+ renderTrainingSession();toast('Training gestartet ✓');
+}
+function finishTrainingSession(){
+ const s=trainingSessionState();
+ if(!s.started){toast('Starte zuerst dein Training');return;}
+ saveSession();
+ const coach=coachWayLoad();coach.done[todayISO()]=true;coachWaySave(coach);
+ localStorage.removeItem('fitness_training_session');renderTrainingSession();
+ if(typeof coachRenderWeek==='function')coachRenderWeek();
+ if(typeof coachRenderAdaptive==='function')coachRenderAdaptive();
+ if(typeof coachWeeklyReview==='function')coachWeeklyReview();
+ if(typeof coachRenderInsightTimeline==='function')coachRenderInsightTimeline();
+ toast('Training abgeschlossen ✓');
 }
 </body>
 </html>
