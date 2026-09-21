@@ -2954,5 +2954,39 @@ function ensureWeeklyReport(){
  const box=document.createElement('div');box.id='weeklyReport';(panels[0]||host).appendChild(box);renderWeeklyReport();
 }
 window.addEventListener('load',()=>setTimeout(ensureWeeklyReport,300));
+</script>
+<style>
+/* V155 MILESTONE COACH */
+.achievement-list{display:grid;gap:8px;margin-top:10px}.achievement{display:flex;align-items:center;gap:10px;padding:10px 11px;background:#101b21;border:1px solid #293840;border-radius:11px}.achievement-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(72,233,133,.12);color:var(--green);font-weight:800}.achievement.locked{opacity:.55}.achievement small{display:block;color:#89979f;margin-top:2px}
+</style>
+<script>
+/* V155 MILESTONE COACH */
+const ACHIEVEMENT_KEY='fitness_achievements_v1';
+function achievementLoad(){try{return JSON.parse(localStorage.getItem(ACHIEVEMENT_KEY)||'{}')||{}}catch{return{}}}
+function achievementSave(x){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(x))}
+function achievementData(){
+ const s=smartSessions(),c=smartCardio(),m=smartMeals(),p=customPlans();
+ return {training:s.length,cardio:c.length,meals:m.length,plans:p.length};
+}
+function renderAchievements(){
+ const host=document.getElementById('achievementWidget');if(!host)return;
+ const d=achievementData(),defs=[
+  ['Erster Schritt',d.training>=1,'Erste Trainingseinheit gespeichert'],
+  ['Trainingsroutine',d.training>=10,'10 Trainingseinheiten gespeichert'],
+  ['Cardio aktiv',d.cardio>=5,'5 Cardioeinheiten gespeichert'],
+  ['Ernährungsfokus',d.meals>=20,'20 Mahlzeiten dokumentiert'],
+  ['Plan Builder',d.plans>=1,'Eigenen Trainingsplan erstellt']
+ ];
+ const a=achievementLoad(),newUnlocks=defs.filter(x=>x[1]&&!a[x[0]]).map(x=>x[0]);
+ newUnlocks.forEach(x=>a[x]=new Date().toISOString());if(newUnlocks.length)achievementSave(a);
+ host.innerHTML='<div class="week-report"><h4>Deine Meilensteine</h4><div class="achievement-list">'+defs.map(x=>'<div class="achievement '+(x[1]?'':'locked')+'"><span class="achievement-icon">'+(x[1]?'✓':'○')+'</span><div><b>'+x[0]+'</b><small>'+x[2]+'</small></div></div>').join('')+'</div></div>';
+}
+function ensureAchievements(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('achievementWidget')){renderAchievements();return}
+ const panels=host.querySelectorAll('.smart-panel');if(!panels.length)return;
+ const box=document.createElement('div');box.id='achievementWidget';(panels[1]||host).appendChild(box);renderAchievements();
+}
+window.addEventListener('load',()=>setTimeout(ensureAchievements,340));
 </script></body>
 </html>
