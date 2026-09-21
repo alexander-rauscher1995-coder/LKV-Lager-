@@ -457,6 +457,9 @@ body.coach-way-active{padding-left:0!important}
 
 /* V131 DAILY SYNC */
 .coach-sync-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.coach-sync-item{padding:12px;border:1px solid #27343b;border-radius:12px;background:#0d151a}.coach-sync-item span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800}.coach-sync-item b{display:block;font-size:16px;margin-top:5px}.coach-sync-item.ok b{color:#63f59a}.coach-sync-item.open b{color:#dce3e7}.coach-sync-note{margin-top:10px;color:#8f9ca4;font-size:12px}@media(max-width:700px){.coach-sync-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* V132 RECOVERY CHECK-IN */
+.recovery-check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.recovery-check{padding:14px;border:1px solid #2b3840;background:#0d151a;border-radius:14px;cursor:pointer;text-align:left}.recovery-check:hover{border-color:#63f59a}.recovery-check b{display:block;margin-bottom:4px}.recovery-check span{font-size:12px;color:#8f9ca4}.recovery-check.selected{border-color:#63f59a;background:rgba(99,245,154,.08)}@media(max-width:600px){.recovery-check-grid{grid-template-columns:1fr}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1497,7 +1500,11 @@ function openModule(type){
    content=`<div class="module-head"><div><div class="muted">RECOVERY</div><h2>Erholung heute</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-grid">
     <div class="module-card"><h3>Schlaf</h3><div class="module-value">${moduleState.sleep||'–'}</div><div class="muted">Schlafdauer eintragen</div><button class="module-action" onclick="setSleep()">Schlaf eintragen</button></div>
-    <div class="module-card"><h3>Check-in</h3><div class="module-value">Bereit?</div><div class="muted">Wie fühlt sich dein Training heute an?</div><button class="module-action secondary" onclick="toast('Check-in gespeichert ✓')">Check-in speichern</button></div>
+    <div class="module-card"><h3>Check-in</h3><div class="module-value">Wie geht es dir heute?</div><div class="muted">Der Check-in wird direkt mit deinem Coach verbunden.</div><div class="recovery-check-grid">
+<button class="recovery-check" onclick="recoveryCheckin('easy',this)"><b>Leicht</b><span>Fühlt sich entspannt an</span></button>
+<button class="recovery-check" onclick="recoveryCheckin('right',this)"><b>Passend</b><span>Normale Tagesform</span></button>
+<button class="recovery-check" onclick="recoveryCheckin('hard',this)"><b>Anstrengend</b><span>Heute eher zurückhaltend</span></button>
+</div></div>
    </div>`;
  } else if(type==='coach'){
    const now=new Date();
@@ -2389,6 +2396,17 @@ function coachRenderDailySync(){
  set('cwSyncCheckin',state.checkins[today]?'Erledigt':'Offen',!!state.checkins[today]);
  const open=[!done&&!todayTraining,!mealCount,!(moveSessions||steps),!state.checkins[today]].filter(Boolean).length;
  const note=document.getElementById('cwSyncNote');if(note)note.textContent=open?'Noch '+open+' Bereich'+(open===1?'':'e')+' offen – du kannst die Daten nach und nach ergänzen.':'Tagesdaten sind vollständig im Coach Center angekommen ✓';
+}
+
+/* V132 RECOVERY CHECK-IN ENGINE */
+function recoveryCheckin(value,btn){
+ if(typeof coachCheckin==='function')coachCheckin(value);
+ document.querySelectorAll('.recovery-check').forEach(x=>x.classList.remove('selected'));if(btn)btn.classList.add('selected');
+ const s=coachWayLoad();s.checkins[todayISO()]=value;coachWaySave(s);
+ if(typeof coachRenderDailySync==='function')coachRenderDailySync();
+ if(typeof coachRenderAdaptive==='function')coachRenderAdaptive();
+ if(typeof coachWeeklyReview==='function')coachWeeklyReview();
+ toast('Check-in gespeichert ✓');
 }
 </body>
 </html>
