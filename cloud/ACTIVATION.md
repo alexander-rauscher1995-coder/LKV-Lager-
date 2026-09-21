@@ -1,19 +1,28 @@
 # Cloud activation checklist
 
-The frontend cloud layer is complete and intentionally disabled by default.
+The frontend cloud layer and server API contract are complete. Cloud remains disabled until a private production persistence adapter and authentication provider are supplied.
 
-To make synchronization real, an administrator must provide:
+## Required production steps
 
-1. A hosted HTTPS backend implementing cloud/API.md.
-2. A real authentication provider.
-3. A user database/storage layer.
-4. Server-side authorization so users can access only their own records.
-5. The API base URL in the deployment configuration.
-6. A short-lived access-token function in cloud/config.example.js.
-7. Server-side backups and monitoring.
+1. Deploy the API over HTTPS.
+2. Configure a real authentication provider that issues short-lived RS256 JWTs.
+3. Configure:
+   - `FITNESS_AUTH_ISSUER`
+   - `FITNESS_AUTH_AUDIENCE`
+   - `FITNESS_JWT_PUBLIC_KEY`
+   - `FITNESS_DATABASE_URL`
+4. Implement the private `globalThis.FITNESS_PERSISTENCE` adapter with:
+   - `getSnapshot(userId)`
+   - `putSnapshot(userId, snapshot)`
+   - `appendChanges(userId, changes)`
+5. Enforce user isolation using the authenticated JWT `sub`.
+6. Apply the documented conflict policy and never silently delete records.
+7. Add database backups, retention, monitoring and rate limiting.
+8. Run authorization, expiry, conflict, restore and multi-device tests.
+9. Only then enable the browser cloud configuration.
 
-After configuration, enable the client only in the deployment configuration.
+## Security
 
-Do not place database passwords, service-role keys, private API keys, or long-lived tokens in index.html or any public GitHub file.
+Never put database passwords, service-role keys, private API keys, JWT private keys or long-lived tokens in `index.html` or any public GitHub file.
 
-The current GitHub Pages deployment remains a local/offline application until these external services are connected.
+The current GitHub Pages deployment therefore remains a secure local/offline application until the private production services above are connected.
