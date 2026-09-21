@@ -49,8 +49,11 @@
     const maintenance=Math.round(n(parts.total));
     const target=typeof calcTarget==='function'?n(calcTarget()):maintenance;
     const bmr=Math.round(n(parts.bmr));
-    const macros=typeof macroTargets==='function'?macroTargets():{protein:0,carbs:0,fat:0};
-    const goal=String(window.calorieState?.goal||'maintain');
+    const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};
+    const state=window.calorieState||{};
+    const weight=n(state.weight)||n(document.getElementById('cwCoach')?.value);
+    const steps=n(state.steps)||n(document.getElementById('csteps')?.value);
+    const goal=String(state.goal||'maintain');
 
     const head=sheet.querySelector('.module-head');
     const main=sheet.querySelector('.calculator-main');
@@ -68,8 +71,8 @@
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
         <div class="calculator-pro-stat"><span>Zielwert</span><b>${target.toLocaleString('de-DE')}</b><small>kcal</small></div>
-        <div class="calculator-pro-stat"><span>Gewicht</span><b>${n(window.calorieState?.weight).toLocaleString('de-DE')}</b><small>kg</small></div>
-        <div class="calculator-pro-stat"><span>Schritte</span><b>${n(window.calorieState?.steps).toLocaleString('de-DE')}</b><small>/ Tag</small></div>
+        <div class="calculator-pro-stat"><span>Gewicht</span><b>${weight.toLocaleString('de-DE')}</b><small>kg</small></div>
+        <div class="calculator-pro-stat"><span>Schritte</span><b>${steps.toLocaleString('de-DE')}</b><small>/ Tag</small></div>
       </div>`;
     if(head) head.after(hero); else sheet.prepend(hero);
 
@@ -103,7 +106,11 @@
     if(breakdown && !breakdown.querySelector('.calculator-pro-macros')){
       const macroBox=document.createElement('div');
       macroBox.className='calculator-pro-macros';
-      const items=[['Protein',macros.protein,4],['Kohlenhydrate',macros.carbs,4],['Fett',macros.fat,9]];
+      const items=[
+        ['Protein',macros.protein ?? macros.prot ?? macros.p,4],
+        ['Kohlenhydrate',macros.carbs ?? macros.carbohydrates ?? macros.c,4],
+        ['Fett',macros.fat ?? macros.fats ?? macros.f,9]
+      ];
       macroBox.innerHTML=items.map(([label,val,kcal])=>{
         const grams=n(val), calories=grams*kcal;
         return `<div class="calculator-pro-macro"><div class="macro-top"><b>${grams} g</b><small>${calories.toLocaleString('de-DE')} kcal</small></div><div class="muted" style="font-size:11px;margin-top:4px">${label}</div><div class="macro-track"><i style="width:${pct(calories,Math.max(1,target))}%"></i></div></div>`;
