@@ -62,6 +62,12 @@
       if(Number.isFinite(Number(result?.revision)))saveRevision(result.revision);
       return Object.assign({},result||{},{status:'synced',queued:false,pending:queue().length});
     }catch(error){
+      // Authentication/authorization failures are not transient network failures.
+      // Keep the snapshot local, but do not retry it indefinitely until the user signs in again.
+      if(error?.status===401||error?.status===403){
+        window.dispatchEvent(new CustomEvent('fitness-cloud-status'));
+        return {status:'auth_required',queued:false,pending:queue().length,error:String(error?.message||error),httpStatus:error.status};
+      }
       const pending=enqueue(payload);
       window.dispatchEvent(new CustomEvent('fitness-cloud-status'));
       return {status:'queued',queued:true,pending,error:String(error?.message||error),httpStatus:error?.status||0};
