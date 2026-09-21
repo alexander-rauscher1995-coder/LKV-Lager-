@@ -2734,5 +2734,8 @@ function cloudReadyCheck(){
   const c=fitnessCloudStatus();
   return {enabled:!!c.enabled,configured:!!c.configured,pending:Number(c.pending||0),adapter:!!window.FitnessCloud};
 }
+</script><script src="./cloud/sync-adapter.js"></script><script>
+window.addEventListener('load',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
+window.addEventListener('fitness-cloud-status',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
 </script></body>
 </html>
