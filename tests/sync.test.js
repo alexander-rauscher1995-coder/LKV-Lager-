@@ -24,10 +24,14 @@ globalThis.FITNESS_PERSISTENCE={
   async getSnapshot(userId){return db.get(userId)||null;},
   async putSnapshot(userId,snapshot){
     const previous=db.get(userId);
-    const revision=(previous?.revision||0)+1;
-    const result={revision,conflicts:previous?[{type:'revision-advanced',revision}]:[]};
+    const currentRevision=previous?.revision||0;
+    const base=Number(snapshot.baseRevision||0);
+    if(previous&&base!==currentRevision){
+      return {revision:currentRevision,conflicts:[{type:'revision-conflict',expected:base,actual:currentRevision}]};
+    }
+    const revision=currentRevision+1;
     db.set(userId,{revision,snapshot:{...snapshot,revision}});
-    return result;
+    return {revision,conflicts:[]};
   },
   async appendChanges(userId,changes){
     const previous=db.get(userId);
@@ -94,7 +98,7 @@ test('increments revision and reports conflict metadata',async()=>{
   assert.equal(res.payload.revision,1);
 
   res=response();
-  await syncHandler(req('PUT','conflict-user',snapshot('device-b')),res);
+  await syncHandler(req('PUT','conflict-user',{...snapshot('device-b'),baseRevision:0}),res);
   assert.equal(res.statusCode,409);
   assert.equal(res.payload.revision,1);
   assert.equal(Array.isArray(res.payload.conflicts),true);
