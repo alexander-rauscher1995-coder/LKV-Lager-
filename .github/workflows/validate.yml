@@ -42,6 +42,9 @@ jobs:
           test -f watchOS/FitnessCoachWatchApp.swift
           test -f watchOS/FitnessCoachWorkoutManager.swift
           test -f watchOS/FitnessCoachWatchConnectivity.swift
+          test -f tests/sync.test.js
+          test -f tests/snapshot.test.js
+          test -f package.json
 
       - name: Validate HTML structure
         run: |
@@ -71,6 +74,9 @@ jobs:
           json.loads(Path("manifest.json").read_text(encoding="utf-8"))
           print(checks)
           PY
+
+      - name: Run cloud integration tests
+        run: npm test
 
       - name: Validate JavaScript syntax
         run: |
