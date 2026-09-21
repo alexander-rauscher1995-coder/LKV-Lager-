@@ -1,4 +1,4 @@
-const CACHE='fitness-coach-v5';
+const CACHE='fitness-coach-v6';
 const CORE=[
  './','./index.html','./manifest.json','./icon.svg',
  './cloud/sync-adapter.js','./cloud/snapshot.js'
