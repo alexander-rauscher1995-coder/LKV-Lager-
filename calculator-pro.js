@@ -36,6 +36,11 @@
   @media(max-width:700px){.calculator-pro-hero{grid-template-columns:1fr}.calculator-pro-side{grid-template-columns:repeat(2,1fr)}.calculator-pro-summary,.calculator-pro-goals,.calculator-pro-macros{grid-template-columns:1fr}.calculator-pro-footer{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}}
   `;
   document.head.appendChild(style);
+  .calculator-pro-shell{margin-bottom:12px}
+  .calculator-pro-section-label{display:flex;align-items:center;gap:8px;margin:14px 0 7px;color:#82919a;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  .calculator-pro-section-label i{width:22px;height:1px;background:rgba(99,245,154,.5);display:block}
+  .calculator-pro-flow button{transition:.18s ease}.calculator-pro-flow button:hover{border-color:rgba(99,245,154,.45)!important;transform:translateY(-1px)}
+  .calculator-pro-person-grid .pitem{transition:.18s ease}.calculator-pro-person-grid .pitem:hover{border-color:rgba(99,245,154,.28);transform:translateY(-1px)}
   .calculator-pro-person{margin:0 0 12px;padding:18px;border-radius:18px;border:1px solid rgba(99,245,154,.22);background:radial-gradient(circle at 85% 10%,rgba(99,245,154,.10),transparent 35%),linear-gradient(135deg,#12221b,#10181d);box-shadow:0 8px 24px rgba(0,0,0,.12)}
   .calculator-pro-person-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.calculator-pro-person-head b{font-size:18px;font-weight:850}.calculator-pro-person-head span{font-size:10px;color:#7f918a;text-transform:uppercase;letter-spacing:.12em}
   .calculator-pro-person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.calculator-pro-person-grid .pitem{padding:12px;border-radius:14px;background:rgba(7,16,22,.5);border:1px solid rgba(153,176,187,.12)}.calculator-pro-person-grid small{display:block;color:#82919a;font-size:10px;text-transform:uppercase;letter-spacing:.07em}.calculator-pro-person-grid b{display:block;font-size:19px;margin-top:5px}
@@ -72,7 +77,13 @@
       const sex=state.sex==='f'?'Weiblich':state.sex==='m'?'Männlich':'–';
       person.innerHTML='<div class="calculator-pro-person-head"><b>Personendaten</b><span>Schritt 1 · Grundlage</span></div><div class="calculator-pro-person-grid"><div class="pitem"><small>Alter</small><b>'+ (age||'–') +' Jahre</b></div><div class="pitem"><small>Größe</small><b>'+ (height||'–') +' cm</b></div><div class="pitem"><small>Gewicht</small><b>'+ (pw||'–') +' kg</b></div><div class="pitem"><small>Geschlecht</small><b>'+sex+'</b></div></div>';
       const main=sheet.querySelector('.calculator-main');
-      if(main) main.before(person);
+      if(main){
+        const label=document.createElement('div');
+        label.className='calculator-pro-section-label';
+        label.innerHTML='<i></i>Person · Ausgangsdaten';
+        main.before(label);
+        main.before(person);
+      }
     }
 
     // Guided calculator flow: Person → Aktivität → Ziel → Ergebnis
