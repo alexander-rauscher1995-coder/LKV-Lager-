@@ -108,6 +108,14 @@ button,input{font:inherit}button{cursor:pointer}
 <section id="progress" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">FORTSCHRITT</div><h1>Dein Verlauf</h1></div><button class="back" onclick="showView('home')">← Home</button></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📊 Deine Daten</h3><button onclick="exportData()">Daten exportieren</button></div><div id="historyList" class="mini-list"></div></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📈 Gewichtstrend</h3><span style="font-size:10px;color:#8b91a0">letzte 30 Check-ins</span></div><div id="weightChart" style="height:180px;display:flex;align-items:flex-end;gap:5px;padding:12px 4px;background:var(--surface2);border-radius:12px"></div></div>
+<div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📏 Körpermaße</h3><span style="font-size:10px;color:#8b91a0">cm</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+<label style="font-size:11px;color:#7d8495">Taille<input id="measureWaist" type="number" step="0.1" placeholder="85" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Brust<input id="measureChest" type="number" step="0.1" placeholder="100" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Arm<input id="measureArm" type="number" step="0.1" placeholder="35" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Hüfte<input id="measureHip" type="number" step="0.1" placeholder="95" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Oberschenkel<input id="measureThigh" type="number" step="0.1" placeholder="55" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+</div><button style="margin-top:10px" onclick="saveMeasurements()">Maße speichern</button><div id="measurementStatus" style="font-size:11px;color:#8b91a0;margin-top:8px"></div></div>
 <div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>😴 Schlaf &amp; Aktivität</h3></div><div id="activityStats" class="mini-list"></div></div>
 <div class="module-grid"><div class="module-card"><h3>Check-in</h3><p>Gewicht, Maße und persönliche Notizen über mehrere Zeitpunkte dokumentieren.</p><button onclick="toast('Check-in geöffnet')">Check-in starten</button></div><div class="module-card"><h3>Wochenverlauf</h3><p>Mehrere Tage und Wochen vergleichen statt nur einen einzelnen Wert zu betrachten.</p><button onclick="toast('Wochenverlauf geöffnet')">Verlauf ansehen</button></div><div class="module-card"><h3>Training</h3><p>Einheiten und Gewohnheiten der letzten Tage im Überblick.</p><button onclick="showView('training')">Training öffnen</button></div><div class="module-card"><h3>Notizen</h3><p>Dokumentiere, was gut funktioniert hat und was du anpassen möchtest.</p><button onclick="toast('Notizen geöffnet')">Notizen</button></div></div></div></section>
 
@@ -177,7 +185,7 @@ button,input{font:inherit}button{cursor:pointer}
 </div>
 <div id="toast" style="position:fixed;left:50%;bottom:25px;transform:translate(-50%,15px);opacity:0;z-index:100;background:#171827;color:#fff;padding:11px 16px;border-radius:11px;font-size:12px;transition:.2s"></div>
 <script>
-const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,history:[],workouts:[]};
+const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,history:[],workouts:[],measurements:[]};
 function save(){localStorage.setItem('fitlife_state',JSON.stringify(state));render();}
 function showView(id){
  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -238,6 +246,14 @@ function adjustTDEE(){
  document.getElementById('trendResult').style.display='block';
  document.getElementById('trendResult').innerHTML='<b>Beobachteter Verlauf</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div><small>Gewichtsänderung</small><strong style="display:block;font-size:19px">'+(delta>=0?'+':'')+delta.toFixed(1).replace('.',',')+' kg</strong></div><div><small>Ø pro Woche</small><strong style="display:block;font-size:19px">'+(changePerWeek>=0?'+':'')+changePerWeek.toFixed(2).replace('.',',')+' kg</strong></div><div style="grid-column:1/-1"><small>Geschätzter beobachteter Erhaltungsbedarf</small><strong style="display:block;font-size:22px">'+observedTdee.toLocaleString('de-DE')+' kcal/Tag</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Das ist eine Näherung aus Kalorienzufuhr und Gewichtsverlauf. Tagesgewicht schwankt durch Wasser, Glykogen und Verdauung. Für sinnvollere Ergebnisse möglichst Trendgewicht und mindestens 2–4 Wochen Daten verwenden.</small>';
 }
+function saveMeasurements(){
+ const fields=['Waist','Chest','Arm','Hip','Thigh'];
+ const m={date:new Date().toLocaleDateString('de-DE')};
+ fields.forEach(k=>m[k.toLowerCase()]=Number(document.getElementById('measure'+k).value||0));
+ if(!Object.values(m).slice(1).some(Boolean)){toast('Bitte mindestens ein Maß eingeben');return}
+ state.measurements=state.measurements||[];state.measurements.push(m);state.measurements=state.measurements.slice(-30);
+ save();document.getElementById('measurementStatus').textContent='Gespeichert: '+m.date;toast('Körpermaße gespeichert');
+}
 function saveCheckin(){
  const weight=document.getElementById('quickWeight').value;
  const steps=Number(document.getElementById('quickSteps').value||0);
@@ -271,6 +287,7 @@ function render(){
  document.getElementById('steps').textContent=Number(state.steps||0).toLocaleString('de-DE');
  document.getElementById('meals').textContent=state.meals||0;document.getElementById('meal2').textContent=state.meals||0;
  document.getElementById('cal').textContent=state.calories?Number(state.calories).toLocaleString('de-DE'):'—';document.getElementById('mealbar').style.width=Math.min(100,(state.meals||0)*25)+'%';
+ ['Waist','Chest','Arm','Hip','Thigh'].forEach(k=>{const el=document.getElementById('measure'+k);if(el&&state.measurements?.length)el.value=state.measurements[state.measurements.length-1][k.toLowerCase()]||''});
  const qs=document.getElementById('quickWeight');if(qs)qs.value=state.weight||'';
  const qst=document.getElementById('quickSteps');if(qst)qst.value=state.steps||'';
  const qc=document.getElementById('quickCalories');if(qc)qc.value=state.calories||'';
