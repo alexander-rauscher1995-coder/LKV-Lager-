@@ -1619,7 +1619,7 @@ function openModule(type){
 function accountTab(tab,btn){document.querySelectorAll('.account-tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const login=document.getElementById('accountLoginPane'),create=document.getElementById('accountCreatePane');if(login)login.style.display=tab==='login'?'block':'none';if(create)create.style.display=tab==='create'?'block':'none';}
 function exportData(){
  const payload={
-   version:'V146',
+   version:'V149',
    schemaVersion:2,
    exportedAt:new Date().toISOString(),
    sessions:saved,
@@ -2531,11 +2531,11 @@ function runReleaseGuard(){
  return {ok,total,checks};
 }
 <script>
-/* V146 RELEASE HARDENING */
+/* V149 RELEASE HARDENING */
 function appReleaseSnapshot(){
  const safe=(k,f)=>{try{return f()}catch{return null}};
  return {
-  version:'V146',
+  version:'V149',
   date:new Date().toISOString(),
   coach:safe('coach',()=>localStorage.getItem('fitness_coach_setup')!==null),
   customPlans:safe('plans',()=>customPlans().length),
@@ -2557,7 +2557,7 @@ function runReleaseAudit(){
   ['Eindeutige IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()],
   ['Backup Schema',typeof validateBackupPayload==='function'&&typeof normalizeBackupPayload==='function']
  ];
- const result={version:'V146',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
+ const result={version:'V149',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
  window.__releaseAudit=result;
  const e=document.getElementById('systemCheckResult');
  if(e)e.innerHTML=required.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+result.ok+'/'+result.total+' Release-Bereiche aktiv</b>';
@@ -2737,5 +2737,5 @@ function cloudReadyCheck(){
 </script><script src="./cloud/sync-adapter.js"></script><script>
 window.addEventListener('load',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
 window.addEventListener('fitness-cloud-status',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
-</script><script src="./cloud/snapshot.js"></script><script>\nwindow.addEventListener("pagehide",()=>{try{window.FitnessCoachCloudSnapshot&&window.FitnessCoachCloudSnapshot.queueSnapshot()}catch{}});\n</script></body>
+</script><script src="./cloud/snapshot.js"></script><script>\nwindow.addEventListener("pagehide",()=>{try{const c=fitnessCloudStatus();if(c.enabled&&c.configured&&window.FitnessCoachCloudSnapshot)window.FitnessCoachCloudSnapshot.queueSnapshot()}catch{}});\n</script></body>
 </html>
