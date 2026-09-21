@@ -2587,6 +2587,7 @@ const CUSTOM_PLAN_KEY='fitness_custom_plans_v1';
 function customPlans(){try{const x=JSON.parse(localStorage.getItem(CUSTOM_PLAN_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
 function saveCustomPlans(x){localStorage.setItem(CUSTOM_PLAN_KEY,JSON.stringify(x))}
 function customPlanAdd(){
+ if(!window.__customPlanEditing){customPlanNew();}
  const name=(document.getElementById('proExercise')?.value||'').trim();
  const sets=Math.max(1,Math.min(8,Number(document.getElementById('proSets')?.value)||3));
  const reps=(document.getElementById('proReps')?.value||'8–12').trim();
@@ -2608,7 +2609,8 @@ function customPlanRemoveExercise(i){
 }
 function customPlanSelect(id){window.__customPlanEditing=id;renderCustomPlans()}
 function startCustomPlan(id){
- const x=customPlans().find(p=>p.id===id)||customPlans().find(p=>p.id===window.__customPlanEditing);
+ const targetId=id||window.__customPlanEditing;
+ const x=customPlans().find(p=>p.id===targetId);
  if(!x||!x.exercises.length){toast('Der Plan enthält noch keine Übungen.');return}
  plans.CUSTOM=x.exercises.map(e=>[e.name,String(e.sets||3),e.reps||'8–12']);
  currentPlan='CUSTOM';
