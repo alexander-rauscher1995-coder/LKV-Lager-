@@ -357,7 +357,7 @@
     if(!sheet.querySelector('.calculator-pro-footer')){
       const footer=document.createElement('div');
       footer.className='calculator-pro-footer';
-      footer.innerHTML=`<div><b>Dein Tagesziel</b><br><span>${target.toLocaleString('de-DE')} kcal · ${targetLabel} ${Math.abs(targetDelta).toLocaleString('de-DE')} kcal</span></div><button class="module-action" type="button">Neu berechnen</button>`;
+      footer.innerHTML=`<div><b>Deine Energie-Orientierung</b><br><span>${target.toLocaleString('de-DE')} kcal · ${goalMode.title}</span></div><button class="module-action" type="button">Neu berechnen</button>`;
       footer.querySelector('button').onclick=()=>typeof calculateAndStay==='function'&&calculateAndStay();
       sheet.appendChild(footer);
     }
