@@ -1,8 +1,8 @@
-/* FITNESS PRO V166 — Calculator experience layer */
+/* FITNESS PRO V169 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v166';
+  const STYLE_ID='fitness-pro-calculator-v169';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -64,8 +64,15 @@
     if(!main) return;
 
     const weeklyAvg = maintenance ? Math.round(maintenance) : 0;
-    const targetDelta = target - maintenance;
-    const targetLabel = targetDelta < 0 ? 'Defizit' : targetDelta > 0 ? 'Überschuss' : 'Erhalt';
+    const goalMode={
+      lose:{title:'Gewichtsorientierung',desc:'Neutraler Tagesbedarf ohne Defizitvorgabe'},
+      maintain:{title:'Erhalt & Fitness',desc:'Neutraler Tagesbedarf für den Alltag'},
+      bulk:{title:'Leistungsorientierung',desc:'Training und Regeneration berücksichtigen'},
+      muscle:{title:'Leistungsorientierung',desc:'Training und Regeneration berücksichtigen'},
+      strength:{title:'Kraft & Leistung',desc:'Trainingstag und Leistungsbedarf berücksichtigen'},
+      fitness:{title:'Allgemeine Fitness',desc:'Alltag, Training und Cardio berücksichtigen'},
+      recovery:{title:'Erholung',desc:'Regeneration und Tagesbedarf im Blick'}
+    }[goal]||{title:'Erhalt & Fitness',desc:'Neutraler Tagesbedarf für den Alltag'};
 
     const hero=document.createElement('div');
     hero.className='calculator-pro-hero';
@@ -75,11 +82,11 @@
         <div class="calculator-pro-title">Dein Energie-Dashboard</div>
         <div class="calculator-pro-sub">Der geschätzte Erhaltungsbedarf bleibt die neutrale Energie-Orientierung. Aktuelle Auswahl: <b>${goalName}</b>.</div>
         <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag · Tagesziel</small></div>
-        <div style="margin-top:7px;color:#82919a;font-size:12px">Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b> · Berechnung: ${exactMaintenance.toLocaleString('de-DE')} kcal</div>
+        <div style="margin-top:7px;color:#82919a;font-size:12px">Modus: <b style="color:#dce5e8">${goalMode.title}</b> · ${goalMode.desc}<br>Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b> · Berechnung: ${exactMaintenance.toLocaleString('de-DE')} kcal</div>
       </div>
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
-        <div class="calculator-pro-stat"><span>Auswahl</span><b style="font-size:14px">${goalName}</b><small>${target.toLocaleString('de-DE')} kcal Orientierung</small></div>
+        <div class="calculator-pro-stat"><span>Berechnungsmodus</span><b style="font-size:14px">${goalMode.title}</b><small>${goalMode.desc}</small></div>
         <div class="calculator-pro-stat"><span>Gewicht</span><b>${weight.toLocaleString('de-DE')}</b><small>kg</small></div>
         <div class="calculator-pro-stat"><span>Schritte</span><b>${steps.toLocaleString('de-DE')}</b><small>/ Tag</small></div>
       </div>`;
@@ -92,6 +99,14 @@
       <div class="summary-card"><span>Krafttraining</span><b>+${n(parts.training).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>
       <div class="summary-card"><span>Cardio</span><b>+${n(parts.cardio).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>`;
     main.before(summary);
+
+    if(!main.querySelector('.calculator-pro-mode')){
+      const mode=document.createElement('div');
+      mode.className='calculator-pro-mode';
+      mode.style.cssText='margin:0 0 12px;padding:13px 14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
+      mode.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Berechnungsmodus</div><div style="font-size:16px;font-weight:850;margin-top:4px">'+goalMode.title+'</div><div style="font-size:11px;color:#82919a;margin-top:4px">'+goalMode.desc+'</div><div style="font-size:11px;color:#aab6bd;margin-top:8px">Die App zeigt hier bewusst nur eine neutrale Energie-Orientierung. Es werden keine Minus- oder Plus-Kalorien als Vorgabe ausgegeben.</div>';
+      main.before(mode);
+    }
 
     const goalStep=[...main.querySelectorAll('.calc-step')].find(x=>x.textContent.includes('Ziel'));
     if(goalStep){
@@ -140,11 +155,11 @@
       const coach=document.createElement('div');
       coach.className='calculator-pro-coaching';
       const weekly=Math.round(target*7);
-      const direction=goal==='lose'?'Defizit-Ziel':goal==='bulk'?'Überschuss-Ziel':'Erhaltungs-Ziel';
+      const direction=goalMode.title;
       coach.innerHTML=\`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px">
         <div class="summary-card"><span>Dein Tagesziel</span><b>${target.toLocaleString('de-DE')}</b><small>kcal / Tag</small></div>
         <div class="summary-card"><span>Wochensumme</span><b>${weekly.toLocaleString('de-DE')}</b><small>kcal / 7 Tage</small></div>
-        <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">${direction}</b><small>aktuelle Einstellung</small></div>
+        <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">${direction}</b><small>${goalMode.desc}</small></div>
       </div>\`;
       const summary=document.querySelector('.calculator-pro-summary');
       if(summary) summary.after(coach); else main.before(coach);
