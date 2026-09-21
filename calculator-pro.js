@@ -147,7 +147,27 @@
 
 
 
-    if(!sheet.querySelector('.calculator-pro-validation')){
+
+    if(!sheet.querySelector('.calculator-pro-reset')){
+      const bar=document.createElement('div');
+      bar.className='calculator-pro-reset';
+      bar.style.cssText='display:flex;justify-content:flex-end;gap:8px;margin-top:10px';
+      bar.innerHTML='<button type="button" class="module-action calculator-pro-reset-btn">Eingaben zurücksetzen</button>';
+      const tools=document.querySelector('.calculator-pro-tools');
+      if(tools) tools.before(bar); else main.before(bar);
+      bar.querySelector('button').onclick=()=>{
+        const ids=['cwCoach','cage','cheight','csteps'];
+        ids.forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
+        if(window.calorieState){['weight','age','height','steps'].forEach(k=>{if(k in window.calorieState) window.calorieState[k]='';});}
+        const inputs=sheet.querySelectorAll('input');
+        inputs.forEach(el=>{if(!['checkbox','radio'].includes(el.type)) el.value='';});
+        sheet.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+        if(typeof calculateAndStay==='function') calculateAndStay();
+        bar.querySelector('button').textContent='Zurückgesetzt';
+        setTimeout(()=>bar.querySelector('button').textContent='Eingaben zurücksetzen',1200);
+      };
+    }
+\n    if(!sheet.querySelector('.calculator-pro-validation')){
       const validation=document.createElement('div');
       validation.className='calculator-pro-validation';
       validation.style.cssText='margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #26343c;background:#0b1419;font-size:11px;line-height:1.45;color:#aab6bd';
