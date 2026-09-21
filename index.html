@@ -833,7 +833,113 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .calculator-main .calc-goal-range .range-value{font-size:21px;font-weight:850;margin-top:3px}
 .calculator-main .calc-goal-range .range-arrow{font-size:18px;color:var(--accent);font-weight:800}
 @media(max-width:600px){.calculator-main .calc-goal-range{grid-template-columns:1fr}.calculator-main .calc-goal-range .range-arrow{transform:rotate(90deg);justify-self:center}}
-</style></head>
+</style>
+<style id="alex-radical-ui">
+/* ALEX V184 — CLEAN MOBILE APP REDESIGN */
+:root{
+  --bg:#f6f7fb;--panel:#ffffff;--text:#10131a;--muted:#7b8290;
+  --line:#e7e9ef;--accent:#6c5ce7;--accent2:#8b7cf6;
+  --green:#36c878;--shadow:0 10px 30px rgba(22,25,40,.07);--radius:22px;
+}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;letter-spacing:0!important}
+.app{background:var(--bg)!important;min-height:100vh}
+.top{
+  min-height:190px!important;padding:26px 20px 30px!important;
+  background:linear-gradient(135deg,#151826,#252a45)!important;
+  border:0!important;color:#fff!important;
+}
+.top-inner{max-width:1180px!important}
+.greeting{font-size:13px!important;color:#bfc4d6!important;letter-spacing:.08em!important}
+.name{font-size:36px!important;letter-spacing:-1.7px!important;margin-top:5px}
+.quote{font-size:15px!important;color:#d8dbea!important;margin-top:10px}
+.datebox{text-align:right!important}.date{font-size:13px!important;color:#c8cce0!important}
+.day{color:#9da3b9!important}.circle{border-color:#555b74!important}
+.day.active .circle{background:#fff!important;color:#171a29!important;border-color:#fff!important}
+.shell{max-width:1180px!important;margin:-24px auto 0!important;padding:0 16px 125px!important}
+.grid{gap:12px!important}
+.card{
+  background:var(--panel)!important;border:1px solid var(--line)!important;
+  border-radius:20px!important;box-shadow:var(--shadow)!important;padding:18px!important;
+}
+.card:hover{transform:none!important;border-color:#d9dce5!important;box-shadow:var(--shadow)!important}
+.hero{
+  background:#fff!important;color:var(--text)!important;border:1px solid var(--line)!important;
+  border-radius:22px!important;box-shadow:var(--shadow)!important;min-height:170px!important;
+}
+.hero-title{font-size:22px!important;letter-spacing:-.5px!important}
+.hero-copy{font-size:14px!important;color:var(--muted)!important}
+.hero-tip{border:0!important;background:#f4f3ff!important;color:#49426f!important;font-size:14px!important}
+.ring{background:conic-gradient(var(--accent) 0 78%,#e9e8f4 78% 100%)!important;box-shadow:none!important}
+.ring:before{background:#fff!important}
+.ring span{color:var(--text)!important}
+.section-kicker{color:#9298a5!important;font-size:10px!important}
+.icon{background:#f0efff!important;color:var(--accent)!important;border-radius:13px!important}
+.big{font-size:27px!important}
+.muted{color:var(--muted)!important}
+.bar{background:#eceef3!important}.fill{background:var(--accent)!important}
+.quick{gap:9px!important}
+.quick button{
+  background:#fff!important;color:var(--text)!important;border:1px solid var(--line)!important;
+  border-radius:17px!important;min-height:78px!important;box-shadow:none!important;
+}
+.quick button:first-child{background:#f0efff!important;color:#5549c9!important}
+.bottom{
+  background:rgba(255,255,255,.94)!important;border:1px solid #e4e6ec!important;
+  border-radius:24px!important;width:calc(100% - 18px)!important;max-width:680px!important;
+  padding:6px!important;box-shadow:0 12px 35px rgba(22,25,40,.14)!important;
+  backdrop-filter:blur(18px)!important;
+}
+.nav{color:#969ba7!important;border-radius:17px!important;padding:9px 4px!important}
+.nav.active{color:var(--accent)!important;background:#f0efff!important}
+.nav .nicon{font-size:20px!important}.nav span{font-size:11px!important}
+.training-page{max-width:900px!important}
+.training-header h1{font-size:32px!important;letter-spacing:-1px!important}
+.pill,.secondary{
+  background:#fff!important;border:1px solid var(--line)!important;color:var(--text)!important;
+}
+.pill.active{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+.exercise{background:#fff!important;border:1px solid var(--line)!important;border-radius:18px!important;box-shadow:var(--shadow)!important;padding:16px!important}
+.input{background:#f7f8fa!important;border-color:var(--line)!important;color:var(--text)!important}
+.primary{background:var(--accent)!important;color:#fff!important;border-radius:13px!important}
+.module-sheet,.sheet{
+  background:#fff!important;color:var(--text)!important;border-color:var(--line)!important;
+}
+.module-card{background:#fafaff!important;border-color:var(--line)!important;border-radius:17px!important}
+.module-action{background:var(--accent)!important;color:#fff!important}
+.setting-row{border-color:var(--line)!important}
+.field input,.field select,.calculator-pro-field input,.calculator-pro-field select{
+  background:#f7f8fa!important;color:var(--text)!important;border-color:var(--line)!important;
+}
+.calculator-main,.calculator-pro-card,.calculator-pro-person,.calculator-pro-hero,
+.calculator-pro-summary .summary-card,.calculator-pro-result .r,.calculator-pro-result-summary,
+.calculator-pro-mode,.calculator-pro-daytype,.calculator-pro-disclaimer,.calculator-pro-history,
+.calculator-pro-last,.calculator-pro-trend,.calculator-pro-accessibility,.calculator-pro-method,
+.calculator-pro-tools,.calculator-pro-sync-indicator,.calculator-pro-input-validation{
+  background:#fff!important;color:var(--text)!important;border-color:var(--line)!important;
+}
+.calculator-pro-card.accent{background:#171a29!important;color:#fff!important}
+.calculator-pro-choice button,.calculator-pro-goal{background:#f7f8fa!important;color:var(--text)!important;border-color:var(--line)!important}
+.calculator-pro-choice button.active,.calculator-pro-goal.active{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+.cw-home,.cw-card,.cw-panel,.cw-ai-card{border-radius:22px!important}
+@media(max-width:900px){
+  .top{min-height:185px!important;padding:23px 18px 27px!important}
+  .top-inner{display:block!important}
+  .datebox{text-align:left!important;margin-top:14px!important}
+  .week{justify-content:flex-start!important}
+  .name{font-size:34px!important}
+  .shell{padding:0 12px 120px!important}
+  .hero{border-radius:20px!important}
+}
+@media(max-width:600px){
+  .card{padding:16px!important;border-radius:18px!important}
+  .name{font-size:31px!important}
+  .quick{grid-template-columns:repeat(2,1fr)!important}
+  .quick button{min-height:74px!important}
+  .bottom{width:calc(100% - 12px)!important}
+}
+</style>
+</head>
 <body><div id="cloudStatus" class="pro-health"><span>Cloud-Status wird geprüft …</span></div>
 <div class="app">
   <header class="top">
