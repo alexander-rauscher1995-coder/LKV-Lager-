@@ -423,7 +423,10 @@ body:has(#coachWay.show) .top{margin-left:0!important;padding-left:5vw!important
 #coachWay.show~.modal-back{display:none!important}
 body.coach-way-active .pro-sidebar,body.coach-way-active .bottom,body.coach-way-active>.top{display:none!important}
 body.coach-way-active{padding-left:0!important}
-\n/* V120 EXERCISE MEDIA */\n.exercise-media{display:grid;grid-template-columns:170px 1fr;gap:14px;align-items:center;margin-top:14px;padding:12px;background:#0d151a;border:1px solid #29363e;border-radius:15px}.exercise-media img{width:170px;height:110px;object-fit:cover;border-radius:11px;background:#172128}.exercise-media-info{display:flex;flex-direction:column;gap:8px}.exercise-media-title{font-weight:800}.exercise-media-actions{display:flex;gap:8px;flex-wrap:wrap}.exercise-media-btn{border:1px solid #344049;background:#172128;border-radius:10px;padding:8px 11px;cursor:pointer}.exercise-media-btn:hover{border-color:var(--green)}@media(max-width:600px){.exercise-media{grid-template-columns:1fr}.exercise-media img{width:100%;height:150px}}\n</style></style></style>
+\n/* V120 EXERCISE MEDIA */\n.exercise-media{display:grid;grid-template-columns:170px 1fr;gap:14px;align-items:center;margin-top:14px;padding:12px;background:#0d151a;border:1px solid #29363e;border-radius:15px}.exercise-media img{width:170px;height:110px;object-fit:cover;border-radius:11px;background:#172128}.exercise-media-info{display:flex;flex-direction:column;gap:8px}.exercise-media-title{font-weight:800}.exercise-media-actions{display:flex;gap:8px;flex-wrap:wrap}.exercise-media-btn{border:1px solid #344049;background:#172128;border-radius:10px;padding:8px 11px;cursor:pointer}.exercise-media-btn:hover{border-color:var(--green)}@media(max-width:600px){.exercise-media{grid-template-columns:1fr}.exercise-media img{width:100%;height:150px}}\n
+.exercise-detail-hero{display:grid;grid-template-columns:260px 1fr;gap:20px;background:#0d151a;border:1px solid #29363e;border-radius:18px;padding:14px}.exercise-detail-hero img{width:100%;height:190px;object-fit:cover;border-radius:13px}.exercise-detail-label{font-size:11px;letter-spacing:.12em;color:#7f9099;font-weight:800}.exercise-detail-muscles{font-size:20px;font-weight:800;margin-top:6px}.exercise-cues{display:grid;gap:8px;margin-top:9px}.exercise-cues div{display:flex;gap:10px;align-items:center;padding:9px 10px;background:#172128;border:1px solid #2d3941;border-radius:10px}.exercise-cues b{color:var(--green);font-size:12px}.exercise-detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.exercise-detail-actions button{flex:1;min-width:190px}.exercise-detail-actions .secondary{color:#fff}
+@media(max-width:650px){.exercise-detail-hero{grid-template-columns:1fr}.exercise-detail-hero img{height:180px}.exercise-detail-muscles{font-size:18px}}
+</style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
 :root{--surface:#10191f;--surface-2:#152229;--surface-3:#192830;--line-soft:rgba(154,177,188,.16);--text-soft:#9eacb4;--accent-glow:rgba(99,245,154,.16)}
@@ -869,6 +872,34 @@ let trainingStarted=false;
 let trainingTimer=null;
 let trainingSeconds=0;
 function openExerciseGuide(encoded){const name=decodeURIComponent(encoded);const q=encodeURIComponent(name+' richtige Ausführung Technik');window.open('https://www.youtube.com/results?search_query='+q,'_blank','noopener');}
+const exerciseLibrary={
+ "Schrägbankdrücken":{muscles:"Brust · vordere Schulter · Trizeps",cues:["Schulterblätter stabilisieren","Hanteln kontrolliert absenken","Handgelenke neutral halten","Sauber und kontrolliert hochdrücken"]},
+ "Seitheben Kabel":{muscles:"Seitliche Schulter",cues:["Schulter tief halten","Arm leicht gebeugt","Kontrolliert bis etwa Schulterhöhe","Kein Schwung aus dem Oberkörper"]},
+ "Trizepsdrücken Seil":{muscles:"Trizeps",cues:["Ellbogen nah am Körper","Schultern ruhig halten","Seil unten leicht auseinanderführen","Kontrolliert zurück"]},
+ "Beinpresse":{muscles:"Oberschenkel · Gesäß",cues:["Füße stabil aufsetzen","Knie in Richtung Fußspitzen führen","Kontrolliert absenken","Nur so tief wie sauber möglich"]},
+ "RDL":{muscles:"Hintere Oberschenkel · Gesäß · Rückenstrecker",cues:["Rücken neutral halten","Hüfte nach hinten schieben","Gewicht körpernah führen","Aus der Hüfte aufrichten"]},
+ "Klimmzüge / Latzug":{muscles:"Latissimus · Bizeps",cues:["Brust anheben","Schultern nicht hochziehen","Ellbogen nach unten führen","Kontrolliert zurück"]},
+ "Rudern":{muscles:"Rücken · hintere Schulter · Bizeps",cues:["Rumpf stabilisieren","Ellbogen nach hinten führen","Schulterblätter kontrolliert bewegen","Nicht aus dem unteren Rücken reißen"]},
+ "Bizeps EZ-Curls":{muscles:"Bizeps · Unterarm",cues:["Ellbogen ruhig halten","Nur den Unterarm bewegen","Kontrolliert absenken","Kein Schwung"]},
+ "Schrägbank-Curls":{muscles:"Bizeps",cues:["Schulterblätter anlehnen","Ellbogen ruhig halten","Vollständig kontrolliert absenken","Bewegung ohne Schwung"]},
+ "Hammer Curls":{muscles:"Bizeps · Brachialis · Unterarm",cues:["Neutraler Griff","Ellbogen nah am Körper","Kontrolliert heben und senken","Oberkörper ruhig halten"]},
+ "Beinstrecker":{muscles:"Quadrizeps",cues:["Rücken anlehnen","Knieachse stabil halten","Kontrolliert strecken","Gewicht nicht abwerfen"]},
+ "Wadenheben":{muscles:"Waden",cues:["Fußballen stabil belasten","Ferse kontrolliert absenken","Oben kurz halten","Ohne Schwung arbeiten"]},
+ "Bankdrücken":{muscles:"Brust · Trizeps · vordere Schulter",cues:["Schulterblätter stabilisieren","Füße fest aufstellen","Stange kontrolliert senken","Sauber nach oben drücken"]},
+ "Kabel-Flys":{muscles:"Brust",cues:["Brustkorb stabil","Ellbogen leicht gebeugt","Arme kontrolliert zusammenführen","Langsam zurück"]},
+ "Trizeps Seil":{muscles:"Trizeps",cues:["Ellbogen stabil","Schultern entspannt","Seil nach unten führen","Kontrolliert zurück"]},
+ "Klimmzüge":{muscles:"Latissimus · Bizeps",cues:["Rumpf stabil","Brust Richtung Stange","Ellbogen nach unten","Kontrolliert ablassen"]}
+};
+function exerciseDetails(name){
+ const data=exerciseLibrary[name]||{muscles:"Ganzkörper / Übungsschwerpunkt",cues:["Kontrollierte Bewegung","Stabile Ausgangsposition","Saubere Technik","Belastung passend wählen"]};
+ const modal=document.getElementById('modal'),sheet=document.getElementById('moduleSheet');
+ if(!modal||!sheet)return;
+ const q=encodeURIComponent(name+' richtige Ausführung Technik');
+ sheet.innerHTML='<div class="module-head"><div><div class="section-kicker">ÜBUNGSBIBLIOTHEK</div><h2>'+name+'</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>'+
+ '<div class="exercise-detail-hero"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1a?auto=format&fit=crop&w=900&q=85" alt="Training und Übungstechnik"><div><div class="exercise-detail-label">ZIELMUSKELN</div><div class="exercise-detail-muscles">'+data.muscles+'</div><div class="exercise-detail-label" style="margin-top:18px">TECHNIK-CHECK</div><div class="exercise-cues">'+data.cues.map((x,i)=>'<div><b>'+String(i+1).padStart(2,'0')+'</b><span>'+x+'</span></div>').join('')+'</div></div></div>'+
+ '<div class="exercise-detail-actions"><button class="module-action" onclick="window.open(\'https://www.youtube.com/results?search_query='+q+'\',\'_blank\',\'noopener\')">▶ Video zur Ausführung</button><button class="module-action secondary" onclick="closeSheet()">← Zurück zum Training</button></div>';
+ modal.classList.add('open');modal.style.display='flex';
+}
 function renderPlan(){
  const list=document.getElementById('exerciseList');
  list.innerHTML=plans[currentPlan].map((e,idx)=>{
@@ -876,7 +907,7 @@ function renderPlan(){
    const filled=prev.filter(x=>x&&((x.weight??'')!==''||(x.reps??'')!=='')).length;
    return `<div class="card exercise">
    <div class="exercise-head"><div><div class="muted">ÜBUNG ${idx+1}</div><div class="exercise-name">${e[0]}</div><div class="muted" style="margin-top:5px">${filled}/${e[1]} Sätze dokumentiert · letzter Stand wird vorausgefüllt</div></div><div class="muted">${e[1]} Sätze · ${e[2]} Wdh.</div></div>
-   <div class="exercise-media"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1a?auto=format&fit=crop&w=500&q=80" alt="Übungsdarstellung" loading="lazy"><div class="exercise-media-info"><div class="exercise-media-title">Ausführung & Technik</div><div class="muted">Bild und Anleitung für die Übung ansehen.</div><div class="exercise-media-actions"><button class="exercise-media-btn" onclick="openExerciseGuide('${encodeURIComponent(e[0])}')">▶ Anleitung / Video</button></div></div></div>
+   <div class="exercise-media"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1a?auto=format&fit=crop&w=500&q=80" alt="Übungsdarstellung" loading="lazy"><div class="exercise-media-info"><div class="exercise-media-title">Ausführung & Technik</div><div class="muted">Bild und Anleitung für die Übung ansehen.</div><div class="exercise-media-actions"><button class="exercise-media-btn" onclick="exerciseDetails('${encodeURIComponent(e[0])}')">Details & Technik</button><button class="exercise-media-btn" onclick="openExerciseGuide('${encodeURIComponent(e[0])}')">▶ Video</button></div></div></div>
    <div class="sets"><div class="head">Satz</div><div class="head">Gewicht</div><div class="head">Wdh.</div><div class="head">RIR</div><div class="head">✓</div>
     ${Array.from({length:Number(e[1])},(_,s)=>{
       const p=prev[s]||{};
