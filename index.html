@@ -1169,7 +1169,7 @@ function calcBreakdown(){
 
   // Sitzender Alltag: 1,35 × RMR. Der RMR selbst wird anschließend
   // separat ausgewiesen, damit er nicht doppelt gezählt wird.
-  const sedentaryTDEE=Math.round(rmr*1.35);
+  const sedentaryTDEE=Math.round(rmr*activityFactor());
   const neatBase=Math.max(0,sedentaryTDEE-rmr);
 
   // 3.000 Schritte gelten als im sitzenden Alltag enthalten.
@@ -1179,8 +1179,8 @@ function calcBreakdown(){
   const neat=neatBase+stepCalories;
 
   // Krafttraining als Wochenmittel: 4 × 60 min, moderates Training.
-  const sessionsPerWeek=4;
-  const minutesPerSession=60;
+  const sessionsPerWeek=Math.max(0,Math.min(7,Number(calorieState.trainingDays)||4));
+  const minutesPerSession=Math.max(0,Math.min(180,Number(calorieState.trainingMinutes)||60));
   const trainingMET=5;
   const teaPerSession=(trainingMET*3.5*w/200)*minutesPerSession;
   const trainingCalories=Math.round((teaPerSession*sessionsPerWeek)/7);
@@ -1482,8 +1482,23 @@ function openModule(type){
       <div class="field"><label>Geschlecht</label><select id="csCoach"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
     </div>
     <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
-    <div class="segmented"><button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35,'calculator')">Wenig aktiv</button><button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">Normal</button><button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65,'calculator')">Aktiv</button><button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8,'calculator')">Sehr aktiv</button></div>
-    <div class="gym-note">Schritte werden nicht in die Berechnung einbezogen. Gym/Krafttraining wird separat über den Trainingstag berücksichtigt.</div>
+    <div class="segmented">
+      <button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35,'calculator')">🪑 Sitzend</button>
+      <button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">🚶 Normal</button>
+      <button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65,'calculator')">🏃 Aktiv</button>
+      <button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8,'calculator')">🔥 Sehr aktiv</button>
+    </div>
+    <div class="mini-note">Wähle dein normales Alltagsniveau. Schritte und Training werden separat berechnet.</div>
+    <div class="section-kicker" style="margin-top:18px">SCHRITTE</div>
+    <div class="calorie-inputs">
+      <div class="field"><label>Schritte pro Tag</label><input id="csteps" type="number" min="0" max="50000" step="500" value="${calorieState.steps||0}" onchange="readCalculatorInputs()"></div>
+    </div>
+    <div class="section-kicker" style="margin-top:18px">KRAFTTRAINING</div>
+    <div class="calorie-inputs">
+      <div class="field"><label>Einheiten / Woche</label><select id="calcTrainingDays" onchange="setTrainingProfile(this.value,document.getElementById('calcTrainingMinutes').value,'calculator')">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${(Number(calorieState.trainingDays||4)===n)?'selected':''}>${n}× pro Woche</option>`).join('')}</select></div>
+      <div class="field"><label>Minuten / Einheit</label><select id="calcTrainingMinutes" onchange="setTrainingProfile(document.getElementById('calcTrainingDays').value,this.value,'calculator')">${[30,45,60,75,90,120].map(n=>`<option value="${n}" ${(Number(calorieState.trainingMinutes||60)===n)?'selected':''}>${n} Minuten</option>`).join('')}</select></div>
+    </div>
+    <div class="gym-note">Das Krafttraining wird als Wochenmittel in den Tagesbedarf eingerechnet.</div>
     <div class="section-kicker" style="margin-top:18px">CARDIO</div>
     <div class="segmented"><button class="${calorieState.cardioEnabled?'':'active'}" onclick="setCardioEnabled(false,'calculator')">Ohne Cardio</button><button class="${calorieState.cardioEnabled?'active':''}" onclick="setCardioEnabled(true,'calculator')">Cardio einrechnen</button></div>
     <div class="mini-note">${calorieState.cardioEnabled ? 'Gespeicherte Cardio-Einheiten von heute werden geschätzt berücksichtigt.' : 'Cardio wird nicht in den Tagesbedarf eingerechnet.'}</div>
@@ -1763,6 +1778,7 @@ function importData(event){
  reader.readAsText(file);
 }
 function setActivity(v,target='calories'){calorieState.activity=v;saveCalories();openModule(target)}
+function setTrainingProfile(sessions,minutes,target='calculator'){calorieState.trainingDays=Math.max(0,Math.min(7,Number(sessions)||0));calorieState.trainingMinutes=Math.max(0,Math.min(180,Number(minutes)||0));saveCalories();openModule(target)}
 function setStepsEnabled(v,target='calculator'){calorieState.stepsEnabled=!!v;saveCalories();openModule(target)}
 function setCardioEnabled(v,target='calculator'){calorieState.cardioEnabled=!!v;saveCalories();openModule(target)}
 function setTrainingDay(v,target='calories'){calorieState.training=v;saveCalories();openModule(target)}
