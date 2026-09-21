@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v164';
+  const STYLE_ID='fitness-pro-calculator-v165';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -49,6 +49,7 @@
     const maintenance=Math.round(n(parts.total));
     const target=typeof calcTarget==='function'?n(calcTarget()):maintenance;
     const bmr=Math.round(n(parts.bmr));
+    const exactMaintenance=Math.round(n(parts.total));
     const displayMaintenance=maintenance;
     const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};
     const state=window.calorieState||{};
@@ -71,7 +72,7 @@
         <div class="calculator-pro-title">Dein Energie-Dashboard</div>
         <div class="calculator-pro-sub">Das Tagesziel wird aus deinem geschätzten Erhaltungsbedarf und der gewählten Zielrichtung berechnet.</div>
         <div class="calculator-pro-number">${target.toLocaleString('de-DE')} <small>kcal / Tag · Tagesziel</small></div>
-        <div style="margin-top:7px;color:#82919a;font-size:12px">Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b></div>
+        <div style="margin-top:7px;color:#82919a;font-size:12px">Erhaltungsbedarf: <b style="color:#dce5e8">${displayMaintenance.toLocaleString('de-DE')} kcal</b> · Berechnung: ${exactMaintenance.toLocaleString('de-DE')} kcal</div>
       </div>
       <div class="calculator-pro-side">
         <div class="calculator-pro-stat"><span>Grundumsatz</span><b>${bmr.toLocaleString('de-DE')}</b><small>kcal</small></div>
