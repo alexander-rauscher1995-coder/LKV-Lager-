@@ -348,6 +348,17 @@
     refresh();
   }
 
+  window.calculatorProRefresh=function(){
+    try{
+      const sheet=document.getElementById('moduleSheet');
+      if(!sheet || !sheet.classList.contains('module-calculator')) return;
+      const main=sheet.querySelector('.calculator-main');
+      if(!main) return;
+      ['.calculator-pro-hero','.calculator-pro-summary','.calculator-pro-macros','.calculator-pro-disclaimer','.calculator-pro-coaching','.calculator-pro-footer','.calculator-pro-goals'].forEach(sel=>{document.querySelectorAll(sel).forEach(el=>el.remove())});
+      enhance();
+    }catch(e){console.warn(e)}
+  };
+
   function install(){
     const base=window.openModule;
     if(typeof base!=='function' || window.__fitnessCalculatorProInstalled) return;
