@@ -2521,7 +2521,7 @@ function runReleaseGuard(){
   ['Fortschritt',typeof renderProgressCoach==='function'],
   ['Backup',typeof exportData==='function'&&typeof importData==='function'],
   ['System Check',typeof runSystemCheck==='function'],
-  ['Eindeutige IDs',false]
+  ['DOM IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()]
  ];
  const ok=checks.filter(x=>x[1]).length,total=checks.length;
  return {ok,total,checks};
