@@ -1,5 +1,6 @@
 import SwiftUI
 import HealthKit
+import Combine
 
 @main
 struct FitnessCoachWatchApp: App {
@@ -11,49 +12,57 @@ struct FitnessCoachWatchApp: App {
 }
 
 struct WatchHomeView: View {
-    @State private var running = false
-    @State private var seconds = 0
-    @State private var timer: Timer?
+    @StateObject private var workout = FitnessCoachWorkoutManager()
+    @StateObject private var connectivity = FitnessCoachWatchConnectivity.shared
 
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: running ? "figure.run" : "applewatch")
+        VStack(spacing: 8) {
+            Image(systemName: workout.running ? "figure.strengthtraining.traditional" : "applewatch")
                 .font(.title)
-            Text(running ? "Training läuft" : "Fitness Coach")
+            Text(workout.running ? "Training läuft" : "Fitness Coach")
                 .font(.headline)
-            if running {
-                Text(timeString(seconds))
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
-                Button("Training beenden") {
-                    stop()
+
+            if workout.running {
+                if let heartRate = workout.heartRate {
+                    Text("\(Int(heartRate)) BPM")
+                        .font(.system(size: 22, weight: .semibold, design: .rounded))
                 }
-                .tint(.green)
+                Text("\(Int(workout.activeCalories)) kcal")
+                    .font(.caption)
+                Button("Training beenden") {
+                    workout.stop()
+                    connectivity.send(["event": "trainingStopped"])
+                }
+                .tint(.red)
             } else {
                 Button("Training starten") {
-                    start()
+                    startTraining()
                 }
                 .tint(.green)
             }
+
+            Text(connectivity.connected ? "iPhone verbunden" : "iPhone nicht verbunden")
+                .font(.caption2)
         }
         .padding()
-    }
-
-    private func start() {
-        running = true
-        seconds = 0
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            seconds += 1
+        .task {
+            await workout.requestAuthorization()
+            connectivity.activate()
+        }
+        .onChange(of: connectivity.incomingCommand) { _, command in
+            guard let command else { return }
+            if command == "startTraining" {
+                workout.start()
+                connectivity.send(["event": "trainingStarted"])
+            } else if command == "stopTraining" {
+                workout.stop()
+                connectivity.send(["event": "trainingStopped"])
+            }
         }
     }
 
-    private func stop() {
-        timer?.invalidate()
-        timer = nil
-        running = false
-    }
-
-    private func timeString(_ value: Int) -> String {
-        String(format: "%02d:%02d", value / 60, value % 60)
+    private func startTraining() {
+        workout.start()
+        connectivity.send(["event": "trainingStarted"])
     }
 }
