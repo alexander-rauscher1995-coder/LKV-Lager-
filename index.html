@@ -2830,5 +2830,39 @@ function ensureSmartDashboard(){
 function smartRefresh(){try{ensureSmartDashboard();renderSmartDashboard()}catch(e){console.warn(e)}}
 window.addEventListener('load',()=>setTimeout(smartRefresh,120));
 window.addEventListener('fitness-cloud-status',smartRefresh);
+</script>
+<style>
+/* V151 RECOVERY */
+.recovery-card{margin-top:12px;padding:12px;background:#0b151a;border:1px solid #293840;border-radius:12px}
+.recovery-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.recovery-score{font-size:22px;font-weight:800}
+.recovery-bar{height:9px;background:#28353d;border-radius:99px;overflow:hidden;margin-top:9px}.recovery-bar i{display:block;height:100%;background:var(--green);border-radius:99px}
+.recovery-note{color:#98a6ae;font-size:12px;line-height:1.4;margin-top:8px}
+</style>
+<script>
+/* V151 RECOVERY ENGINE */
+function recoveryData(){
+ const days=smartWeekDays(),sessions=smartSessions(),cardio=smartCardio();
+ const last3=days.slice(-3),last7=days;
+ const recent=last3.reduce((n,d)=>n+sessions.filter(x=>String(x.date||'').slice(0,10)===d).length+cardio.filter(x=>String(x.date||'').slice(0,10)===d).length,0);
+ const weekly=last7.reduce((n,d)=>n+sessions.filter(x=>String(x.date||'').slice(0,10)===d).length+cardio.filter(x=>String(x.date||'').slice(0,10)===d).length,0);
+ let score=100-recent*15-Math.max(0,weekly-6)*5;
+ score=Math.max(0,Math.min(100,score));
+ const status=score>=75?'Gut':score>=50?'Mittel':'Erholung einplanen';
+ return {score,status,recent,weekly};
+}
+function renderRecovery(){
+ const host=document.getElementById('recoveryWidget');if(!host)return;
+ const r=recoveryData();
+ host.innerHTML='<div class="recovery-card"><div class="recovery-head"><span><b>Recovery & Belastung</b><br><small class="muted">Aktivität der letzten Tage</small></span><span class="recovery-score">'+r.score+'%</span></div><div class="recovery-bar"><i style="width:'+r.score+'%"></i></div><div class="recovery-note"><b>'+r.status+'</b> · '+r.recent+' Aktivitäten in den letzten 3 Tagen · '+r.weekly+' diese Woche. Bei hoher Belastung einen leichteren Tag einplanen.</div></div>';
+}
+function ensureRecoveryWidget(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ if(document.getElementById('recoveryWidget')){renderRecovery();return}
+ const panels=host.querySelectorAll('.smart-panel');if(!panels.length)return;
+ const target=panels[1];
+ const box=document.createElement('div');box.id='recoveryWidget';target.appendChild(box);renderRecovery();
+}
+function recoveryRefresh(){try{ensureRecoveryWidget();renderRecovery()}catch(e){console.warn(e)}}
+window.addEventListener('load',()=>setTimeout(recoveryRefresh,180));
 </script></body>
 </html>
