@@ -1,8 +1,8 @@
-/* FITNESS PRO V162 — Calculator experience layer */
+/* FITNESS PRO V166 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v165';
+  const STYLE_ID='fitness-pro-calculator-v166';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -64,7 +64,8 @@
     const weeklyAvg = maintenance ? Math.round(maintenance) : 0;
     const targetDelta = target - maintenance;
     const targetLabel = targetDelta < 0 ? 'Defizit' : targetDelta > 0 ? 'Überschuss' : 'Erhalt';
-\n    const hero=document.createElement('div');
+
+    const hero=document.createElement('div');
     hero.className='calculator-pro-hero';
     hero.innerHTML=`
       <div>
@@ -139,9 +140,9 @@
       const weekly=Math.round(target*7);
       const direction=goal==='lose'?'Defizit-Ziel':goal==='bulk'?'Überschuss-Ziel':'Erhaltungs-Ziel';
       coach.innerHTML=\`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px">
-        <div class="summary-card"><span>Dein Tagesziel</span><b>\${target.toLocaleString('de-DE')}</b><small>kcal / Tag</small></div>
-        <div class="summary-card"><span>Wochensumme</span><b>\${weekly.toLocaleString('de-DE')}</b><small>kcal / 7 Tage</small></div>
-        <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">\${direction}</b><small>aktuelle Einstellung</small></div>
+        <div class="summary-card"><span>Dein Tagesziel</span><b>${target.toLocaleString('de-DE')}</b><small>kcal / Tag</small></div>
+        <div class="summary-card"><span>Wochensumme</span><b>${weekly.toLocaleString('de-DE')}</b><small>kcal / 7 Tage</small></div>
+        <div class="summary-card"><span>Zielrichtung</span><b style="font-size:18px">${direction}</b><small>aktuelle Einstellung</small></div>
       </div>\`;
       const summary=document.querySelector('.calculator-pro-summary');
       if(summary) summary.after(coach); else main.before(coach);
@@ -174,7 +175,8 @@
       const last=document.querySelector('.calculator-pro-last');
       if(last) last.after(history); else main.before(history);
     }
-\n    if(!sheet.querySelector('.calculator-pro-last')){
+
+    if(!sheet.querySelector('.calculator-pro-last')){
       const last=document.createElement('div');
       last.className='calculator-pro-last';
       last.style.cssText='margin-top:12px;padding:13px 14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
@@ -188,7 +190,8 @@
       const tools=document.querySelector('.calculator-pro-tools');
       if(tools) tools.after(last); else main.before(last);
     }
-\n
+
+
     if(!sheet.querySelector('.calculator-pro-trend')){
       const trend=document.createElement('div');
       trend.className='calculator-pro-trend';
@@ -199,7 +202,8 @@
       const history=document.querySelector('.calculator-pro-history');
       if(history) history.after(trend); else main.before(trend);
     }
-\n
+
+
     if(!sheet.querySelector('.calculator-pro-accessibility')){
       const access=document.createElement('div');
       access.className='calculator-pro-accessibility';
@@ -208,7 +212,8 @@
       const trend=document.querySelector('.calculator-pro-trend');
       if(trend) trend.after(access); else main.before(access);
     }
-\n    if(!sheet.querySelector('.calculator-pro-reset')){
+
+    if(!sheet.querySelector('.calculator-pro-reset')){
       const bar=document.createElement('div');
       bar.className='calculator-pro-reset';
       bar.style.cssText='display:flex;justify-content:flex-end;gap:8px;margin-top:10px';
@@ -227,7 +232,8 @@
         setTimeout(()=>bar.querySelector('button').textContent='Eingaben zurücksetzen',1200);
       };
     }
-\n    if(!sheet.querySelector('.calculator-pro-validation')){
+
+    if(!sheet.querySelector('.calculator-pro-validation')){
       const validation=document.createElement('div');
       validation.className='calculator-pro-validation';
       validation.style.cssText='margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #26343c;background:#0b1419;font-size:11px;line-height:1.45;color:#aab6bd';
@@ -246,7 +252,8 @@
       sheet.addEventListener('input',refreshValidation,{passive:true});
       sheet.addEventListener('change',refreshValidation,{passive:true});
     }
-\n    if(!sheet.querySelector('.calculator-pro-method')){
+
+    if(!sheet.querySelector('.calculator-pro-method')){
       const method=document.createElement('div');
       method.className='calculator-pro-method';
       method.style.cssText='margin-top:12px;padding:14px;border:1px solid #26343c;border-radius:14px;background:#0d171c';
@@ -254,15 +261,26 @@
       const tools=document.querySelector('.calculator-pro-tools');
       if(tools) tools.after(method); else main.before(method);
     }
-\n    if(!sheet.querySelector('.calculator-pro-tools')){
+
+    if(!sheet.querySelector('.calculator-pro-tools')){
       const tools=document.createElement('div');
       tools.className='calculator-pro-tools';
       tools.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px';
       tools.innerHTML='<button type="button" class="module-action calculator-pro-copy">Zusammenfassung kopieren</button><button type="button" class="module-action calculator-pro-share">Teilen</button>';
       const summary=document.querySelector('.calculator-pro-coaching') || document.querySelector('.calculator-pro-summary');
       if(summary) summary.after(tools); else main.before(tools);
-      const getText=()=>{\n        const parts=typeof calcBreakdown==='function'?calcBreakdown():{};\n        const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));\n        const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};\n        return ['Fitness Coach Pro – Rechner','Tagesziel: '+Math.round(target)+' kcal','Grundumsatz: '+Math.round(n(parts.bmr))+' kcal','Alltag/NEAT: +'+Math.round(n(parts.activity))+' kcal','Krafttraining: +'+Math.round(n(parts.training))+' kcal','Cardio: +'+Math.round(n(parts.cardio))+' kcal','Protein: '+(macros.protein ?? macros.prot ?? macros.p ?? 0)+' g','Kohlenhydrate: '+(macros.carbs ?? macros.carbohydrates ?? macros.c ?? 0)+' g','Fett: '+(macros.fat ?? macros.fats ?? macros.f ?? 0)+' g'].join('\\n');\n      };\n      tools.querySelector('.calculator-pro-copy').onclick=async()=>{try{await navigator.clipboard.writeText(getText());tools.querySelector('.calculator-pro-copy').textContent='Kopiert';setTimeout(()=>tools.querySelector('.calculator-pro-copy').textContent='Zusammenfassung kopieren',1400)}catch(e){}};\n      tools.querySelector('.calculator-pro-share').onclick=async()=>{try{if(navigator.share) await navigator.share({title:'Fitness Coach Pro',text:getText()});else await navigator.clipboard.writeText(getText())}catch(e){}};\n    }
-\n    if(!sheet.querySelector('.calculator-pro-footer')){
+      const getText=()=>{
+        const parts=typeof calcBreakdown==='function'?calcBreakdown():{};
+        const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));
+        const macros=typeof macroTargets==='function'?(macroTargets()||{}):{};
+        return ['Fitness Coach Pro – Rechner','Tagesziel: '+Math.round(target)+' kcal','Grundumsatz: '+Math.round(n(parts.bmr))+' kcal','Alltag/NEAT: +'+Math.round(n(parts.activity))+' kcal','Krafttraining: +'+Math.round(n(parts.training))+' kcal','Cardio: +'+Math.round(n(parts.cardio))+' kcal','Protein: '+(macros.protein ?? macros.prot ?? macros.p ?? 0)+' g','Kohlenhydrate: '+(macros.carbs ?? macros.carbohydrates ?? macros.c ?? 0)+' g','Fett: '+(macros.fat ?? macros.fats ?? macros.f ?? 0)+' g'].join('\
+');
+      };
+      tools.querySelector('.calculator-pro-copy').onclick=async()=>{try{await navigator.clipboard.writeText(getText());tools.querySelector('.calculator-pro-copy').textContent='Kopiert';setTimeout(()=>tools.querySelector('.calculator-pro-copy').textContent='Zusammenfassung kopieren',1400)}catch(e){}};
+      tools.querySelector('.calculator-pro-share').onclick=async()=>{try{if(navigator.share) await navigator.share({title:'Fitness Coach Pro',text:getText()});else await navigator.clipboard.writeText(getText())}catch(e){}};
+    }
+
+    if(!sheet.querySelector('.calculator-pro-footer')){
       const footer=document.createElement('div');
       footer.className='calculator-pro-footer';
       footer.innerHTML=`<div><b>Dein Tagesziel</b><br><span>${target.toLocaleString('de-DE')} kcal · ${targetLabel} ${Math.abs(targetDelta).toLocaleString('de-DE')} kcal</span></div><button class="module-action" type="button">Neu berechnen</button>`;
