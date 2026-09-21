@@ -1,4 +1,4 @@
-import {requireAuth,validateSnapshot,readUserSnapshot,writeUserSnapshot,json} from '../../_lib/sync.js';
+import {requireAuth,validateSnapshot,readUserSnapshot,writeUserSnapshot,json} from '../_lib/sync.js';
 
 export default async function handler(req,res){
   const auth=await requireAuth(req,res); if(!auth)return;
