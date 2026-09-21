@@ -444,6 +444,13 @@ function renderExerciseTemplates(){
  const box=document.getElementById('exerciseTemplates');if(!box)return;
  box.innerHTML=exerciseTemplates.map(n=>'<button style="border:1px solid var(--line);background:#fff;color:var(--text);border-radius:8px;padding:8px 10px;font-size:11px" onclick="addTemplateExercise(\''+n+'\')">'+n+'</button>').join('');
 }
+function applyLastPerformance(i){
+ const ex=state.sessionExercises?.[i];if(!ex)return;
+ const last=(state.sets||[]).filter(s=>s.exercise.toLowerCase()===ex.name.toLowerCase()).slice(-1)[0];
+ if(!last){toast('Noch keine gespeicherte Leistung für '+ex.name);return}
+ ex.lastWeight=last.weight;ex.lastReps=last.reps;ex.lastRpe=last.rpe||'';
+ save();renderSession();toast('Letzte Leistung übernommen');
+}
 function addTemplateExercise(name){
  state.sessionExercises=state.sessionExercises||[];
  if(state.sessionExercises.some(x=>x.name.toLowerCase()===name.toLowerCase())){toast('Übung ist bereits in der Session');return}
@@ -454,7 +461,7 @@ function renderSession(){
  state.sessionExercises=state.sessionExercises||[];
  const done=state.sessionExercises.filter(x=>x.done).length;
  document.getElementById('sessionProgress').textContent=done+' / '+state.sessionExercises.length+' Übungen';
- box.innerHTML=state.sessionExercises.length?state.sessionExercises.map((x,i)=>'<div style="display:grid;grid-template-columns:24px 1.5fr .7fr .7fr .7fr;gap:7px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:11px"><input type="checkbox" '+(x.done?'checked':'')+' onchange="toggleSessionExercise('+i+',this.checked)"><b>'+x.name+'</b><input value="'+(x.sets||'')+'" placeholder="Sätze" onchange="updateSessionExercise('+i+',\'sets\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"><input value="'+(x.reps||'')+'" placeholder="Wdh." onchange="updateSessionExercise('+i+',\'reps\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"><input value="'+(x.rpe||'')+'" placeholder="RPE" onchange="updateSessionExercise('+i+',\'rpe\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"></div>').join(''):'<div style="font-size:11px;color:#8b91a0">Noch keine Übung in dieser Session.</div>';
+ box.innerHTML=state.sessionExercises.length?state.sessionExercises.map((x,i)=>'<div style="display:grid;grid-template-columns:24px 1.5fr .7fr .7fr .7fr;gap:7px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:11px"><input type="checkbox" '+(x.done?'checked':'')+' onchange="toggleSessionExercise('+i+',this.checked)"><b>'+x.name+'</b><input value="'+(x.sets||'')+'" placeholder="Sätze" onchange="updateSessionExercise('+i+',\'sets\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"><input value="'+(x.reps||'')+'" placeholder="Wdh." onchange="updateSessionExercise('+i+',\'reps\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"><input value="'+(x.rpe||'')+'" placeholder="RPE" onchange="updateSessionExercise('+i+',\'rpe\',this.value)" style="padding:7px;border:1px solid var(--line);border-radius:7px"><button onclick="applyLastPerformance('+i+')" style="padding:6px;font-size:10px">Letzte</button></div>').join(''):'<div style="font-size:11px;color:#8b91a0">Noch keine Übung in dieser Session.</div>';
 }
 function addSessionExercise(){
  const name=prompt('Übung eingeben');if(!name||!name.trim())return;
