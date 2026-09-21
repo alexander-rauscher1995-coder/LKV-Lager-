@@ -2737,5 +2737,5 @@ function cloudReadyCheck(){
 </script><script src="./cloud/sync-adapter.js"></script><script>
 window.addEventListener('load',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
 window.addEventListener('fitness-cloud-status',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
-</script></body>
+</script><script src="./cloud/snapshot.js"></script><script>\nwindow.addEventListener("pagehide",()=>{try{window.FitnessCoachCloudSnapshot&&window.FitnessCoachCloudSnapshot.queueSnapshot()}catch{}});\n</script></body>
 </html>
