@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import WatchConnectivity
 
 final class FitnessCoachWatchConnectivity: NSObject, ObservableObject, WCSessionDelegate {
@@ -15,19 +16,29 @@ final class FitnessCoachWatchConnectivity: NSObject, ObservableObject, WCSession
     }
 
     func send(_ payload: [String: Any]) {
-        guard WCSession.default.isReachable else { return }
-        WCSession.default.sendMessage(payload, replyHandler: nil)
+        let session = WCSession.default
+        guard session.isReachable else { return }
+        session.sendMessage(payload, replyHandler: nil)
     }
 
-    func session(_ session: WCSession, activationDidCompleteWith state: WCSessionActivationState, error: Error?) {
-        DispatchQueue.main.async { self.connected = state == .activated }
+    func session(_ session: WCSession,
+                 activationDidCompleteWith state: WCSessionActivationState,
+                 error: Error?) {
+        DispatchQueue.main.async {
+            self.connected = state == .activated && session.isReachable
+        }
     }
 
     func sessionReachabilityDidChange(_ session: WCSession) {
-        DispatchQueue.main.async { self.connected = session.isReachable }
+        DispatchQueue.main.async {
+            self.connected = session.isReachable
+        }
     }
 
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        DispatchQueue.main.async { self.incomingCommand = message["command"] as? String }
+    func session(_ session: WCSession,
+                 didReceiveMessage message: [String: Any]) {
+        DispatchQueue.main.async {
+            self.incomingCommand = message["command"] as? String
+        }
     }
 }
