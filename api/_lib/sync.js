@@ -62,4 +62,33 @@ export function validateSnapshot(x){
   return JSON.stringify(x).length<=1000000;
 }
 
+/*
+ * Production persistence adapter.
+ * The API intentionally does not guess a database provider. Deployments must
+ * supply these four operations using their private database credentials.
+ * The adapter is never exposed to the browser.
+ */
+export function getPersistence(){
+  const adapter=globalThis.FITNESS_PERSISTENCE;
+  if(!adapter||typeof adapter.getSnapshot!=='function'||typeof adapter.putSnapshot!=='function'||typeof adapter.appendChanges!=='function'){
+    return null;
+  }
+  return adapter;
+}
+
+export async function readUserSnapshot(subject){
+  const adapter=getPersistence();
+  return adapter?adapter.getSnapshot(subject):null;
+}
+
+export async function writeUserSnapshot(subject,snapshot){
+  const adapter=getPersistence();
+  return adapter?adapter.putSnapshot(subject,snapshot):null;
+}
+
+export async function writeUserChanges(subject,changes){
+  const adapter=getPersistence();
+  return adapter?adapter.appendChanges(subject,changes):null;
+}
+
 export {json};
