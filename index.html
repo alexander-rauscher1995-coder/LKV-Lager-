@@ -1189,7 +1189,7 @@ function calcBreakdown(){
   // 3.000 Schritte gelten als im sitzenden Alltag enthalten.
   const baselineSteps=3000;
   const extraSteps=Math.max(0,steps-baselineSteps);
-  const stepCalories=Math.round(extraSteps*0.035*w);
+  const stepCalories=Math.round(extraSteps*0.00035*w);
   const neat=neatBase+stepCalories;
 
   // Krafttraining als Wochenmittel: 4 × 60 min, moderates Training.
