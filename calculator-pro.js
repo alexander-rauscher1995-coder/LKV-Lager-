@@ -136,13 +136,42 @@
     }
   }
 
+  function installLive(){
+    const sheet=document.getElementById('moduleSheet');
+    if(!sheet || !sheet.classList.contains('module-calculator') || sheet.__proLive) return;
+    sheet.__proLive=true;
+    let timer;
+    const refresh=()=>{ clearTimeout(timer); timer=setTimeout(()=>{
+      try{
+        const main=sheet.querySelector('.calculator-main');
+        if(!main) return;
+        const before=document.querySelector('.calculator-pro-hero');
+        if(before) before.remove();
+        const summary=document.querySelector('.calculator-pro-summary');
+        if(summary) summary.remove();
+        const macro=document.querySelector('.calculator-pro-macros');
+        if(macro) macro.remove();
+        const note=document.querySelector('.calculator-pro-disclaimer');
+        if(note) note.remove();
+        const footer=document.querySelector('.calculator-pro-footer');
+        if(footer) footer.remove();
+        const goals=document.querySelector('.calculator-pro-goals');
+        if(goals) goals.remove();
+        enhance();
+      }catch(e){}
+    },180); };
+    sheet.addEventListener('input',refresh,{passive:true});
+    sheet.addEventListener('change',refresh,{passive:true});
+    refresh();
+  }
+
   function install(){
     const base=window.openModule;
     if(typeof base!=='function' || window.__fitnessCalculatorProInstalled) return;
     window.__fitnessCalculatorProInstalled=true;
     window.openModule=function(type){
       base.apply(this,arguments);
-      if(type==='calculator') setTimeout(enhance,20);
+      if(type==='calculator') setTimeout(()=>{enhance();installLive()},20);
     };
   }
   document.addEventListener('DOMContentLoaded',()=>{install();setTimeout(install,500);setTimeout(install,1500)});
