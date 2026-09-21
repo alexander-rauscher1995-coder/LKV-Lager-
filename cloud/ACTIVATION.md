@@ -1,6 +1,6 @@
 # Cloud activation checklist
 
-The frontend cloud layer and server API contract are complete. Cloud remains disabled until a private production persistence adapter and authentication provider are supplied.
+The frontend cloud layer and server API contract are complete. Cloud remains disabled until a private production database, authentication provider and HTTPS API deployment are connected.
 
 ## Required production steps
 
@@ -11,15 +11,13 @@ The frontend cloud layer and server API contract are complete. Cloud remains dis
    - `FITNESS_AUTH_AUDIENCE`
    - `FITNESS_JWT_PUBLIC_KEY`
    - `FITNESS_DATABASE_URL`
-4. Implement the private `globalThis.FITNESS_PERSISTENCE` adapter with:
-   - `getSnapshot(userId)`
-   - `putSnapshot(userId, snapshot)`
-   - `appendChanges(userId, changes)`
-5. Enforce user isolation using the authenticated JWT `sub`.
-6. Apply the documented conflict policy and never silently delete records.
-7. Add database backups, retention, monitoring and rate limiting.
-8. Run authorization, expiry, conflict, restore and multi-device tests.
-9. Only then enable the browser cloud configuration.
+   - optional `FITNESS_DATABASE_POOL_MAX`
+   - optional `FITNESS_DATABASE_SSL`
+4. Execute `cloud/production-schema.sql` against the private database.
+5. The bundled `api/_lib/persistence.js` handles PostgreSQL snapshots, revisions, change history and optimistic conflict detection.
+6. Enforce user isolation using the authenticated JWT `sub`.
+7. Run authorization, expiry, conflict, restore and multi-device tests.
+8. Only then enable the browser cloud configuration.
 
 ## Security
 
