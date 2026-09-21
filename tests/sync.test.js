@@ -89,7 +89,8 @@ test('increments revision and reports conflict metadata',async()=>{
 
   res=response();
   await syncHandler(req('PUT','user-a',snapshot('device-b')),res);
-  assert.equal(res.payload.revision,2);
+  assert.equal(res.statusCode,409);
+  assert.equal(res.payload.revision,1);
   assert.equal(Array.isArray(res.payload.conflicts),true);
 });
 
