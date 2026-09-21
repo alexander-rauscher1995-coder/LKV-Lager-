@@ -96,7 +96,24 @@ button,input{font:inherit}button{cursor:pointer}
 
 <section id="progress" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">FORTSCHRITT</div><h1>Dein Verlauf</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid"><div class="module-card"><h3>Check-in</h3><p>Gewicht, Maße und persönliche Notizen über mehrere Zeitpunkte dokumentieren.</p><button onclick="toast('Check-in geöffnet')">Check-in starten</button></div><div class="module-card"><h3>Wochenverlauf</h3><p>Mehrere Tage und Wochen vergleichen statt nur einen einzelnen Wert zu betrachten.</p><button onclick="toast('Wochenverlauf geöffnet')">Verlauf ansehen</button></div><div class="module-card"><h3>Training</h3><p>Einheiten und Gewohnheiten der letzten Tage im Überblick.</p><button onclick="showView('training')">Training öffnen</button></div><div class="module-card"><h3>Notizen</h3><p>Dokumentiere, was gut funktioniert hat und was du anpassen möchtest.</p><button onclick="toast('Notizen geöffnet')">Notizen</button></div></div></div></section>
 
-<section id="calculator" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">DATEN &amp; SCHÄTZUNGEN</div><h1>Rechner</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid"><div class="module-card"><h3>Kalorien-Rechner</h3><p>Schätzwerte auf Basis deiner eingegebenen Daten. Ergebnisse sind keine medizinische Empfehlung.</p><button onclick="toast('Kalorien-Rechner geöffnet')">Rechner öffnen</button></div><div class="module-card"><h3>Makros</h3><p>Protein, Kohlenhydrate und Fett als Dokumentationshilfe.</p><button onclick="toast('Makro-Rechner geöffnet')">Makros öffnen</button></div><div class="module-card"><h3>Aktivität</h3><p>Alltag, Schritte, Training und Cardio übersichtlich erfassen.</p><button onclick="toast('Aktivitätsrechner geöffnet')">Aktivität</button></div><div class="module-card"><h3>Formeln</h3><p>Transparente Darstellung der verwendeten Schätzformeln.</p><button onclick="toast('Formeln geöffnet')">Details</button></div></div></div></section>
+<section id="calculator" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">DATEN &amp; SCHÄTZUNGEN</div><h1>Rechner</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid">
+<div class="module-card" style="grid-column:1/-1">
+<h3>🔥 Kalorien-Rechner</h3>
+<p>Berechne deinen Grundumsatz (BMR) und einen geschätzten Tagesbedarf (TDEE) nach Mifflin-St Jeor.</p>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0">
+<label style="font-size:11px;color:#7d8495">Geschlecht<select id="calcSex" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"><option value="male">Männlich</option><option value="female">Weiblich</option></select></label>
+<label style="font-size:11px;color:#7d8495">Alter<input id="calcAge" type="number" value="31" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Gewicht (kg)<input id="calcWeight" type="number" step="0.1" value="80" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Größe (cm)<input id="calcHeight" type="number" value="180" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495;grid-column:1/-1">Aktivität<select id="calcActivity" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"><option value="1.2">Kaum aktiv</option><option value="1.375">Leicht aktiv</option><option value="1.55" selected>Moderately aktiv</option><option value="1.725">Sehr aktiv</option><option value="1.9">Extrem aktiv</option></select></label>
+</div>
+<button onclick="calculateCalories()">Kalorien berechnen</button>
+<div id="calcResult" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:12px;display:none"></div>
+</div>
+<div class="module-card"><h3>Makros</h3><p>Protein, Kohlenhydrate und Fett als Dokumentationshilfe.</p><button onclick="toast('Makro-Rechner kommt als nächstes')">Makros öffnen</button></div>
+<div class="module-card"><h3>Aktivität</h3><p>Alltag, Schritte, Training und Cardio übersichtlich erfassen.</p><button onclick="toast('Aktivitätsrechner geöffnet')">Aktivität</button></div>
+<div class="module-card"><h3>Formeln</h3><p>Mifflin-St Jeor: BMR als Ausgangspunkt, danach Multiplikation mit dem Aktivitätsfaktor.</p></div>
+</div></div></section>
 
 <section id="goals" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">PERSÖNLICHER BEREICH</div><h1>Ziele</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid"><div class="module-card"><h3>Training &amp; Leistung</h3><p>Setze konkrete Trainings- und Gewohnheitsziele.</p><button onclick="toast('Ziel angelegt')">Ziel hinzufügen</button></div><div class="module-card"><h3>Wohlbefinden</h3><p>Schlaf, Erholung und Alltag als Teil deines Gesamtbilds.</p><button onclick="toast('Wohlbefinden geöffnet')">Öffnen</button></div></div></div></section>
 
@@ -125,7 +142,15 @@ function showView(id){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity=1;t.style.transform='translate(-50%,0)';clearTimeout(window.__toast);window.__toast=setTimeout(()=>{t.style.opacity=0;t.style.transform='translate(-50%,15px)'},1800)}
-function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumentiert')}
+function addMeal(){state.meals=(state.meals||0)+1;save();toast('Mahlzeit dokumentiert')}function calculateCalories(){
+ const sex=document.getElementById('calcSex').value, age=Number(document.getElementById('calcAge').value), weight=Number(document.getElementById('calcWeight').value), height=Number(document.getElementById('calcHeight').value), activity=Number(document.getElementById('calcActivity').value);
+ if(!age||!weight||!height){toast('Bitte alle Daten eingeben');return}
+ const bmr=10*weight+6.25*height-5*age+(sex==='male'?5:-161);
+ const tdee=bmr*activity;
+ document.getElementById('calcResult').style.display='block';
+ document.getElementById('calcResult').innerHTML='<b>Dein Ergebnis</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><div><small>Grundumsatz</small><strong style="display:block;font-size:20px">'+Math.round(bmr).toLocaleString('de-DE')+' kcal</strong></div><div><small>Tagesbedarf (TDEE)</small><strong style="display:block;font-size:20px">'+Math.round(tdee).toLocaleString('de-DE')+' kcal</strong></div></div><small style="display:block;color:#8b91a0;margin-top:10px">Schätzung zur Orientierung; tatsächlicher Bedarf kann abweichen.</small>';
+}
+
 function render(){
  document.getElementById('weight').textContent=state.weight?Number(state.weight).toFixed(1).replace('.',',')+' kg':'—';
  document.getElementById('steps').textContent=Number(state.steps||0).toLocaleString('de-DE');
