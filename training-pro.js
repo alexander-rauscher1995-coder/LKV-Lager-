@@ -1,4 +1,4 @@
-/* FITNESS COACH PRO — Training Experience Layer */
+/* FITNESS COACH PRO V2 — Training Experience Layer */
 (function(){
   'use strict';
   const KEY='fitness_training_draft_v1';
@@ -31,6 +31,15 @@
     let box=document.getElementById('trainingProPanel');
     if(!box){box=document.createElement('div');box.id='trainingProPanel';box.className='training-pro-panel';page.insertBefore(box,page.querySelector('.actions')||null);}
     const x=stats(), last=x.last;
+    const validation=document.getElementById('trainingProValidation')||document.createElement('div');
+    validation.id='trainingProValidation';
+    validation.className='training-pro-validation';
+    validation.style.cssText='margin-top:10px;padding:10px 12px;border-radius:11px;border:1px solid #293840;background:#0d171c;color:#82919a;font-size:11px';
+    const active=document.querySelectorAll('#training .exercise input').length;
+    validation.innerHTML=active?'✓ Trainingsdaten bereit · Eingaben werden automatisch als Entwurf gespeichert.':'Noch keine Trainingsfelder geladen.';
+    if(!validation.parentNode)box.appendChild(validation);
+
+
     const recent=sessions().slice(-5).reverse();
     box.innerHTML=`
       <div class="tp-head"><div><div class="tp-kicker">TRAINING PRO</div><h2>Dein Trainingszentrum</h2><p>Leistung, Volumen und Trainingshistorie auf einen Blick.</p></div><button class="tp-refresh" onclick="window.trainingProRefresh()">Aktualisieren</button></div>
@@ -68,17 +77,29 @@
       const inputs=card.querySelectorAll('input'); vals.forEach((v,i)=>{if(inputs[i]&&v!==undefined)inputs[i].value=v});
     });
   }
+  function bindLive(){
+    if(window.__trainingProLiveBound)return;
+    window.__trainingProLiveBound=true;
+    const host=document.getElementById('training');
+    if(!host)return;
+    host.addEventListener('input',()=>{
+      clearTimeout(window.__tpLive);
+      window.__tpLive=setTimeout(()=>{draftSave();render()},500);
+    });
+    host.addEventListener('change',()=>{draftSave();render()});
+  }
+
   function bind(){
     document.querySelectorAll('#training .exercise input').forEach(i=>{i.addEventListener('input',()=>{clearTimeout(window.__tpDraft);window.__tpDraft=setTimeout(draftSave,250)})});
   }
-  window.trainingProRefresh=function(){render();bind()};
+  window.trainingProRefresh=function(){render();bind();bindLive()};
   window.trainingProOpenProgress=function(){if(typeof openModule==='function')openModule('progress')};
   const oldRender=window.renderPlan;
   if(typeof oldRender==='function'&&!window.__trainingProWrapped){
     window.renderPlan=function(){oldRender.apply(this,arguments);setTimeout(()=>{draftRestore();bind();render()},0)};
     window.__trainingProWrapped=true;
   }
-  window.addEventListener('load',()=>setTimeout(()=>{render();bind();draftRestore();render()},500));
+  window.addEventListener('load',()=>setTimeout(()=>{render();bind();bindLive();draftRestore();render()},500));
   window.addEventListener('fitness-cloud-status',render);
   setInterval(()=>{if(document.getElementById('training')?.classList.contains('active'))render()},15000);
 })();
