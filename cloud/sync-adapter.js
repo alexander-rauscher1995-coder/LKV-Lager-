@@ -4,6 +4,7 @@
   const DEVICE_KEY='fitness_cloud_device_id_v1';
   const REVISION_KEY='fitness_cloud_revision_v1';
   const MAX_QUEUE=50;
+  const MAX_SNAPSHOT_BYTES=1000000;
 
   function deviceId(){
     let id=localStorage.getItem(DEVICE_KEY);
@@ -15,7 +16,7 @@
   }
   function revision(){return Number(localStorage.getItem(REVISION_KEY)||0)||0}
   function saveRevision(value){if(Number.isFinite(Number(value)))localStorage.setItem(REVISION_KEY,String(value))}
-  function config(){return window.FITNESS_CLOUD_CONFIG||{enabled:true,apiBaseUrl:'/api'}}
+  function config(){return window.FITNESS_CLOUD_CONFIG||{enabled:false,apiBaseUrl:''}}
   function queue(){try{const x=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
   function saveQueue(x){localStorage.setItem(QUEUE_KEY,JSON.stringify(x.slice(-MAX_QUEUE)))}
   function enqueue(payload){
@@ -54,6 +55,7 @@
   }
   async function syncSnapshot(snapshot){
     const payload=normalizeSnapshot(snapshot);
+    if(JSON.stringify(payload).length>MAX_SNAPSHOT_BYTES){return {status:'rejected',queued:false,pending:queue().length,error:'Snapshot exceeds 1 MB limit'};}
     if(!config().enabled)return {status:'disabled',cloudEnabled:false,queued:false,pending:queue().length};
     try{
       const result=await request('/v1/sync',{method:'PUT',body:JSON.stringify(payload)});
@@ -94,5 +96,6 @@
     syncSnapshot,pullSnapshot,flushQueue,queue:()=>queue().slice()
   };
   window.addEventListener('online',()=>{flushQueue().catch(()=>{})});
+  window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushQueue().catch(()=>{})});
   window.addEventListener('load',()=>{if(navigator.onLine)flushQueue().catch(()=>{})});
 })();
