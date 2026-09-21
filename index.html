@@ -1771,6 +1771,18 @@ function visibleCalcField(...ids){
  const els=ids.map(id=>document.getElementById(id)).filter(Boolean);
  return els.find(el=>el.offsetParent!==null)||els[0]||null;
 }
+function calcActivityFromSelection(){
+  const v=document.querySelector('[name="calcActivity"]:checked')?.value || calorieState.activity;
+  const map={sedentary:1.2,light:1.35,moderate:1.5,active:1.65,veryactive:1.8};
+  calorieState.activity=map[v]||1.35;
+  return calorieState.activity;
+}
+function calcTrainingProfile(){
+  const sessions=Math.max(0,Math.min(7,Number(document.getElementById('calcTrainingDays')?.value)||4));
+  const minutes=Math.max(0,Math.min(180,Number(document.getElementById('calcTrainingMinutes')?.value)||60));
+  return {sessions,minutes};
+}
+
 function readCalculatorInputs(){
  const a=Number(visibleCalcField('ca','caCoach')?.value),h=Number(visibleCalcField('ch','chCoach')?.value),w=Number(visibleCalcField('cw','cwCoach')?.value),s=visibleCalcField('cs','csCoach')?.value;
  if(![a,h,w].every(Number.isFinite)||a<1||h<80||w<20){toast('Bitte Alter, Größe und Gewicht prüfen.');return false}
