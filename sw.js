@@ -1,7 +1,7 @@
-const CACHE='fitness-coach-v6';
+const CACHE='fitness-coach-v7';
 const CORE=[
  './','./index.html','./manifest.json','./icon.svg',
- './cloud/sync-adapter.js','./cloud/snapshot.js'
+ './cloud/sync-adapter.js','./cloud/snapshot.js','./cloud/runtime-config.js','./cloud/neon-auth-config.js','./cloud/neon-auth.js'
 ];
 
 self.addEventListener('install',event=>{
