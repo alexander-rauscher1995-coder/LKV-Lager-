@@ -1499,8 +1499,7 @@ function openModule(type){
       </div>
     </div>
     <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">5</span><div><div class="calc-step-title">Cardio</div><div class="calc-step-desc">Optional: Cardio ebenfalls als Wochenmittel einrechnen.</div></div></div>
-      <div class="segmented"><button class="${calorieState.cardioEnabled?'':'active'}" onclick="setCardioEnabled(false,'calculator')">Ohne Cardio</button><button class="${calorieState.cardioEnabled?'active':''}" onclick="setCardioEnabled(true,'calculator')">Cardio einrechnen</button></div>
-      <div class="calorie-inputs" style="margin-top:10px">
+      <div class="calorie-inputs">
        <div class="field"><label>Einheiten / Woche</label><select id="calcCardioDays" onchange="setCardioProfile(this.value,document.getElementById('calcCardioMinutes').value,document.getElementById('calcCardioType').value,'calculator')">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${Number(calorieState.cardioDays||0)===n?'selected':''}>${n}×</option>`).join('')}</select></div>
        <div class="field"><label>Minuten / Einheit</label><select id="calcCardioMinutes" onchange="setCardioProfile(document.getElementById('calcCardioDays').value,this.value,document.getElementById('calcCardioType').value,'calculator')">${[20,30,45,60,75,90].map(n=>`<option value="${n}" ${Number(calorieState.cardioMinutes||45)===n?'selected':''}>${n} min</option>`).join('')}</select></div>
        <div class="field"><label>Art</label><select id="calcCardioType" onchange="setCardioProfile(document.getElementById('calcCardioDays').value,document.getElementById('calcCardioMinutes').value,this.value,'calculator')">${['Laufen','Radfahren','Crosstrainer','Gehen','Sonstiges'].map(t=>`<option ${(calorieState.cardioType||'Laufen')===t?'selected':''}>${t}</option>`).join('')}</select></div>
@@ -1520,12 +1519,7 @@ function openModule(type){
     <div class="calc-component" style="border-bottom:0;padding-top:14px"><div><b>Gesamt</b></div><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
     <div class="mini-note">Die einzelnen Bausteine sind transparent getrennt. Für die persönliche Praxis ist die tatsächliche Entwicklung über mehrere Wochen aussagekräftiger als eine einzelne Formel.</div>
    </div>
-   <div class="module-card" style="margin-top:12px"><h3>Makro-Orientierung</h3><div class="macro-bars">
-    <div class="macro-line"><span>Protein</span><div class="bar"><div class="fill" style="width:100%"></div></div><b>${Math.round(macro.protein)} g</b></div>
-    <div class="macro-line"><span>Kohlenhydrate</span><div class="bar"><div class="fill blue" style="width:100%"></div></div><b>${Math.round(macro.carbs)} g</b></div>
-    <div class="macro-line"><span>Fett</span><div class="bar"><div class="fill yellow" style="width:100%"></div></div><b>${Math.round(macro.fat)} g</b></div>
-   </div><div class="mini-note">Orientierungswerte, keine medizinische oder individuelle Ernährungsanweisung.</div></div>`;
- } else if(type==='bodycheck'){
+} else if(type==='bodycheck'){
 
    const last=latestBodyCheck();
    const history=(bodyCheckState.history||[]).slice().reverse();
