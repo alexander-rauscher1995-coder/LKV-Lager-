@@ -1614,7 +1614,8 @@ function openModule(type){
 function accountTab(tab,btn){document.querySelectorAll('.account-tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const login=document.getElementById('accountLoginPane'),create=document.getElementById('accountCreatePane');if(login)login.style.display=tab==='login'?'block':'none';if(create)create.style.display=tab==='create'?'block':'none';}
 function exportData(){
  const payload={
-   version:'V142',
+   version:'V145',
+   schemaVersion:2,
    exportedAt:new Date().toISOString(),
    sessions:saved,
    trainingData:getTrainingData(),
@@ -1644,8 +1645,10 @@ function importData(event){
  const reader=new FileReader();
  reader.onload=()=>{
    try{
-     const p=JSON.parse(reader.result);
-     if(!validateBackupPayload(p))throw new Error('invalid');
+     let p=JSON.parse(reader.result);
+     const validation=validateBackupPayload(p);
+     if(!validation.ok)throw new Error(validation.reason);
+     p=normalizeBackupPayload(p);
      localStorage.setItem('fitness_v85_sessions',JSON.stringify(p.sessions));
      localStorage.setItem('fitness_v85_training_data',JSON.stringify(p.trainingData));
      if(Number.isFinite(Number(p.hydration)))localStorage.setItem('fitness_v84_hydration',String(p.hydration));
@@ -1660,7 +1663,7 @@ function importData(event){
      if(p.calories && typeof p.calories==='object')localStorage.setItem('fitness_v86_calories',JSON.stringify(p.calories));
      if(p.plans && typeof p.plans==='object')localStorage.setItem('fitness_v94_plans',JSON.stringify(p.plans));
      if(Array.isArray(p.customPlans))localStorage.setItem(CUSTOM_PLAN_KEY,JSON.stringify(p.customPlans));
-     toast('Backup importiert ✓');
+     toast('Backup importiert · '+backupSummary(p)+' ✓');
      setTimeout(()=>location.reload(),700);
    }catch(e){toast('Backup konnte nicht gelesen werden.')}
  };
@@ -2674,9 +2677,29 @@ function runAppSelfTest(){
  return out;
 }
 function validateBackupPayload(p){
- if(!p||typeof p!=='object'||!Array.isArray(p.sessions)||!p.trainingData||typeof p.trainingData!=='object')return false;
- if(p.sessions.length>10000)return false;
- return true;
+ if(!p||typeof p!=='object')return {ok:false,reason:'Struktur fehlt'};
+ if(!Array.isArray(p.sessions)||!p.trainingData||typeof p.trainingData!=='object')return {ok:false,reason:'Trainingsdaten fehlen'};
+ if(p.sessions.length>10000)return {ok:false,reason:'Zu viele Trainingseinträge'};
+ if(p.customPlans!==undefined&&!Array.isArray(p.customPlans))return {ok:false,reason:'Eigene Pläne ungültig'};
+ if(p.nutrition!==undefined&&typeof p.nutrition!=='object')return {ok:false,reason:'Ernährungsdaten ungültig'};
+ if(p.cardio!==undefined&&typeof p.cardio!=='object')return {ok:false,reason:'Cardio-Daten ungültig'};
+ return {ok:true,reason:'OK'};
+}
+function normalizeBackupPayload(p){
+ const v=Number(p.schemaVersion)||1;
+ if(v<2){
+   p.customPlans=Array.isArray(p.customPlans)?p.customPlans:[];
+   p.schemaVersion=2;
+ }
+ return p;
+}
+function backupSummary(p){
+ return [
+  (p.sessions||[]).length+' Trainingseinträge',
+  (p.customPlans||[]).length+' eigene Pläne',
+  Array.isArray(p.nutrition?.meals)?p.nutrition.meals.length+' Mahlzeiten':null,
+  Array.isArray(p.cardio?.sessions)?p.cardio.sessions.length+' Cardioeinheiten':null
+ ].filter(Boolean).join(' · ');
 }
 function coachFinalRefresh(){try{ensureCoachProTools();renderProProgress();renderProgressCoach();renderHomeLiveStatus();}catch(e){console.warn(e)}}
 const __oldOpenCoachPlan=openCoachPlan;
