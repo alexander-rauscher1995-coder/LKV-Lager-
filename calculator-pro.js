@@ -36,9 +36,9 @@
   @media(max-width:700px){.calculator-pro-hero{grid-template-columns:1fr}.calculator-pro-side{grid-template-columns:repeat(2,1fr)}.calculator-pro-summary,.calculator-pro-goals,.calculator-pro-macros{grid-template-columns:1fr}.calculator-pro-footer{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}}
   `;
   document.head.appendChild(style);
-  .calculator-pro-person{margin:0 0 12px;padding:16px;border-radius:16px;border:1px solid rgba(99,245,154,.22);background:linear-gradient(135deg,#101d19,#0d171c)}
-  .calculator-pro-person-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.calculator-pro-person-head b{font-size:15px}.calculator-pro-person-head span{font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em}
-  .calculator-pro-person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.calculator-pro-person-grid .pitem{padding:10px;border-radius:11px;background:#101a20;border:1px solid #26343c}.calculator-pro-person-grid small{display:block;color:#82919a;font-size:9px;text-transform:uppercase}.calculator-pro-person-grid b{display:block;font-size:16px;margin-top:3px}
+  .calculator-pro-person{margin:0 0 12px;padding:18px;border-radius:18px;border:1px solid rgba(99,245,154,.22);background:radial-gradient(circle at 85% 10%,rgba(99,245,154,.10),transparent 35%),linear-gradient(135deg,#12221b,#10181d);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .calculator-pro-person-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.calculator-pro-person-head b{font-size:18px;font-weight:850}.calculator-pro-person-head span{font-size:10px;color:#7f918a;text-transform:uppercase;letter-spacing:.12em}
+  .calculator-pro-person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.calculator-pro-person-grid .pitem{padding:12px;border-radius:14px;background:rgba(7,16,22,.5);border:1px solid rgba(153,176,187,.12)}.calculator-pro-person-grid small{display:block;color:#82919a;font-size:10px;text-transform:uppercase;letter-spacing:.07em}.calculator-pro-person-grid b{display:block;font-size:19px;margin-top:5px}
   @media(max-width:700px){.calculator-pro-person-grid{grid-template-columns:repeat(2,1fr)}}
 
 
