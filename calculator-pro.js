@@ -196,6 +196,15 @@
       const history=document.querySelector('.calculator-pro-history');
       if(history) history.after(trend); else main.before(trend);
     }
+\n
+    if(!sheet.querySelector('.calculator-pro-accessibility')){
+      const access=document.createElement('div');
+      access.className='calculator-pro-accessibility';
+      access.style.cssText='margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #26343c;background:#0b1419;font-size:11px;color:#82919a;line-height:1.45';
+      access.innerHTML='<b style="color:#eef4f6">Bedienung optimiert</b><br>Alle Pro-Aktionen sind per Tastatur erreichbar. Die Diagrammwerte sind zusätzlich über die Zusammenfassung nachvollziehbar.';
+      const trend=document.querySelector('.calculator-pro-trend');
+      if(trend) trend.after(access); else main.before(access);
+    }
 \n    if(!sheet.querySelector('.calculator-pro-reset')){
       const bar=document.createElement('div');
       bar.className='calculator-pro-reset';
