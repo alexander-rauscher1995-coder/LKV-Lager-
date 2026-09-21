@@ -105,7 +105,7 @@ button,input{font:inherit}button{cursor:pointer}
 <section id="training" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">HEUTE · TRAINING</div><h1>Dein Training</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>🏋️ Trainings-Check-in</h3></div><div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px"><input id="workoutName" placeholder="z. B. Oberkörper A" style="padding:10px;border:1px solid var(--line);border-radius:9px"><input id="workoutDuration" type="number" placeholder="Min." style="padding:10px;border:1px solid var(--line);border-radius:9px"><input id="workoutRpe" type="number" min="1" max="10" placeholder="RPE 1–10" style="padding:10px;border:1px solid var(--line);border-radius:9px"></div><button style="margin-top:10px" onclick="saveWorkout()">Training speichern</button></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>🛠️ Trainingsplan-Builder</h3><button onclick="savePlan()">Plan speichern</button></div>
 <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px"><input id="planName" placeholder="Planname, z. B. Push/Pull/Legs" style="padding:10px;border:1px solid var(--line);border-radius:9px"><input id="planDays" type="number" min="1" max="7" value="4" placeholder="Tage/Woche" style="padding:10px;border:1px solid var(--line);border-radius:9px"><input id="planWeeks" type="number" min="1" max="52" value="5" placeholder="Wochen" style="padding:10px;border:1px solid var(--line);border-radius:9px"></div>
 <div style="margin-top:10px"><textarea id="planExercises" rows="4" placeholder="Übungen, eine pro Zeile&#10;Bankdrücken&#10;Rudern&#10;RDL&#10;Seitheben" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;resize:vertical"></textarea></div>
-<div id="planStatus" style="font-size:11px;color:#8b91a0;margin-top:8px"></div></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📈 Satz- & Leistungs-Tracker</h3><span style="font-size:11px;color:#8b91a0">Gewicht · Wiederholungen · RPE</span></div>
+<div id="planStatus" style="font-size:11px;color:#8b91a0;margin-top:8px"></div></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>🏆 Persönliche Bestleistungen</h3><span style="font-size:11px;color:#8b91a0">Automatisch aus deinen Sätzen</span></div><div id="prs"></div></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>📈 Satz- & Leistungs-Tracker</h3><span style="font-size:11px;color:#8b91a0">Gewicht · Wiederholungen · RPE</span></div>
 <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px">
 <input id="logExercise" placeholder="Übung, z. B. Kniebeuge" style="padding:10px;border:1px solid var(--line);border-radius:9px">
 <input id="logWeight" type="number" step="0.5" placeholder="Gewicht kg" style="padding:10px;border:1px solid var(--line);border-radius:9px">
@@ -284,6 +284,12 @@ function saveMeasurements(){
  state.measurements=state.measurements||[];state.measurements.push(m);state.measurements=state.measurements.slice(-30);
  save();document.getElementById('measurementStatus').textContent='Gespeichert: '+m.date;toast('Körpermaße gespeichert');
 }
+function renderPRs(){
+ const box=document.getElementById('prs'); if(!box)return;
+ const groups={}; (state.sets||[]).forEach(s=>{const k=s.exercise; const score=s.weight*s.reps; if(!groups[k]||score>groups[k].score)groups[k]={...s,score}});
+ const rows=Object.values(groups).sort((a,b)=>b.score-a.score).slice(0,8);
+ box.innerHTML=rows.length?rows.map(s=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px"><b>'+s.exercise+'</b><span>'+s.weight+' kg × '+s.reps+(s.rpe?' · RPE '+s.rpe:'')+'</span></div>').join(''):'<span style="font-size:12px;color:#8b91a0">Noch keine Leistungen gespeichert.</span>';
+}
 function saveSet(){
  const exercise=document.getElementById('logExercise').value.trim(),weight=Number(document.getElementById('logWeight').value||0),reps=Number(document.getElementById('logReps').value||0),rpe=Number(document.getElementById('logRpe').value||0);
  if(!exercise||weight<=0||reps<=0){toast('Bitte Übung, Gewicht und Wiederholungen eingeben');return}
@@ -291,7 +297,7 @@ function saveSet(){
  const last=state.sets.filter(s=>s.exercise.toLowerCase()===exercise.toLowerCase()).slice(-3).reverse();
  document.getElementById('setStatus').textContent='Gespeichert: '+exercise+' · '+weight+' kg × '+reps+(rpe?' · RPE '+rpe:'');
  document.getElementById('setHistory').innerHTML=last.map(s=>'<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:12px"><b>'+s.date+'</b> · '+s.weight+' kg × '+s.reps+(s.rpe?' · RPE '+s.rpe:'')+'</div>').join('');
- toast('Satz gespeichert');
+ toast('Satz gespeichert'); renderPRs();
 }
 function savePlan(){
  const name=document.getElementById('planName').value.trim(),days=Number(document.getElementById('planDays').value||0),weeks=Number(document.getElementById('planWeeks').value||0),ex=document.getElementById('planExercises').value.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -353,6 +359,6 @@ function initDate(){
  const names=['Mo','Di','Mi','Do','Fr','Sa','So'];const today=(d.getDay()+6)%7;const w=document.getElementById('week');w.innerHTML=names.map((n,i)=>'<div class="day '+(i<today?'done':'')+'"><span>'+n+'</span><b>'+String(i+1).padStart(2,'0')+'</b><div class="dot"></div></div>').join('');
 }
 initDate();render();
-</script>
+renderPRs();</script>
 </body>
 </html>
