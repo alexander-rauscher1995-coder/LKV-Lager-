@@ -1,8 +1,8 @@
-/* FITNESS PRO V173 — Calculator experience layer */
+/* FITNESS PRO V174 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v173';
+  const STYLE_ID='fitness-pro-calculator-v174';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -117,6 +117,20 @@
       <div class="summary-card"><span>Krafttraining</span><b>+${n(parts.training).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>
       <div class="summary-card"><span>Cardio</span><b>+${n(parts.cardio).toLocaleString('de-DE')}</b><small>kcal / Tagesmittel</small></div>`;
     main.before(summary);
+    const validation=document.createElement('div');
+    validation.className='calculator-pro-input-validation';
+    validation.style.cssText='margin:0 0 10px;padding:9px 11px;border-radius:10px;background:#0b1419;border:1px solid #26343c;color:#82919a;font-size:11px';
+    const checks=[
+      ['Alter',n(state.age),1,120],
+      ['Größe',n(state.height),80,230],
+      ['Gewicht',n(state.weight),25,250]
+    ];
+    const invalid=checks.filter(x=>x[1]&& (x[1]<x[2]||x[1]>x[3]));
+    validation.innerHTML=invalid.length
+      ? '<b style="color:#ffb4a8">Eingaben prüfen:</b> '+invalid.map(x=>x[0]).join(', ')+' außerhalb eines plausiblen Bereichs.'
+      : '<b style="color:#dce5e8">Eingaben geprüft</b> · Keine offensichtlichen Wertefehler erkannt.';
+    main.before(validation);
+
     const sync=document.createElement('div');
     sync.className='calculator-pro-sync-indicator';
     sync.style.cssText='margin:0 0 10px;padding:8px 11px;border-radius:10px;background:#0b1419;border:1px solid #26343c;color:#82919a;font-size:11px';
