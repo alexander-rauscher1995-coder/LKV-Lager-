@@ -86,3 +86,8 @@ jobs:
           grep -q "incomingCommand" watchOS/FitnessCoachWatchConnectivity.swift
           grep -q "requireAuth" api/v1/sync.js
           grep -q "validateSnapshot" api/v1/sync.js
+          grep -q "RS256" api/_lib/sync.js
+          grep -q "FITNESS_AUTH_ISSUER" api/_lib/sync.js
+          grep -q "FITNESS_AUTH_AUDIENCE" api/_lib/sync.js
+          grep -q "FITNESS_JWT_PUBLIC_KEY" api/_lib/sync.js
+          grep -q "payload.sub" api/_lib/sync.js
