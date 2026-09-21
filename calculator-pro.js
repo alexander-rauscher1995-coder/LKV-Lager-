@@ -159,6 +159,13 @@
       const render=()=>{const items=read().slice(0,7);history.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Berechnungsverlauf</div>'+ (items.length?items.map((v,i)=>'<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:'+(i<items.length-1?'1px solid #26343c':'0')+'"><span style="font-size:12px;color:#aab6bd">'+new Date(v.updatedAt).toLocaleString('de-DE')+'</span><b>'+Math.round(n(v.target)).toLocaleString('de-DE')+' kcal</b></div>').join(''):'<div style="font-size:11px;color:#82919a;margin-top:8px">Noch kein Verlauf vorhanden.</div>')};
       const save=()=>{try{const parts=typeof calcBreakdown==='function'?calcBreakdown():{};const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));const items=read();items.unshift({target,updatedAt:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(items.slice(0,7)));render()}catch(e){}};
       render();
+      const clear=document.createElement('button');
+      clear.type='button';
+      clear.className='module-action';
+      clear.textContent='Verlauf löschen';
+      clear.style.cssText='margin-top:10px';
+      clear.onclick=()=>{try{localStorage.removeItem(key);render();}catch(e){}};
+      history.appendChild(clear);
       const old=window.calculateAndStay;
       if(old && !window.__fitnessCalcHistoryWrapped){window.__fitnessCalcHistoryWrapped=true;window.calculateAndStay=function(){const r=old.apply(this,arguments);setTimeout(save,300);return r;};}
       const last=document.querySelector('.calculator-pro-last');
