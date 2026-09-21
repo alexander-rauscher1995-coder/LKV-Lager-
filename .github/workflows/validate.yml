@@ -33,6 +33,9 @@ jobs:
           test -f cloud/PRODUCTION.md
           test -f api/health.js
           test -f api/README.md
+          test -f api/_lib/sync.js
+          test -f api/v1/sync.js
+          test -f api/v1/sync/changes.js
           test -f apple/integration.json
           test -f ios/FitnessCoachApp.swift
           test -f ios/HealthKitManager.swift
@@ -81,3 +84,5 @@ jobs:
           grep -q "WCSession" ios/WatchConnectivityManager.swift
           grep -q "HKWorkoutSession" watchOS/FitnessCoachWorkoutManager.swift
           grep -q "incomingCommand" watchOS/FitnessCoachWatchConnectivity.swift
+          grep -q "requireAuth" api/v1/sync.js
+          grep -q "validateSnapshot" api/v1/sync.js
