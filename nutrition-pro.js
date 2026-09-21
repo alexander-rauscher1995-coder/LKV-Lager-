@@ -6,7 +6,14 @@ function read(k,f){try{return JSON.parse(localStorage.getItem(k)||'null')??f}cat
 function today(){return new Date().toISOString().slice(0,10)}
 function meals(){const x=read(MEAL,{meals:[]});return Array.isArray(x)?x:(x.meals||[])}
 function cal(){return read(CAL,{})||{}}
+function ensurePanel(){
+ const sheet=document.querySelector('.module-sheet.module-nutrition');
+ if(!sheet)return;
+ let host=document.getElementById('nutritionProPanel');
+ if(!host){host=document.createElement('div');host.id='nutritionProPanel';sheet.insertBefore(host,sheet.firstChild?.nextSibling||null)}
+}
 function render(){
+ ensurePanel();
  const host=document.getElementById('nutritionProPanel'); if(!host)return;
  const all=meals(), day=all.filter(x=>x.date===today()), c=cal();
  const intake=Number(c.intake)||0, protein=Number(c.protein)||0, carbs=Number(c.carbs)||0, fat=Number(c.fat)||0;
@@ -36,8 +43,8 @@ function render(){
  <div class="np-types">${Object.entries(types).map(([k,v])=>`<div><span>${esc(k)}</span><b>${v}</b></div>`).join('')}</div>`;
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-window.nutritionProRefresh=render;
+window.nutritionProRefresh=function(){ensurePanel();render()};
 window.addEventListener('load',()=>setTimeout(render,550));
 window.addEventListener('fitness-cloud-status',render);
-setInterval(()=>{if(document.getElementById('nutritionProPanel'))render()},15000);
+setInterval(()=>{if(document.querySelector('.module-sheet.module-nutrition'))render()},15000);
 })();
