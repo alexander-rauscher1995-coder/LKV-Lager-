@@ -5,7 +5,7 @@ window.FITNESS_CLOUD_CONFIG={
 };
 
 (function(){
-  ['calculator-pro.js?v=162','training-pro.js?v=1','nutrition-pro.js?v=1','progress-pro.js?v=1'].forEach(function(src){
+  ['calculator-pro.js?v=163','training-pro.js?v=1','nutrition-pro.js?v=1','progress-pro.js?v=1'].forEach(function(src){
     var s=document.createElement('script');
     s.src='./'+src;
     s.defer=true;
