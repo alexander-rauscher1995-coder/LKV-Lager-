@@ -978,6 +978,26 @@ body{background:#f4f5fa!important;color:#171827!important}
 @media(max-width:900px){.exact-pro-app{padding:12px 12px 120px}.exact-header{height:auto}.exact-search{max-width:none}.exact-head-right>div:not(.exact-avatar),.exact-head-right>button{display:none}.exact-metrics{grid-template-columns:repeat(2,1fr)}.exact-actions{grid-template-columns:repeat(2,1fr)}.exact-grid,.exact-bottom-grid{grid-template-columns:1fr}.exact-hero{height:240px}.exact-hero-copy span,.exact-hero-copy strong{font-size:28px}.exact-hero-mark{right:20px;top:25px;font-size:18px}.exact-goal{align-items:flex-start}.exact-quote{min-height:150px}}
 @media(max-width:520px){.exact-search{height:45px}.exact-search input{font-size:12px}.exact-hero{height:225px}.exact-hero-copy{left:20px;top:23px}.exact-hero-copy span,.exact-hero-copy strong{font-size:25px}.exact-hero-copy p{font-size:13px}.exact-actions button{min-height:98px;padding:14px 10px}.exact-actions span{font-size:24px}.exact-goal h2{font-size:19px}.exact-goal-ring{width:70px;height:70px}.exact-goal-ring:after{width:54px;height:54px}.exact-week-stats small{font-size:9px}.exact-cta{flex-direction:column;align-items:flex-start}}
 </style>
+<style id="exact-reference-v2">
+:root{--ref-bg:#f5f6fb;--ref-card:#fff;--ref-text:#171827;--ref-muted:#7d8495;--ref-purple:#7047e8;--ref-line:#e6e8ef}
+body{background:var(--ref-bg)!important;color:var(--ref-text)!important}
+.exact-sidebar{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:172px!important;background:#f8f9fd!important;border-right:1px solid #e8eaf0!important;padding:28px 10px 18px!important;z-index:50!important;display:flex!important;flex-direction:column!important}
+.exact-brand{display:flex;align-items:center;gap:9px;padding:0 10px 28px}.exact-brand-mark{width:34px;height:34px;border-radius:10px;background:#7047e8;color:#fff;display:grid;place-items:center;font-size:22px;font-weight:900}.exact-brand b{font-size:19px;letter-spacing:.02em;display:block}.exact-brand small{font-size:9px;color:#7d8495;display:block;margin-top:1px}
+.exact-side-nav{display:flex;flex-direction:column;gap:5px}.exact-side-nav button{width:100%;height:48px;border:0;background:transparent;border-radius:12px;color:#556078;display:flex;align-items:center;gap:13px;padding:0 13px;font-size:14px;cursor:pointer;text-align:left}.exact-side-nav button i{width:20px;text-align:center;font-style:normal;font-size:19px}.exact-side-nav button.side-active,.exact-side-nav button[data-view="home"].active{background:#7047e8;color:#fff;box-shadow:0 7px 16px rgba(112,71,232,.22)}.exact-side-nav button:hover{background:#eeeafd;color:#5e3dcc}
+.exact-user{margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 7px}.exact-user-avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#30235b,#8c6bf2);color:#fff;display:grid;place-items:center;font-weight:800}.exact-user b{font-size:12px;display:block}.exact-user small{font-size:9px;color:#7047e8}.exact-user>span{margin-left:auto;color:#a0a6b2}
+.exact-pro-app{margin-left:172px!important;max-width:none!important;width:auto!important;padding:18px 26px 125px!important}
+.exact-header{max-width:1110px;margin:0 auto 16px}.exact-hero,.exact-metrics,.exact-goal,.exact-actions,.exact-grid,.exact-bottom-grid,.exact-cta{max-width:1110px;margin-left:auto;margin-right:auto}
+.exact-hero{height:252px}
+.exact-hero-copy span,.exact-hero-copy strong{font-size:33px}
+.exact-metrics{grid-template-columns:repeat(4,1fr)}
+.exact-metric{min-height:145px}
+.exact-goal{min-height:105px}
+.exact-actions button{min-height:122px}
+.exact-bottom-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){
+ .exact-sidebar{display:none!important}.exact-pro-app{margin-left:0!important;padding:12px 12px 120px!important}
+}
+</style>
 </head>
 <body><div id="cloudStatus" class="pro-health"><span>Cloud-Status wird geprüft …</span></div>
 <div class="app">
@@ -1109,21 +1129,22 @@ body{background:#f4f5fa!important;color:#171827!important}
     </section>
   </main>
 
-  <aside class="pro-sidebar">
-    <div class="pro-brand"><div class="pro-logo">F</div><div><b>FITNESS</b><span>PRO</span></div></div>
-    <div class="pro-nav-label">ÜBERSICHT</div>
-    <button data-view="home" onclick="showView('home')"><i>⌂</i> Home</button>
-    <button data-view="training" onclick="showView('training')"><i>🏋</i> Training</button>
-    <button onclick="openModule('nutrition')"><i>🍴</i> Ernährung</button>
-    <button onclick="openModule('cardio')"><i>◌</i> Bewegung</button>
-    <button onclick="openModule('progress')"><i>▥</i> Fortschritt</button>
-    <div class="pro-nav-label">TOOLS</div>
-    <button onclick="openModule('calculator')"><i>⌁</i> Kalorien-Rechner</button>
-    <button onclick="openCoachPlan()"><i>✦</i> Coach</button>
-    <button onclick="openModule('settings')"><i>⚙</i> Einstellungen</button>
-    <div class="pro-sidebar-bottom"><div class="pro-user-dot">A</div><div><b>Mein Bereich</b><small>Persönliches Dashboard</small></div></div>
-  </aside>
-  <nav class="bottom">
+  <aside class="pro-sidebar exact-sidebar">
+  <div class="exact-brand"><div class="exact-brand-mark">✚</div><div><b>FITLIFE</b><small>Stronger Together</small></div></div>
+  <div class="exact-side-nav">
+    <button data-view="home" onclick="showView('home')" class="side-active"><i>⌂</i><span>Home</span></button>
+    <button data-view="training" onclick="showView('training')"><i>🏋</i><span>Training</span></button>
+    <button onclick="openModule('nutrition')"><i>●</i><span>Ernährung</span></button>
+    <button onclick="openModule('progress')"><i>▥</i><span>Fortschritt</span></button>
+    <button onclick="openModule('calculator')"><i>▦</i><span>Rechner</span></button>
+    <button onclick="openModule('goals')"><i>◎</i><span>Ziele</span></button>
+    <button onclick="openModule('community')"><i>♟</i><span>Community</span></button>
+    <button onclick="openModule('knowledge')"><i>▤</i><span>Wissen</span></button>
+    <button onclick="openModule('settings')"><i>⚙</i><span>Einstellungen</span></button>
+  </div>
+  <div class="exact-user"><div class="exact-user-avatar">A</div><div><b>Alexander</b><small>Keep Going</small></div><span>›</span></div>
+</aside>
+<nav class="bottom">
     <button type="button" class="nav active" data-view="home" onclick="showView('home')"><span class="nicon">⌂</span><span>Home</span></button>
     <button type="button" class="nav" data-view="training" onclick="showView('training')"><span class="nicon">🏋️</span><span>Training</span></button>
     <button type="button" class="nav" data-module="nutrition" onclick="openModule('nutrition')"><span class="nicon">🍴</span><span>Ernährung</span></button>
