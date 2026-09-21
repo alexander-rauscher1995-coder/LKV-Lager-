@@ -1614,7 +1614,7 @@ function openModule(type){
 function accountTab(tab,btn){document.querySelectorAll('.account-tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const login=document.getElementById('accountLoginPane'),create=document.getElementById('accountCreatePane');if(login)login.style.display=tab==='login'?'block':'none';if(create)create.style.display=tab==='create'?'block':'none';}
 function exportData(){
  const payload={
-   version:'V136',
+   version:'V142',
    exportedAt:new Date().toISOString(),
    sessions:saved,
    trainingData:getTrainingData(),
@@ -1629,7 +1629,8 @@ function exportData(){
    coachSetup:JSON.parse(localStorage.getItem('fitness_coach_setup')||'null'),
    coachWay:JSON.parse(localStorage.getItem('fitness_coach_way')||'null'),
    trainingSession:JSON.parse(localStorage.getItem('fitness_training_session')||'null'),
-   appSettings:{compact:!!moduleState.compact}
+   appSettings:{compact:!!moduleState.compact},
+   customPlans:customPlans()
  };
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
  const url=URL.createObjectURL(blob);
@@ -1658,6 +1659,7 @@ function importData(event){
      if(p.trainingSession && typeof p.trainingSession==='object')localStorage.setItem('fitness_training_session',JSON.stringify(p.trainingSession));
      if(p.calories && typeof p.calories==='object')localStorage.setItem('fitness_v86_calories',JSON.stringify(p.calories));
      if(p.plans && typeof p.plans==='object')localStorage.setItem('fitness_v94_plans',JSON.stringify(p.plans));
+     if(Array.isArray(p.customPlans))localStorage.setItem(CUSTOM_PLAN_KEY,JSON.stringify(p.customPlans));
      toast('Backup importiert ✓');
      setTimeout(()=>location.reload(),700);
    }catch(e){toast('Backup konnte nicht gelesen werden.')}
