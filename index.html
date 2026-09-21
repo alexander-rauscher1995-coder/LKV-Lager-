@@ -451,6 +451,9 @@ body.coach-way-active{padding-left:0!important}
 /* V129 TRAINING SESSION FLOW */
 .training-session-bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:14px;padding:16px 18px;border:1px solid #29363e;border-radius:17px;background:linear-gradient(145deg,#111b21,#0c1419)}
 .training-session-status{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}.training-session-chip{padding:6px 9px;border-radius:999px;background:#151f25;border:1px solid #29363e;color:#aebbc2;font-size:11px}.training-session-chip strong{color:#63f59a}.training-session-actions{display:flex;gap:8px;flex-wrap:wrap}.training-session-actions button{border-radius:11px;padding:10px 13px;cursor:pointer}.training-start{border:0;background:#63f59a;color:#06100b;font-weight:800}.training-finish{border:1px solid #344049;background:#172128;color:#fff}.training-coach-note{margin-top:10px;color:#8f9ca4;font-size:12px;line-height:1.4}@media(max-width:600px){.training-session-bar{grid-template-columns:1fr}.training-session-actions button{flex:1}}
+
+/* V130 DAILY NUTRITION & CARDIO CENTER */
+.coach-daily-center{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.coach-daily-card{padding:16px;border:1px solid #29363e;border-radius:16px;background:#0d151a}.coach-daily-card h3{margin:0 0 7px}.coach-daily-value{font-size:28px;font-weight:850}.coach-daily-sub{font-size:12px;color:#8f9ca4;margin-top:4px}.coach-daily-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.coach-daily-actions button{border:1px solid #344049;background:#172128;border-radius:10px;padding:9px 12px;cursor:pointer}.coach-daily-actions button.primary-mini{background:#63f59a;color:#06100b;border-color:#63f59a;font-weight:800}@media(max-width:700px){.coach-daily-center{grid-template-columns:1fr}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1797,6 +1800,20 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
+<div class="coach-daily-center">
+  <div class="coach-daily-card">
+    <div class="section-kicker">DAILY CENTER</div><h3>Heute im Überblick</h3>
+    <div class="coach-daily-value" id="cwDailyTraining">–</div>
+    <div class="coach-daily-sub" id="cwDailyTrainingNote">Coach synchronisiert deinen heutigen Trainingsstatus.</div>
+    <div class="coach-daily-actions"><button class="primary-mini" onclick="coachRunNextAction()">Nächste Aktion →</button></div>
+  </div>
+  <div class="coach-daily-card">
+    <div class="section-kicker">BEWEGUNG & ERNÄHRUNG</div><h3>Tagesdaten</h3>
+    <div class="coach-daily-value" id="cwDailyData">–</div>
+    <div class="coach-daily-sub" id="cwDailyDataNote">Gespeicherte Tagesdaten werden hier zusammengeführt.</div>
+    <div class="coach-daily-actions"><button onclick="openModule('nutrition')">Ernährung</button><button onclick="openModule('cardio')">Bewegung</button></div>
+  </div>
+</div>
 <div class="coach-next-action">
   <div><small>NÄCHSTE AKTION</small><h3 id="cwNextActionTitle">Coach vorbereiten</h3><p id="cwNextActionNote">Der Coach verbindet deinen Wochenplan mit deiner nächsten sinnvollen Aktion.</p></div>
   <button onclick="coachRunNextAction()">Jetzt öffnen →</button>
@@ -2074,7 +2091,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachRenderNextAction();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachRenderNextAction();coachRenderDailyCenter();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2329,6 +2346,19 @@ function finishTrainingSession(){
  if(typeof coachWeeklyReview==='function')coachWeeklyReview();
  if(typeof coachRenderInsightTimeline==='function')coachRenderInsightTimeline();
  toast('Training abgeschlossen ✓');
+}
+
+/* V130 DAILY CENTER ENGINE */
+function coachRenderDailyCenter(){
+ const s=coachWayLoad(),week=coachBuildWeek(),i=(new Date().getDay()+6)%7,p=week[i];
+ const training=document.getElementById('cwDailyTraining'),tn=document.getElementById('cwDailyTrainingNote');
+ if(training)training.textContent=p.title;
+ if(tn)tn.textContent=s.done[todayISO()]?'Heute bereits abgeschlossen ✓':(p.type==='Recovery'?'Regeneration & Alltag im Fokus.':'Geplante Einheit noch offen.');
+ const meals=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'[]')||[], cardio=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'[]')||[];
+ const today=new Date().toISOString().slice(0,10),m=meals.filter(x=>String(x.date||'').slice(0,10)===today).length,c=cardio.filter(x=>String(x.date||'').slice(0,10)===today).length;
+ const data=document.getElementById('cwDailyData'),note=document.getElementById('cwDailyDataNote');
+ if(data)data.textContent=m+' Mahlzeiten · '+c+' Bewegungen';
+ if(note)note.textContent='Die Daten fließen in deinen Tagesüberblick ein.';
 }
 </body>
 </html>
