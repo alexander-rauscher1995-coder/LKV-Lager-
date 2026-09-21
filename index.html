@@ -3132,6 +3132,23 @@ window.addEventListener('load',()=>setTimeout(ensureQuickActions,380));
 <style>
 /* V157 PRODUCTION STATUS */
 .production-status{margin-top:10px;padding:10px 12px;border-radius:11px;border:1px solid #293840;background:#0d171c;font-size:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.production-dot{width:9px;height:9px;border-radius:50%;background:#89979f;display:inline-block;margin-right:6px}.production-status.live .production-dot{background:var(--green);box-shadow:0 0 10px rgba(72,233,133,.5)}.production-status.pending .production-dot{background:var(--yellow)}
+
+/* V160 CALCULATOR COMPACT UI */
+.calculator-main .calc-step{padding:13px;margin-top:9px;border-radius:14px}
+.calculator-main .calc-step-head{margin-bottom:9px}
+.calculator-main .calc-step-title{font-size:15px}
+.calculator-main .calc-step-desc{font-size:11px}
+.calculator-main .calc-method{gap:6px;margin-bottom:0}
+.calculator-main .calc-method button{flex:1;min-width:105px;min-height:44px;padding:8px 9px}
+.calculator-main .calorie-inputs{gap:9px}
+.calculator-main .module-action{margin-top:10px;min-height:48px;font-size:15px;font-weight:800}
+.calculator-main .field input,.calculator-main .field select{min-height:44px}
+.calculator-breakdown{padding:15px}
+.calculator-breakdown .calc-result-main{padding:15px}
+.calculator-breakdown .calc-result-number{font-size:38px}
+.calculator-breakdown h3{font-size:15px;margin-bottom:7px}
+.calculator-breakdown .calc-component{padding:9px 0}
+@media(max-width:600px){.calculator-main .calc-method button{min-width:0}.calculator-main .calc-step{padding:12px}.calculator-breakdown .calc-result-number{font-size:34px}}
 </style>
 <script>
 /* V157 PRODUCTION STATUS */
