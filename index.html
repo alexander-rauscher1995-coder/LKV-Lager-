@@ -440,6 +440,10 @@ body.coach-way-active{padding-left:0!important}
 
 /* V126 COACH INSIGHT TIMELINE */
 .coach-insight-list{display:grid;gap:9px;margin-top:12px}.coach-insight-row{display:grid;grid-template-columns:76px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid #27343b;border-radius:12px;background:#0d151a}.coach-insight-row small{color:#7f8d96}.coach-insight-row b{font-size:13px}.coach-insight-row strong{font-size:12px;color:#63f59a}.coach-insight-row.muted strong{color:#aebbc2}@media(max-width:600px){.coach-insight-row{grid-template-columns:60px 1fr}.coach-insight-row strong{grid-column:2}}
+
+/* V127 COACH PLAN ADAPTATION */
+.coach-adapt-card{margin-top:12px;padding:16px;border:1px solid rgba(99,245,154,.20);border-radius:16px;background:linear-gradient(145deg,rgba(99,245,154,.07),#0d151a)}
+.coach-adapt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.coach-adapt-actions button{border-radius:11px;padding:10px 13px;cursor:pointer}.coach-adapt-apply{border:0;background:#63f59a;color:#06100b;font-weight:800}.coach-adapt-later{border:1px solid #344049;background:#172128;color:#fff}.coach-adapt-status{margin-top:9px;color:#8f9ca4;font-size:12px}.coach-adapt-status.ok{color:#63f59a}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1770,6 +1774,16 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
+<div class="coach-adapt-card">
+  <div class="section-kicker">PLAN ANPASSEN</div>
+  <h3 style="margin:0">Dein nächster Plan-Schritt</h3>
+  <div class="coach-way-sub" id="cwPlanAdaptNote">Der Coach prüft zuerst deine letzten Aktivitäten.</div>
+  <div class="coach-adapt-actions">
+    <button class="coach-adapt-apply" onclick="coachApplySuggestion()">Vorschlag übernehmen</button>
+    <button class="coach-adapt-later" onclick="coachDismissSuggestion()">Später</button>
+  </div>
+  <div class="coach-adapt-status" id="cwPlanAdaptStatus">Noch nicht angepasst</div>
+</div>
 <div class="coach-review-card">
   <div class="section-kicker">COACH TIMELINE</div>
   <h3 style="margin:0">Letzte Aktivität</h3>
@@ -2033,7 +2047,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachRenderPlanSuggestion();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2206,6 +2220,40 @@ function coachRenderInsightTimeline(){
  Object.entries(state.checkins||{}).slice(-3).reverse().forEach(([date,val])=>{items.push({date:new Date(date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),title:'Check-in',meta:val==='easy'?'Leicht':val==='hard'?'Anspruchsvoll':'Passend',status:'gespeichert'});});
  items.sort((a,b)=>a.date.localeCompare(b.date)).reverse();
  host.innerHTML=items.slice(0,6).map(x=>'<div class="coach-insight-row '+(x.status==='teilweise'?'muted':'')+'"><small>'+x.date+'</small><b>'+x.title+'<br><span class="muted">'+x.meta+'</span></b><strong>'+x.status+'</strong></div>').join('')||'<div class="empty">Noch keine Aktivitäten gespeichert.</div>';
+}
+
+/* V127 COACH PLAN ADAPTATION ENGINE */
+function coachPlanSuggestion(){
+ const a=coachAdaptiveAnalysis(),setup=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ const s=coachWayLoad();
+ if(s.planAdapted)return {title:'Plan bereits angepasst',note:'Der aktuelle Coach-Vorschlag wurde bereits übernommen.'};
+ if(a.focus==='Regeneration priorisieren')return {type:'recovery',note:'Für die nächste Planung Regeneration stärker berücksichtigen und die Belastung kontrolliert halten.'};
+ if(a.focus==='Saubere Progression')return {type:'quality',note:'Plan beibehalten und den Schwerpunkt auf saubere Technik, vollständige Dokumentation und kontrollierte Progression legen.'};
+ if((setup.days||3)>=4)return {type:'balance',note:'Trainingsstruktur beibehalten und die Woche ausgewogen zwischen Belastung und Erholung verteilen.'};
+ return {type:'routine',note:'Plan zunächst stabil halten und weitere verlässliche Trainingsdaten sammeln.'};
+}
+function coachRenderPlanSuggestion(){
+ const x=coachPlanSuggestion(),note=document.getElementById('cwPlanAdaptNote'),status=document.getElementById('cwPlanAdaptStatus');
+ if(note)note.textContent=x.note;
+ if(status)status.textContent=x.type==='recovery'?'Coach empfiehlt mehr Regeneration.':x.type==='quality'?'Coach empfiehlt Qualitätsfokus.':x.type==='balance'?'Coach empfiehlt ausgewogene Belastung.':'Coach empfiehlt zunächst Konstanz.';
+ if(status&&coachWayLoad().planAdapted)status.textContent='Vorschlag bereits übernommen ✓',status.classList.add('ok');
+}
+function coachApplySuggestion(){
+ const s=coachWayLoad(),x=coachPlanSuggestion();
+ if(s.planAdapted){toast('Plan ist bereits angepasst ✓');return;}
+ s.planAdapted={date:new Date().toISOString(),type:x.type,note:x.note};
+ coachWaySave(s);
+ const setup=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
+ if(x.type==='recovery')setup.recovery='high';
+ if(x.type==='balance')setup.priority='balanced';
+ localStorage.setItem('fitness_coach_setup',JSON.stringify(setup));
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderPlanSuggestion();
+ toast('Coach-Vorschlag übernommen ✓');
+}
+function coachDismissSuggestion(){
+ const s=coachWayLoad();s.planSuggestionDismissed=new Date().toISOString();coachWaySave(s);
+ const status=document.getElementById('cwPlanAdaptStatus');if(status)status.textContent='Für später gespeichert.';
+ toast('Vorschlag für später gespeichert');
 }
 </body>
 </html>
