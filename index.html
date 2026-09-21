@@ -704,6 +704,10 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
 .coach-next-adapt{margin-top:14px;padding:14px;border:1px solid #29363e;border-radius:14px;background:#0d151a}
 .coach-next-adapt b{display:block;font-size:15px;margin-bottom:5px}
 .coach-next-adapt span{color:#9eabb2;font-size:13px;line-height:1.4}
+</style><style>
+.exercise-adaptive{margin-top:12px;padding:11px 13px;border:1px solid #29363e;border-radius:12px;background:#0d151a;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.exercise-adaptive b{font-size:12px;color:#bfe8cc}.exercise-adaptive span{display:block;color:#8f9ca4;font-size:12px;margin-top:3px}.exercise-adaptive strong{color:#63f59a;font-size:12px}
+@media(max-width:600px){.exercise-adaptive{grid-template-columns:1fr}}
 </style></head>
 <body>
 <div class="app">
@@ -921,7 +925,7 @@ function renderPlan(){
    return `<div class="card exercise">
    <div class="exercise-head"><div><div class="muted">ÜBUNG ${idx+1}</div><div class="exercise-name">${e[0]}</div><div class="muted" style="margin-top:5px">${filled}/${e[1]} Sätze dokumentiert · letzter Stand wird vorausgefüllt</div></div><div class="muted">${e[1]} Sätze · ${e[2]} Wdh.</div></div>
    <div class="exercise-media"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1a?auto=format&fit=crop&w=500&q=80" alt="Übungsdarstellung" loading="lazy"><div class="exercise-media-info"><div class="exercise-media-title">Ausführung & Technik</div><div class="muted">Bild und Anleitung für die Übung ansehen.</div><div class="exercise-media-actions"><button class="exercise-media-btn" onclick="exerciseDetails('${encodeURIComponent(e[0])}')">Details & Technik</button><button class="exercise-media-btn" onclick="openExerciseGuide('${encodeURIComponent(e[0])}')">▶ Video</button></div></div></div>
-   <div class="sets"><div class="head">Satz</div><div class="head">Gewicht</div><div class="head">Wdh.</div><div class="head">RIR</div><div class="head">✓</div>
+   <div class="exercise-adaptive"><div><b>Letzter Stand</b><span>Coach wertet deine letzte dokumentierte Einheit aus.</span></div><strong>Fokus wird berechnet</strong></div><div class="sets"><div class="head">Satz</div><div class="head">Gewicht</div><div class="head">Wdh.</div><div class="head">RIR</div><div class="head">✓</div>
     ${Array.from({length:Number(e[1])},(_,s)=>{
       const p=prev[s]||{};
       return `<div>${s+1}</div><div><input class="input weight-input" data-ex="${encodeURIComponent(e[0])}" data-set="${s}" inputmode="decimal" placeholder="${p.weight||'kg'}" value="${p.weight||''}"></div><div><input class="input reps-input" data-ex="${encodeURIComponent(e[0])}" data-set="${s}" inputmode="numeric" placeholder="${p.reps||e[2]}" value="${p.reps||''}"></div><div><input class="input rir-input" data-ex="${encodeURIComponent(e[0])}" data-set="${s}" inputmode="numeric" placeholder="${p.rir||'1–2'}" value="${p.rir||''}"></div><div class="check"><input type="checkbox" onchange="updateTrainingProgress()"></div>`
@@ -929,6 +933,7 @@ function renderPlan(){
    </div><div class="exercise-actions"><button class="module-action secondary" onclick="startSetTimer()">⏱ Satzpause</button><button class="module-action secondary" onclick="markExerciseDone(this)">✓ Übung fertig</button></div></div>`
  }).join('');
  updateTrainingProgress();
+ coachRenderExerciseInsights();
 }
 function updateTrainingProgress(){
  const boxes=[...document.querySelectorAll('#exerciseList .check input')];
@@ -2081,6 +2086,35 @@ function coachRenderNextAdaptive(){
  const title=document.getElementById('cwNextAdaptiveTitle'),note=document.getElementById('cwNextAdaptiveNote');
  if(title)title.textContent=n.title;
  if(note)note.textContent=n.note;
+}
+</script>
+<script>
+/* V123 EXERCISE ADAPTATION */
+function coachExerciseInsight(name,target){
+ const rows=lastValues(name)||[];
+ const valid=rows.filter(x=>x&&((x.weight??'')!==''||(x.reps??'')!==''));
+ if(!valid.length)return {last:'Noch keine Daten',focus:'Erste Einheit sauber dokumentieren'};
+ const reps=valid.map(x=>Number(String(x.reps).replace(',','.'))).filter(Number.isFinite);
+ const weights=valid.map(x=>Number(String(x.weight).replace(',','.'))).filter(Number.isFinite);
+ const rirs=valid.map(x=>Number(String(x.rir).replace(',','.'))).filter(Number.isFinite);
+ const last=weights.length?Math.max(...weights)+' kg':(reps.length?Math.max(...reps)+' Wdh.':'Daten gespeichert');
+ const minTarget=parseInt(String(target).match(/\d+/)?.[0]||0,10);
+ const maxTarget=parseInt(String(target).match(/\d+[^\d]+(\d+)/)?.[1]||minTarget,10);
+ let focus='Technik & kontrollierte Ausführung';
+ if(reps.length&&maxTarget&&Math.min(...reps)>=maxTarget)focus='Wiederholungen sauber bestätigen';
+ else if(reps.length&&minTarget&&Math.max(...reps)<minTarget)focus='Bewegung kontrolliert ausführen';
+ else if(rirs.length&&Math.min(...rirs)<=0)focus='Erholung & Technik priorisieren';
+ else if(reps.length)focus='Gleiche Qualität erneut erreichen';
+ return {last,focus};
+}
+function coachRenderExerciseInsights(){
+ document.querySelectorAll('#exerciseList .exercise').forEach(card=>{
+   const name=card.querySelector('.exercise-name')?.textContent?.trim();if(!name)return;
+   const target=card.querySelector('.exercise-head .muted:last-child')?.textContent||'';
+   const i=coachExerciseInsight(name,target);
+   const el=card.querySelector('.exercise-adaptive');
+   if(el){el.querySelector('b').textContent='Letzter Stand · '+i.last;el.querySelector('strong').textContent='Fokus: '+i.focus;}
+ });
 }
 </script>
 </body>
