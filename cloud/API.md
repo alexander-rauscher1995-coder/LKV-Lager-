@@ -1,20 +1,61 @@
 # Fitness Coach Cloud API
 
-Status: backend-ready contract. Cloud sync stays disabled until a real backend endpoint and authentication provider are configured.
+Status: production-ready API contract; cloud remains disabled in the public frontend until private infrastructure is connected.
 
-Base URL: FITNESS_CLOUD_API_URL
-Authentication: short-lived Bearer token. Never store admin/service-role keys in the web app.
+## Base configuration
 
-Data model: profile, trainingSessions, customPlans, nutrition, cardio, bodyChecks, coachWay, syncMeta.
-Every mutable record should contain id, updatedAt, deviceId and version.
+The browser uses a configured HTTPS API base URL. Never put database credentials, JWT private keys or service-role keys into the browser.
 
-Endpoints:
-- GET /v1/sync — current user snapshot and server revision.
-- PUT /v1/sync — validated user snapshot.
-- POST /v1/sync/changes — incremental changes.
+## Authentication
 
-Conflict policy: authenticate user; validate records; compare updatedAt/version; newer valid records win; never silently delete data; return resulting revision and conflicts.
+Each request uses a short-lived Bearer token with:
+- RS256 signature
+- `sub` — stable user identifier
+- `iss` — configured issuer
+- `aud` — configured audience
+- `exp` — future expiry
 
-Backend protections required: authentication, per-user isolation, schema validation, rate limiting, HTTPS, request-size limits, audit timestamps, and no frontend secrets.
+## Endpoints
 
-The GitHub Pages app does not provide these backend guarantees by itself.
+- GET `/v1/sync` — current authenticated user's snapshot and server revision.
+- PUT `/v1/sync` — validated user snapshot.
+- POST `/v1/sync/changes` — incremental changes.
+
+## Snapshot contract
+
+A snapshot contains:
+- `schemaVersion: 1`
+- `deviceId`
+- `updatedAt`
+- `data`
+- optional `baseRevision`
+
+The API rejects malformed snapshots and payloads larger than 1 MB.
+
+## Conflict policy
+
+The server uses optimistic concurrency:
+1. Client sends its last known `baseRevision`.
+2. Server locks the authenticated user's revision.
+3. Matching revisions create the next revision.
+4. A stale revision returns HTTP 409 with conflict metadata.
+5. User isolation is based on JWT `sub`, never `deviceId`.
+
+## Offline behavior
+
+The web client stores at most the newest pending snapshot per device. When the network returns, it retries the queued snapshot and updates its local revision from the server response.
+
+## Production protections
+
+Required:
+- HTTPS
+- authenticated requests
+- per-user isolation
+- PostgreSQL backups and retention
+- rate limiting
+- request-size limits
+- monitoring
+- audit timestamps
+- no frontend secrets
+
+The public GitHub Pages app does not activate cloud access until these private backend requirements are configured.
