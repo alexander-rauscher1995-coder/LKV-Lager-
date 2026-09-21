@@ -2568,6 +2568,24 @@ function customPlanRemoveExercise(i){
  const p=customPlans(),x=p.find(x=>x.id===window.__customPlanEditing);if(!x)return;x.exercises.splice(i,1);saveCustomPlans(p);renderCustomPlans();
 }
 function customPlanSelect(id){window.__customPlanEditing=id;renderCustomPlans()}
+function startCustomPlan(id){
+ const x=customPlans().find(p=>p.id===id)||customPlans().find(p=>p.id===window.__customPlanEditing);
+ if(!x||!x.exercises.length){toast('Der Plan enthält noch keine Übungen.');return}
+ plans.CUSTOM=x.exercises.map(e=>[e.name,String(e.sets||3),e.reps||'8–12']);
+ currentPlan='CUSTOM';
+ showView('training');
+ const host=document.getElementById('plans');
+ if(host){
+   let pill=host.querySelector('[data-plan="CUSTOM"]');
+   if(!pill){pill=document.createElement('button');pill.className='pill';pill.dataset.plan='CUSTOM';pill.textContent=x.name.slice(0,18);host.appendChild(pill);pill.onclick=()=>{currentPlan='CUSTOM';host.querySelectorAll('.pill').forEach(b=>b.classList.toggle('active',b===pill));renderPlan()}}
+   host.querySelectorAll('.pill').forEach(b=>b.classList.toggle('active',b===pill));
+ }
+ renderPlan();toast(x.name+' gestartet ✓');
+}
+function installApp(){
+ if(window.__pwaPrompt){window.__pwaPrompt.prompt();window.__pwaPrompt=null;return}
+ toast('Installation: im Browser-Menü „Zum Home-Bildschirm“ wählen.');
+}
 function customPlanDelete(){
  const p=customPlans().filter(x=>x.id!==window.__customPlanEditing);saveCustomPlans(p);window.__customPlanEditing=p[0]?.id||null;renderCustomPlans();toast('Plan gelöscht');
 }
@@ -2578,7 +2596,7 @@ function renderCustomPlans(){
  const names=p.map(x=>'<button onclick="customPlanSelect(\''+x.id+'\')">'+x.name+'</button>').join('');
  host.innerHTML=x?'<div class="pro-plan-row"><b>'+x.name+'</b><span>'+x.exercises.length+' Übungen</span></div>'+
    '<div class="pro-plan-list">'+(x.exercises.length?x.exercises.map((e,i)=>'<div class="pro-plan-row"><span>'+e.name+' · '+e.sets+'× '+e.reps+'</span><button onclick="customPlanRemoveExercise('+i+')">Entfernen</button></div>').join(''):'<div class="empty">Noch keine Übungen. Wähle eine Übung und füge sie hinzu.</div>')+'</div>'+
-   '<div class="pro-tool-actions"><button onclick="customPlanRename()">Umbenennen</button><button onclick="customPlanDelete()">Löschen</button></div>':
+   '<div class="pro-tool-actions"><button class="primary" onclick="startCustomPlan()">▶ Im Training öffnen</button><button onclick="customPlanRename()">Umbenennen</button><button onclick="customPlanDelete()">Löschen</button></div>':
    '<div class="empty">Noch kein eigener Plan. Erstelle deinen ersten Plan.</div>';
  const nav=document.getElementById('proPlanSelect');if(nav)nav.innerHTML=names||'<span class="muted">Keine eigenen Pläne</span>';
 }
@@ -2632,5 +2650,7 @@ openCoachPlan=function(){__oldOpenCoachPlan();setTimeout(coachFinalRefresh,0)};
 if('serviceWorker' in navigator){
  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
+</script><script>
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.__pwaPrompt=e});
 </script></body>
 </html>
