@@ -34,10 +34,16 @@
     return {schemaVersion:1,deviceId:deviceId(),updatedAt:now,capturedAt:now,data};
   }
 
-  async function queueSnapshot(){
-    if(!window.FitnessCloud)return {status:'adapter-missing'};
-    return window.FitnessCloud.syncSnapshot(snapshot());
+  function validateSnapshot(x){
+    return !!(x&&x.schemaVersion===1&&typeof x.deviceId==='string'&&x.deviceId.length>=8&&typeof x.updatedAt==='string'&&x.data&&typeof x.data==='object'&&!Array.isArray(x.data));
   }
 
-  window.FitnessCoachCloudSnapshot={snapshot,queueSnapshot};
+  async function queueSnapshot(){
+    if(!window.FitnessCloud)return {status:'adapter-missing'};
+    const value=snapshot();
+    if(!validateSnapshot(value))return {status:'rejected',error:'Invalid local snapshot'};
+    return window.FitnessCloud.syncSnapshot(value);
+  }
+
+  window.FitnessCoachCloudSnapshot={snapshot,queueSnapshot,validateSnapshot};
 })();
