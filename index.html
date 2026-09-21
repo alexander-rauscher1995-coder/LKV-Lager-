@@ -1109,8 +1109,11 @@ function calcBMR(){
   return Math.round(10*w + 6.25*h - 5*a + (calorieState.sex==='m'?5:-161));
 }
 function activityFactor(){
+  // Standardmäßig überwiegend sitzende Arbeit.
+  // Die Auswahl beschreibt den Arbeits-/Alltagslevel; Schritte und Training
+  // werden danach separat und kontrolliert berücksichtigt.
   const v=Number(calorieState.activity);
-  return [1.35,1.5,1.65,1.8].includes(v)?v:1.5;
+  return [1.35,1.5,1.65,1.8].includes(v)?v:1.35;
 }
 function calcBreakdown(){
   const b=calcBMR();
