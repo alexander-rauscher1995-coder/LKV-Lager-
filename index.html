@@ -2739,5 +2739,96 @@ window.addEventListener('load',()=>{if(typeof renderCloudStatus==='function')ren
 window.addEventListener('fitness-cloud-status',()=>{if(typeof renderCloudStatus==='function')renderCloudStatus()});
 </script><script src="./cloud/snapshot.js"></script><script>
 window.addEventListener("pagehide",()=>{try{const c=fitnessCloudStatus();if(c.enabled&&c.configured&&window.FitnessCoachCloudSnapshot)window.FitnessCoachCloudSnapshot.queueSnapshot()}catch{}});
+</script>
+<style>
+/* V150 SMART DASHBOARD */
+.smart-dashboard{grid-column:span 12;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.smart-panel{background:linear-gradient(145deg,#142229,#0e181e);border:1px solid #30414a;border-radius:18px;padding:18px}
+.smart-panel h3{margin:0 0 6px;font-size:18px}.smart-sub{color:#95a4ad;font-size:13px;line-height:1.45}
+.smart-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px}
+.smart-stat{background:#0b1419;border:1px solid #27363e;border-radius:13px;padding:11px}.smart-stat b{display:block;font-size:20px;margin-top:4px}.smart-stat small{color:#89979f}
+.smart-insights{display:grid;gap:8px;margin-top:12px}.smart-insight{padding:11px 12px;background:#101b21;border:1px solid #293840;border-radius:12px;font-size:13px}
+.smart-insight strong{color:var(--green)}
+.smart-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.smart-actions button{border:1px solid #344049;background:#18252c;border-radius:11px;padding:9px 12px;cursor:pointer}.smart-actions .primary{background:var(--green);color:#06100b;font-weight:800}
+.smart-meter{height:8px;background:#27343b;border-radius:99px;overflow:hidden;margin-top:8px}.smart-meter i{display:block;height:100%;background:var(--green);border-radius:99px}
+.smart-list{display:grid;gap:8px;margin-top:12px}.smart-list-row{display:flex;justify-content:space-between;gap:10px;padding:10px 11px;background:#0c151a;border:1px solid #27353d;border-radius:11px}
+@media(max-width:850px){.smart-dashboard{grid-template-columns:1fr}.smart-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.smart-panel{padding:14px}.smart-stats{gap:7px}.smart-stat b{font-size:18px}}
+</style>
+<script>
+/* V150 SMART DASHBOARD */
+const SMART_KEY='fitness_smart_goals_v1';
+function smartLoad(){
+ try{return JSON.parse(localStorage.getItem(SMART_KEY)||'{}')||{}}catch{return{}}
+}
+function smartSave(x){localStorage.setItem(SMART_KEY,JSON.stringify(x))}
+function smartToday(){return new Date().toISOString().slice(0,10)}
+function smartSessions(){
+ try{return JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[]}catch{return[]}
+}
+function smartCardio(){
+ try{const x=JSON.parse(localStorage.getItem('fitness_v98_cardio')||'null')||{};return Array.isArray(x)?x:(x.sessions||[])}catch{return[]}
+}
+function smartMeals(){
+ try{const x=JSON.parse(localStorage.getItem('fitness_v98_nutrition')||'null')||{};return Array.isArray(x)?x:(x.meals||[])}catch{return[]}
+}
+function smartWeekDays(){
+ const a=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);a.push(d.toISOString().slice(0,10))}return a;
+}
+function smartWeeklyReview(){
+ const days=smartWeekDays(),sessions=smartSessions(),cardio=smartCardio(),meals=smartMeals();
+ const training=days.reduce((n,d)=>n+sessions.filter(x=>String(x.date||'').slice(0,10)===d).length,0);
+ const runs=days.reduce((n,d)=>n+cardio.filter(x=>String(x.date||'').slice(0,10)===d).length,0);
+ const mealDays=new Set(meals.map(x=>String(x.date||'').slice(0,10)).filter(Boolean));
+ const activeDays=days.filter(d=>sessions.some(x=>String(x.date||'').slice(0,10)===d)||cardio.some(x=>String(x.date||'').slice(0,10)===d)).length;
+ const goals=smartLoad();
+ const hydration=Number(moduleState?.hydration||0);
+ return {training,runs,mealDays:mealDays.size,activeDays,hydration,goal:goals};
+}
+function smartInsights(){
+ const r=smartWeeklyReview(),out=[];
+ if(r.training>=3)out.push('<strong>Training:</strong> '+r.training+' Einheiten diese Woche.');
+ else out.push('<strong>Training:</strong> '+r.training+' Einheiten — dein Wochenziel ist noch offen.');
+ if(r.runs>=2)out.push('<strong>Cardio:</strong> '+r.runs+' Einheiten erfasst.');
+ else out.push('<strong>Cardio:</strong> '+r.runs+' Einheiten — Zielbereich noch nicht erreicht.');
+ if(r.mealDays>=5)out.push('<strong>Ernährung:</strong> an '+r.mealDays+' Tagen dokumentiert.');
+ else out.push('<strong>Ernährung:</strong> bisher '+r.mealDays+' dokumentierte Tage.');
+ if(r.activeDays>=5)out.push('<strong>Aktivität:</strong> '+r.activeDays+'/7 Tage mit Aktivität.');
+ return out;
+}
+function renderSmartDashboard(){
+ const host=document.getElementById('smartDashboard');if(!host)return;
+ const r=smartWeeklyReview(),g=r.goal||{};
+ const trainingTarget=Math.max(1,Number(g.trainingTarget||4)),cardioTarget=Math.max(1,Number(g.cardioTarget||2));
+ const tp=Math.min(100,Math.round(r.training/trainingTarget*100)),cp=Math.min(100,Math.round(r.runs/cardioTarget*100));
+ host.innerHTML='<div class="smart-panel"><h3>Intelligente Wochenanalyse</h3><div class="smart-sub">Automatische Zusammenfassung deiner gespeicherten Aktivitäten der letzten 7 Tage.</div>'+
+ '<div class="smart-stats"><div class="smart-stat"><small>Training</small><b>'+r.training+'/'+trainingTarget+'</b><div class="smart-meter"><i style="width:'+tp+'%"></i></div></div>'+
+ '<div class="smart-stat"><small>Cardio</small><b>'+r.runs+'/'+cardioTarget+'</b><div class="smart-meter"><i style="width:'+cp+'%"></i></div></div>'+
+ '<div class="smart-stat"><small>Aktive Tage</small><b>'+r.activeDays+'/7</b></div><div class="smart-stat"><small>Ernährung</small><b>'+r.mealDays+'/7</b></div></div>'+
+ '<div class="smart-insights">'+smartInsights().map(x=>'<div class="smart-insight">'+x+'</div>').join('')+'</div>'+
+ '<div class="smart-actions"><button class="primary" onclick="smartOpenGoals()">Ziele anpassen</button><button onclick="showView(\'progress\');renderProgressCoach()">Fortschritt</button><button onclick="smartMarkReview()">Wochencheck speichern</button></div></div>'+
+ '<div class="smart-panel"><h3>Heute</h3><div class="smart-sub">Dein aktueller Fokus für den Tag.</div><div class="smart-list">'+
+ '<div class="smart-list-row"><span>Training</span><b>'+(r.training>=trainingTarget?'✓ erfüllt':'offen')+'</b></div>'+
+ '<div class="smart-list-row"><span>Cardio</span><b>'+(r.runs>=cardioTarget?'✓ erfüllt':'offen')+'</b></div>'+
+ '<div class="smart-list-row"><span>Hydration</span><b>'+r.hydration.toFixed(1).replace('.',',')+' L</b></div>'+
+ '<div class="smart-list-row"><span>Wochencheck</span><b>'+(g.lastReview===smartToday()?'✓ gespeichert':'offen')+'</b></div></div>'+
+ '<div class="smart-actions"><button onclick="openModule(\'nutrition\')">Ernährung</button><button onclick="openModule(\'cardio\')">Cardio</button><button onclick="openModule(\'body\')">Körper-Check</button></div></div>';
+}
+function smartOpenGoals(){
+ const g=smartLoad(),training=prompt('Trainingsziel pro Woche',String(g.trainingTarget||4));if(training===null)return;
+ const cardio=prompt('Cardioziel pro Woche',String(g.cardioTarget||2));if(cardio===null)return;
+ const t=Math.max(1,Math.min(14,Number(training)||4)),c=Math.max(0,Math.min(14,Number(cardio)||2));
+ smartSave({...g,trainingTarget:t,cardioTarget:c});renderSmartDashboard();toast('Wochenziele gespeichert ✓');
+}
+function smartMarkReview(){const g=smartLoad();smartSave({...g,lastReview:smartToday()});renderSmartDashboard();toast('Wochencheck gespeichert ✓')}
+function ensureSmartDashboard(){
+ if(document.getElementById('smartDashboard')){renderSmartDashboard();return}
+ const grid=document.querySelector('.shell .grid');if(!grid)return;
+ const box=document.createElement('div');box.id='smartDashboard';box.className='smart-dashboard';
+ grid.insertBefore(box,grid.firstElementChild);renderSmartDashboard();
+}
+function smartRefresh(){try{ensureSmartDashboard();renderSmartDashboard()}catch(e){console.warn(e)}}
+window.addEventListener('load',()=>setTimeout(smartRefresh,120));
+window.addEventListener('fitness-cloud-status',smartRefresh);
 </script></body>
 </html>
