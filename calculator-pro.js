@@ -1,8 +1,8 @@
-/* FITNESS PRO V171 — Calculator experience layer */
+/* FITNESS PRO V172 — Calculator experience layer */
 (function(){
   'use strict';
 
-  const STYLE_ID='fitness-pro-calculator-v171';
+  const STYLE_ID='fitness-pro-calculator-v172';
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
@@ -39,6 +39,24 @@
 
   function n(v){return Number.isFinite(Number(v))?Number(v):0}
   function pct(v,max){return max?Math.min(100,Math.max(0,Math.round(v/max*100))):0}
+
+  function bindLiveResultUpdates(){
+    if(window.__fitnessCalcLiveBound) return;
+    window.__fitnessCalcLiveBound=true;
+    const sheet=document.getElementById('moduleSheet');
+    if(!sheet) return;
+    const refresh=()=>{
+      try{
+        if(!sheet.classList.contains('module-calculator')) return;
+        ['.calculator-pro-hero','.calculator-pro-summary','.calculator-pro-result-summary','.calculator-pro-mode','.calculator-pro-daytype','.calculator-pro-coaching'].forEach(sel=>{
+          document.querySelectorAll(sel).forEach(el=>el.remove());
+        });
+        enhance();
+      }catch(e){console.warn(e)}
+    };
+    sheet.addEventListener('input',()=>{clearTimeout(window.__fitnessCalcLiveTimer);window.__fitnessCalcLiveTimer=setTimeout(refresh,180)});
+    sheet.addEventListener('change',refresh);
+  }
 
   function enhance(){
     const sheet=document.getElementById('moduleSheet');
@@ -385,6 +403,7 @@
   }
 
   window.calculatorProRefresh=function(){
+  bindLiveResultUpdates();
     try{
       const sheet=document.getElementById('moduleSheet');
       if(!sheet || !sheet.classList.contains('module-calculator')) return;
