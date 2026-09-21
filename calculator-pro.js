@@ -146,7 +146,27 @@
 
 
 
-    if(!sheet.querySelector('.calculator-pro-method')){
+
+    if(!sheet.querySelector('.calculator-pro-validation')){
+      const validation=document.createElement('div');
+      validation.className='calculator-pro-validation';
+      validation.style.cssText='margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid #26343c;background:#0b1419;font-size:11px;line-height:1.45;color:#aab6bd';
+      const refreshValidation=()=>{
+        const checks=[];
+        const w=n(window.calorieState?.weight)||n(document.getElementById('cwCoach')?.value);
+        const age=n(window.calorieState?.age)||n(document.getElementById('cage')?.value);
+        const h=n(window.calorieState?.height)||n(document.getElementById('cheight')?.value);
+        if(w<=0) checks.push('Gewicht fehlt');
+        if(age<=0) checks.push('Alter fehlt');
+        if(h<=0) checks.push('Größe fehlt');
+        validation.innerHTML=checks.length ? '<b style="color:#ffd27a">Eingaben prüfen</b><br>'+checks.join(' · ') : '<b style="color:#63f59a">Eingaben vollständig</b><br>Die grundlegenden Rechnerwerte sind vorhanden.';
+      };
+      refreshValidation();
+      main.before(validation);
+      sheet.addEventListener('input',refreshValidation,{passive:true});
+      sheet.addEventListener('change',refreshValidation,{passive:true});
+    }
+\n    if(!sheet.querySelector('.calculator-pro-method')){
       const method=document.createElement('div');
       method.className='calculator-pro-method';
       method.style.cssText='margin-top:12px;padding:14px;border:1px solid #26343c;border-radius:14px;background:#0d171c';
