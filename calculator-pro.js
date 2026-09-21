@@ -185,6 +185,17 @@
       const tools=document.querySelector('.calculator-pro-tools');
       if(tools) tools.after(last); else main.before(last);
     }
+\n
+    if(!sheet.querySelector('.calculator-pro-trend')){
+      const trend=document.createElement('div');
+      trend.className='calculator-pro-trend';
+      trend.style.cssText='margin-top:12px;padding:14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
+      trend.innerHTML='<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">7-Tage-Trend</div><div class="calculator-pro-trend-chart" style="height:120px;margin-top:10px;display:flex;align-items:flex-end;gap:7px"></div><div class="calculator-pro-trend-meta" style="font-size:11px;color:#82919a;margin-top:8px"></div>';
+      const draw=()=>{try{const items=JSON.parse(localStorage.getItem('fitness_calculator_history_v1')||'[]').slice(0,7).reverse();const chart=trend.querySelector('.calculator-pro-trend-chart');const meta=trend.querySelector('.calculator-pro-trend-meta');if(!items.length){chart.innerHTML='<div style="color:#82919a;font-size:11px;align-self:center">Noch nicht genug Daten</div>';meta.textContent='Berechne den Rechner mehrfach, um den Verlauf aufzubauen.';return}const vals=items.map(x=>n(x.target));const min=Math.min(...vals),max=Math.max(...vals),range=Math.max(1,max-min);chart.innerHTML=items.map(x=>{const h=Math.max(12,Math.round(((n(x.target)-min)/range)*92)+12);return '<div title="'+Math.round(x.target)+' kcal" style="flex:1;height:'+h+'px;border-radius:7px 7px 3px 3px;background:var(--accent);opacity:.82"></div>'}).join('');meta.textContent='Min. '+Math.round(min).toLocaleString('de-DE')+' kcal · Max. '+Math.round(max).toLocaleString('de-DE')+' kcal · '+items.length+' Berechnungen';}catch(e){}}
+      draw();
+      const history=document.querySelector('.calculator-pro-history');
+      if(history) history.after(trend); else main.before(trend);
+    }
 \n    if(!sheet.querySelector('.calculator-pro-reset')){
       const bar=document.createElement('div');
       bar.className='calculator-pro-reset';
