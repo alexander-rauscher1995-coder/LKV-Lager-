@@ -27,6 +27,9 @@ jobs:
           test -f cloud/README.md
           test -f cloud/sync-adapter.js
           test -f cloud/config.example.js
+          test -f cloud/snapshot.js
+          test -f cloud/API.md
+          test -f cloud/ACTIVATION.md
           test -f apple/integration.json
           test -f ios/FitnessCoachApp.swift
           test -f ios/HealthKitManager.swift
@@ -66,6 +69,8 @@ jobs:
           grep -q "v1/sync" cloud/API.md
           grep -q "backend-required" apple/integration.json
           grep -q "enabled:false" cloud/config.example.js
+          grep -q "schemaVersion" cloud/snapshot.js
+          grep -q "fitness-coach-v5" sw.js
 
       - name: Validate native integration markers
         run: |
