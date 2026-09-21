@@ -1471,69 +1471,63 @@ function openModule(type){
     ${hist.length?`<div class="calorie-history">${hist.map(h=>`<div class="history-item"><span>${new Date(h.date).toLocaleDateString('de-DE')}</span><b>${h.intake} kcal</b><small>${h.training?'Training':'Ruhetag'}</small></div>`).join('')}</div>`:'<div class="empty">Noch keine gespeicherten Tage.</div>'}
    </div>`;
  } else if(type==='calculator'){
-   const calcParts=calcBreakdown(), macro=macroTargets(), bmr=Math.round(calcParts.bmr), maintenance=Math.round(calcParts.total), target=Math.round(calcTarget());
-   content=`<div class="module-head"><div><div class="muted">PLANUNG</div><h2>🧮 Kalorien-Rechner</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
+   const calcParts=calcBreakdown(), macro=macroTargets(), bmr=Math.round(calcParts.bmr), maintenance=Math.round(calcParts.total);
+   const activityLabels={1.2:'Sitzend',1.3:'Leicht aktiv',1.4:'Normal aktiv',1.5:'Aktiv',1.6:'Sehr aktiv'};
+   content=`<div class="module-head"><div><div class="muted">PLANUNG</div><h2>🧮 Neuer Kalorien-Rechner</h2></div><button class="close-btn" onclick="closeSheet()">Schließen</button></div>
    <div class="module-card calculator-main">
-    <div class="section-kicker">DEINE DATEN</div>
-    <div class="calorie-inputs">
-      <div class="field"><label>Alter</label><input id="caCoach" type="number" value="${calorieState.age}"></div>
-      <div class="field"><label>Größe (cm)</label><input id="chCoach" type="number" value="${calorieState.height}"></div>
-      <div class="field"><label>Gewicht (kg)</label><input id="cwCoach" type="number" value="${calorieState.weight}"></div>
-      <div class="field"><label>Geschlecht</label><select id="csCoach"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">1</span><div><div class="calc-step-title">Körperdaten</div><div class="calc-step-desc">Diese Daten bilden die Grundlage der Berechnung.</div></div></div>
+      <div class="calorie-inputs">
+       <div class="field"><label>Alter</label><input id="caCoach" type="number" min="1" max="120" value="${calorieState.age}"></div>
+       <div class="field"><label>Größe (cm)</label><input id="chCoach" type="number" min="80" max="230" value="${calorieState.height}"></div>
+       <div class="field"><label>Gewicht (kg)</label><input id="cwCoach" type="number" min="20" max="300" step="0.1" value="${calorieState.weight}"></div>
+       <div class="field"><label>Geschlecht</label><select id="csCoach"><option value="m" ${calorieState.sex==='m'?'selected':''}>Männlich</option><option value="f" ${calorieState.sex==='f'?'selected':''}>Weiblich</option></select></div>
+      </div>
     </div>
-    <div class="section-kicker" style="margin-top:18px">ALLTAGSAKTIVITÄT</div>
-    <div class="segmented">
-      <button class="${calorieState.activity===1.35?'active':''}" onclick="setActivity(1.35,'calculator')">🪑 Sitzend</button>
-      <button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">🚶 Normal</button>
-      <button class="${calorieState.activity===1.65?'active':''}" onclick="setActivity(1.65,'calculator')">🏃 Aktiv</button>
-      <button class="${calorieState.activity===1.8?'active':''}" onclick="setActivity(1.8,'calculator')">🔥 Sehr aktiv</button>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">2</span><div><div class="calc-step-title">Alltag</div><div class="calc-step-desc">Arbeits- und Alltagsbewegung, ohne geplantes Training.</div></div></div>
+      <div class="calc-method">
+       <button class="${calorieState.activity===1.2?'active':''}" onclick="setActivity(1.2,'calculator')">🪑 Sitzend</button>
+       <button class="${calorieState.activity===1.3?'active':''}" onclick="setActivity(1.3,'calculator')">🚶 Leicht aktiv</button>
+       <button class="${calorieState.activity===1.4?'active':''}" onclick="setActivity(1.4,'calculator')">🚶 Normal aktiv</button>
+       <button class="${calorieState.activity===1.5?'active':''}" onclick="setActivity(1.5,'calculator')">🏃 Aktiv</button>
+       <button class="${calorieState.activity===1.6?'active':''}" onclick="setActivity(1.6,'calculator')">🔥 Sehr aktiv</button>
+      </div>
     </div>
-    <div class="mini-note">Wähle dein normales Alltagsniveau. Schritte und Training werden separat berechnet.</div>
-    <div class="section-kicker" style="margin-top:18px">SCHRITTE</div>
-    <div class="calorie-inputs">
-      <div class="field"><label>Schritte pro Tag</label><input id="csteps" type="number" min="0" max="50000" step="500" value="${calorieState.steps||0}" onchange="readCalculatorInputs()"></div>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">3</span><div><div class="calc-step-title">Schritte</div><div class="calc-step-desc">Zusätzliche Schritte werden separat berücksichtigt.</div></div></div>
+      <div class="calorie-inputs"><div class="field"><label>Schritte pro Tag</label><input id="csteps" type="number" min="0" max="50000" step="500" value="${calorieState.steps||0}"></div></div>
     </div>
-    <div class="section-kicker" style="margin-top:18px">KRAFTTRAINING</div>
-    <div class="calorie-inputs">
-      <div class="field"><label>Einheiten / Woche</label><select id="calcTrainingDays" onchange="setTrainingProfile(this.value,document.getElementById('calcTrainingMinutes').value,'calculator')">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${(Number(calorieState.trainingDays||4)===n)?'selected':''}>${n}× pro Woche</option>`).join('')}</select></div>
-      <div class="field"><label>Minuten / Einheit</label><select id="calcTrainingMinutes" onchange="setTrainingProfile(document.getElementById('calcTrainingDays').value,this.value,'calculator')">${[30,45,60,75,90,120].map(n=>`<option value="${n}" ${(Number(calorieState.trainingMinutes||60)===n)?'selected':''}>${n} Minuten</option>`).join('')}</select></div>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">4</span><div><div class="calc-step-title">Krafttraining</div><div class="calc-step-desc">Wird als Wochenmittel auf den Tagesbedarf verteilt.</div></div></div>
+      <div class="calorie-inputs">
+       <div class="field"><label>Einheiten / Woche</label><select id="calcTrainingDays" onchange="setTrainingProfile(this.value,document.getElementById('calcTrainingMinutes').value,'calculator')">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${Number(calorieState.trainingDays||4)===n?'selected':''}>${n}×</option>`).join('')}</select></div>
+       <div class="field"><label>Minuten / Einheit</label><select id="calcTrainingMinutes" onchange="setTrainingProfile(document.getElementById('calcTrainingDays').value,this.value,'calculator')">${[30,45,60,75,90,120].map(n=>`<option value="${n}" ${Number(calorieState.trainingMinutes||60)===n?'selected':''}>${n} min</option>`).join('')}</select></div>
+      </div>
     </div>
-    <div class="gym-note">Das Krafttraining wird als Wochenmittel in den Tagesbedarf eingerechnet.</div>
-    <div class="section-kicker" style="margin-top:18px">CARDIO</div>
-    <div class="segmented"><button class="${calorieState.cardioEnabled?'':'active'}" onclick="setCardioEnabled(false,'calculator')">Ohne Cardio</button><button class="${calorieState.cardioEnabled?'active':''}" onclick="setCardioEnabled(true,'calculator')">Cardio einrechnen</button></div>
-    <div class="mini-note">${calorieState.cardioEnabled ? 'Gespeicherte Cardio-Einheiten von heute werden geschätzt berücksichtigt.' : 'Cardio wird nicht in den Tagesbedarf eingerechnet.'}</div>
-    <div class="section-kicker" style="margin-top:18px">TAG</div>
-    <div class="segmented"><button class="${calorieState.training==='rest'?'active':''}" onclick="setTrainingDay('rest','calculator')">Pause</button><button class="${calorieState.training==='training'?'active':''}" onclick="setTrainingDay('training','calculator')">Gym · Krafttraining</button></div>
-    <div class="section-kicker" style="margin-top:18px">ZIEL</div>
-    <div class="segmented goal-segmented">
-      <button class="${(calorieState.goal==="lose"||calorieState.goal==="kfa")?"active":""}" onclick="setCalorieGoal('lose','calculator')">Abnehmen / KFA senken</button>
-      <button class="${calorieState.goal==="maintain"?"active":""}" onclick="setCalorieGoal('maintain','calculator')">Erhalt</button>
-      <button class="${calorieState.goal==="bulk"?"active":""}" onclick="setCalorieGoal('bulk','calculator')">Aufbau</button>
+    <div class="calc-step"><div class="calc-step-head"><span class="calc-step-num">5</span><div><div class="calc-step-title">Cardio</div><div class="calc-step-desc">Optional: Cardio ebenfalls als Wochenmittel einrechnen.</div></div></div>
+      <div class="segmented"><button class="${calorieState.cardioEnabled?'':'active'}" onclick="setCardioEnabled(false,'calculator')">Ohne Cardio</button><button class="${calorieState.cardioEnabled?'active':''}" onclick="setCardioEnabled(true,'calculator')">Cardio einrechnen</button></div>
+      <div class="calorie-inputs" style="margin-top:10px">
+       <div class="field"><label>Einheiten / Woche</label><select id="calcCardioDays" onchange="setCardioProfile(this.value,document.getElementById('calcCardioMinutes').value,document.getElementById('calcCardioType').value,'calculator')">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${Number(calorieState.cardioDays||0)===n?'selected':''}>${n}×</option>`).join('')}</select></div>
+       <div class="field"><label>Minuten / Einheit</label><select id="calcCardioMinutes" onchange="setCardioProfile(document.getElementById('calcCardioDays').value,this.value,document.getElementById('calcCardioType').value,'calculator')">${[20,30,45,60,75,90].map(n=>`<option value="${n}" ${Number(calorieState.cardioMinutes||45)===n?'selected':''}>${n} min</option>`).join('')}</select></div>
+       <div class="field"><label>Art</label><select id="calcCardioType" onchange="setCardioProfile(document.getElementById('calcCardioDays').value,document.getElementById('calcCardioMinutes').value,this.value,'calculator')">${['Laufen','Radfahren','Crosstrainer','Gehen','Sonstiges'].map(t=>`<option ${(calorieState.cardioType||'Laufen')===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      </div>
     </div>
-    <button class="module-action" onclick="calculateAndStay()">Berechnen & speichern</button>
+    <button class="module-action" onclick="calculateAndStay()">Neu berechnen</button>
    </div>
-   <div class="calculator-result" style="margin-top:12px">
-    <div class="result-box"><span class="muted">Grundumsatz</span><b>${bmr.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Geschätzter Tagesbedarf</span><b>${maintenance.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Orientierungswert</span><b>${target.toLocaleString('de-DE')} kcal</b></div>
-    <div class="result-box"><span class="muted">Protein</span><b>${Math.round(macro.protein)} g</b></div>
+   <div class="module-card calculator-breakdown" style="margin-top:12px">
+    <div class="calc-result-main"><div class="calc-result-label">Geschätzter Erhaltungsbedarf</div><div class="calc-result-number">${maintenance.toLocaleString('de-DE')} kcal</div><div class="calc-result-sub">Tagesmittel · Schätzung, keine exakte Messung</div></div>
+    <h3 style="margin-top:16px">Formel-Übersicht</h3>
+    <div class="calc-component"><div><b>RMR / Grundumsatz</b><small>Mifflin-St Jeor</small></div><b>${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component"><div><b>NEAT / Alltag</b><small>${activityLabels[calorieState.activity]||'Alltag'} · ohne Training</small></div><b>+${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component"><div><b>Schritte</b><small>zusätzlicher Verbrauch</small></div><b>+${calcParts.steps.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component"><div><b>TEA / Krafttraining</b><small>Wochenmittel</small></div><b>+${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component"><div><b>Cardio</b><small>Wochenmittel</small></div><b>+${calcParts.cardio.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component"><div><b>TEF / Thermischer Effekt</b><small>8 % der vorherigen Komponenten</small></div><b>+${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
+    <div class="calc-component" style="border-bottom:0;padding-top:14px"><div><b>Gesamt</b></div><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
+    <div class="mini-note">Die einzelnen Bausteine sind transparent getrennt. Für die persönliche Praxis ist die tatsächliche Entwicklung über mehrere Wochen aussagekräftiger als eine einzelne Formel.</div>
    </div>
-   <div class="module-card calculator-breakdown" style="margin-top:12px"><h3>Berechnung im Detail</h3>
-    <div class="calc-breakdown-grid">
-      <div><span>Grundumsatz</span><b>${calcParts.bmr.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Alltag</span><b>+${calcParts.activity.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Gym · Krafttraining</span><b>+${calcParts.training.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>${calorieState.cardioEnabled?'Cardio':'Cardio · nicht eingerechnet'}</span><b>${calorieState.cardioEnabled?'+':''}${calcParts.cardio.toLocaleString('de-DE')} kcal</b></div>
-      <div><span>Thermischer Effekt</span><b>+${calcParts.tef.toLocaleString('de-DE')} kcal</b></div>
-      <div class="calc-total"><span>Geschätzter Gesamtbedarf</span><b>${calcParts.total.toLocaleString('de-DE')} kcal</b></div>
-    </div>
-    <div class="mini-note">Schätzmodell statt exakter Messung. Alltag, Gym und Cardio werden getrennt berücksichtigt.</div>
-   </div>
-   <div class="module-card" style="margin-top:12px"><h3>Makro-Zielwerte</h3><div class="macro-bars">
+   <div class="module-card" style="margin-top:12px"><h3>Makro-Orientierung</h3><div class="macro-bars">
     <div class="macro-line"><span>Protein</span><div class="bar"><div class="fill" style="width:100%"></div></div><b>${Math.round(macro.protein)} g</b></div>
     <div class="macro-line"><span>Kohlenhydrate</span><div class="bar"><div class="fill blue" style="width:100%"></div></div><b>${Math.round(macro.carbs)} g</b></div>
     <div class="macro-line"><span>Fett</span><div class="bar"><div class="fill yellow" style="width:100%"></div></div><b>${Math.round(macro.fat)} g</b></div>
-   </div><div class="mini-note">Die Werte sind Schätzwerte und dienen als Orientierung für die Tagesplanung.</div></div>`;
+   </div><div class="mini-note">Orientierungswerte, keine medizinische oder individuelle Ernährungsanweisung.</div></div>`;
  } else if(type==='bodycheck'){
 
    const last=latestBodyCheck();
