@@ -2522,7 +2522,7 @@ function runReleaseGuard(){
  const ok=checks.filter(x=>x[1]).length,total=checks.length;
  return {ok,total,checks};
 }
-<style>
+<script>
 /* V143 RELEASE HARDENING */
 function appReleaseSnapshot(){
  const safe=(k,f)=>{try{return f()}catch{return null}};
@@ -2554,6 +2554,7 @@ function runReleaseAudit(){
  if(e)e.innerHTML=required.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+result.ok+'/'+result.total+' Release-Bereiche aktiv</b>';
  return result;
 }
+</script><style>
 /* V141 FINAL PRODUCT LAYER */
 .coach-pro-tools{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pro-tool{background:linear-gradient(145deg,#111d24,#0d151a);border:1px solid #2c3a42;border-radius:18px;padding:16px}
