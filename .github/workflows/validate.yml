@@ -50,14 +50,14 @@ jobs:
               "</script>": s.lower().count("</script>"),
               "<style>": s.lower().count("<style"),
               "</style>": s.lower().count("</style>"),
-              "V146": "V146" in s,
+              "V149": "V149" in s,
               "release audit": "runReleaseAudit" in s,
               "backup schema": "validateBackupPayload" in s,
           }
           assert checks["<html"] and checks["</html>"]
           assert checks["<script>"] == checks["</script>"]
           assert checks["<style>"] == checks["</style>"]
-          assert checks["V146"]
+          assert checks["V149"]
           assert checks["release audit"]
           assert checks["backup schema"]
           print(checks)
