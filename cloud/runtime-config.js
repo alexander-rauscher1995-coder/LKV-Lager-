@@ -4,10 +4,12 @@ window.FITNESS_CLOUD_CONFIG={
   apiBaseUrl:'/api'
 };
 
-/* Load the calculator experience layer without exposing server secrets. */
+/* Load production experience layers without exposing server secrets. */
 (function(){
-  var s=document.createElement('script');
-  s.src='./calculator-pro.js?v=162';
-  s.defer=true;
-  document.head.appendChild(s);
+  ['calculator-pro.js?v=162','training-pro.js?v=1'].forEach(function(src){
+    var s=document.createElement('script');
+    s.src='./'+src;
+    s.defer=true;
+    document.head.appendChild(s);
+  });
 })();
