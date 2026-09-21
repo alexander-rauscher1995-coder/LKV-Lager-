@@ -60,6 +60,30 @@
 
   function enhance(){
     const sheet=document.getElementById('moduleSheet');
+    // Guided calculator flow: Person → Aktivität → Ziel → Ergebnis
+    if(!sheet.querySelector('.calculator-pro-flow')){
+      const flow=document.createElement('div');
+      flow.className='calculator-pro-flow';
+      flow.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 0 12px;padding:8px;border:1px solid #26343c;border-radius:14px;background:#0b1419';
+      flow.innerHTML=[
+        ['1','Person','Körperdaten'],
+        ['2','Aktivität','Alltag + Training'],
+        ['3','Ziel','Zielrichtung'],
+        ['4','Ergebnis','Übersicht']
+      ].map(([n,t,d])=>'<button type="button" data-flow="'+n+'" style="border:1px solid #26343c;background:#101a20;color:#dce5e8;border-radius:10px;padding:9px 6px;text-align:left;cursor:pointer"><span style="display:block;font-size:9px;color:#82919a">SCHRITT '+n+'</span><b style="display:block;font-size:12px;margin-top:2px">'+t+'</b><small style="display:block;color:#82919a;font-size:9px;margin-top:2px">'+d+'</small></button>').join('');
+      const main=sheet.querySelector('.calculator-main');
+      if(main) main.before(flow);
+      const steps=[...sheet.querySelectorAll('.calculator-main .calc-step')];
+      flow.querySelectorAll('[data-flow]').forEach(btn=>btn.addEventListener('click',()=>{
+        const n=Number(btn.dataset.flow);
+        if(n<=steps.length){
+          steps[n-1]?.scrollIntoView({behavior:'smooth',block:'start'});
+        }else if(n===4){
+          document.querySelector('.calculator-pro-hero')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      }));
+    }
+
     if(!sheet || !sheet.classList.contains('module-calculator')) return;
     if(sheet.querySelector('.calculator-pro-hero')) return;
 
