@@ -466,6 +466,7 @@ body.coach-way-active{padding-left:0!important}
 
 /* V135 FINAL POLISH */
 .app-health{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.app-health-item{padding:11px;border:1px solid #29363e;border-radius:12px;background:#0d151a}.app-health-item span{display:block;color:#7f8d96;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.app-health-item b{display:block;margin-top:5px;font-size:16px}@media(max-width:700px){.app-health{grid-template-columns:repeat(2,1fr)}}
+ .native-apple-status{position:fixed;right:18px;bottom:18px;z-index:9999;max-width:360px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 12px 30px rgba(0,0,0,.25);font-size:13px}.native-apple-status b{display:block;margin-bottom:4px}.native-apple-status span{color:var(--muted)}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -915,7 +916,7 @@ body.calculator-fullscreen .module-sheet{width:min(1180px,100%);height:calc(100d
   </nav>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div><div id="nativeAppleStatus" class="native-apple-status" aria-live="polite" style="display:none"></div>
 <div class="modal-back" id="modal" onclick="if(event.target===this)closeSheet()">
   <div class="module-sheet" id="moduleSheet"></div>
 </div>
@@ -1614,7 +1615,7 @@ function openModule(type){
 function accountTab(tab,btn){document.querySelectorAll('.account-tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const login=document.getElementById('accountLoginPane'),create=document.getElementById('accountCreatePane');if(login)login.style.display=tab==='login'?'block':'none';if(create)create.style.display=tab==='create'?'block':'none';}
 function exportData(){
  const payload={
-   version:'V145',
+   version:'V146',
    schemaVersion:2,
    exportedAt:new Date().toISOString(),
    sessions:saved,
@@ -2526,11 +2527,11 @@ function runReleaseGuard(){
  return {ok,total,checks};
 }
 <script>
-/* V145 RELEASE HARDENING */
+/* V146 RELEASE HARDENING */
 function appReleaseSnapshot(){
  const safe=(k,f)=>{try{return f()}catch{return null}};
  return {
-  version:'V145',
+  version:'V146',
   date:new Date().toISOString(),
   coach:safe('coach',()=>localStorage.getItem('fitness_coach_setup')!==null),
   customPlans:safe('plans',()=>customPlans().length),
@@ -2552,7 +2553,7 @@ function runReleaseAudit(){
   ['Eindeutige IDs',(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return a.length===new Set(a).size})()],
   ['Backup Schema',typeof validateBackupPayload==='function'&&typeof normalizeBackupPayload==='function']
  ];
- const result={version:'V145',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
+ const result={version:'V146',ok:required.filter(x=>x[1]).length,total:required.length,checks:required,snapshot:appReleaseSnapshot()};
  window.__releaseAudit=result;
  const e=document.getElementById('systemCheckResult');
  if(e)e.innerHTML=required.map(x=>(x[1]?'✓ ':'○ ')+x[0]).join(' · ')+'<br><b>'+result.ok+'/'+result.total+' Release-Bereiche aktiv</b>';
