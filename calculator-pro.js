@@ -148,7 +148,22 @@
 
 
 
-    if(!sheet.querySelector('.calculator-pro-reset')){
+
+    if(!sheet.querySelector('.calculator-pro-last')){
+      const last=document.createElement('div');
+      last.className='calculator-pro-last';
+      last.style.cssText='margin-top:12px;padding:13px 14px;border-radius:14px;background:#0d171c;border:1px solid #26343c';
+      const key='fitness_calculator_last_v1';
+      const read=()=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}};
+      const write=()=>{try{const parts=typeof calcBreakdown==='function'?calcBreakdown():{};const target=typeof calcTarget==='function'?n(calcTarget()):Math.round(n(parts.total));localStorage.setItem(key,JSON.stringify({target,updatedAt:new Date().toISOString()}));}catch(e){}};
+      const render=()=>{const v=read();last.innerHTML=v?'<div style="font-size:10px;color:#82919a;text-transform:uppercase;letter-spacing:.08em">Letzte Berechnung</div><div style="font-size:18px;font-weight:850;margin-top:4px">'+Math.round(n(v.target)).toLocaleString('de-DE')+' kcal / Tag</div><div style="font-size:11px;color:#82919a;margin-top:3px">Gespeichert: '+new Date(v.updatedAt).toLocaleString('de-DE')+'</div>':'<div style="font-size:11px;color:#82919a">Noch keine vorherige Berechnung gespeichert.</div>';};
+      const oldCalc=typeof calculateAndStay==='function'?calculateAndStay:null;
+      if(oldCalc && !window.__fitnessCalcSaveWrapped){window.__fitnessCalcSaveWrapped=true;window.calculateAndStay=function(){const r=oldCalc.apply(this,arguments);setTimeout(()=>{write();render()},250);return r;};}
+      render();
+      const tools=document.querySelector('.calculator-pro-tools');
+      if(tools) tools.after(last); else main.before(last);
+    }
+\n    if(!sheet.querySelector('.calculator-pro-reset')){
       const bar=document.createElement('div');
       bar.className='calculator-pro-reset';
       bar.style.cssText='display:flex;justify-content:flex-end;gap:8px;margin-top:10px';
