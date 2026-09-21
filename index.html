@@ -868,7 +868,8 @@ function lastValues(exerciseName){
 let trainingStarted=false;
 let trainingTimer=null;
 let trainingSeconds=0;
-\nfunction openExerciseGuide(encoded){const name=decodeURIComponent(encoded);const q=encodeURIComponent(name+' richtige Ausführung Technik');window.open('https://www.youtube.com/results?search_query='+q,'_blank','noopener');}\nfunction renderPlan(){
+function openExerciseGuide(encoded){const name=decodeURIComponent(encoded);const q=encodeURIComponent(name+' richtige Ausführung Technik');window.open('https://www.youtube.com/results?search_query='+q,'_blank','noopener');}
+function renderPlan(){
  const list=document.getElementById('exerciseList');
  list.innerHTML=plans[currentPlan].map((e,idx)=>{
    const prev=lastValues(e[0]);
