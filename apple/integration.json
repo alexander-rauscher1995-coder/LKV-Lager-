@@ -1,0 +1,8 @@
+{
+  "protocolVersion": 1,
+  "product": "Fitness Coach Pro",
+  "web": {"pwa": true, "cloudSync": "backend-required"},
+  "ios": {"healthKit": true, "watchConnectivity": true},
+  "watchOS": {"healthKitWorkoutSession": true, "watchConnectivity": true},
+  "prerequisite": "Xcode on macOS is required to build and sign native iOS/watchOS targets."
+}
