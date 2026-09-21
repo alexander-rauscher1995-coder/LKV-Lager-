@@ -437,6 +437,9 @@ body.coach-way-active{padding-left:0!important}
 .coach-review-chip{padding:7px 10px;border-radius:999px;background:#151f25;border:1px solid #29363e;color:#b8c4ca;font-size:12px}
 .coach-review-chip strong{color:#63f59a}
 @media(max-width:600px){.coach-review-grid{grid-template-columns:1fr}}
+
+/* V126 COACH INSIGHT TIMELINE */
+.coach-insight-list{display:grid;gap:9px;margin-top:12px}.coach-insight-row{display:grid;grid-template-columns:76px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid #27343b;border-radius:12px;background:#0d151a}.coach-insight-row small{color:#7f8d96}.coach-insight-row b{font-size:13px}.coach-insight-row strong{font-size:12px;color:#63f59a}.coach-insight-row.muted strong{color:#aebbc2}@media(max-width:600px){.coach-insight-row{grid-template-columns:60px 1fr}.coach-insight-row strong{grid-column:2}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1768,6 +1771,11 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
 <div class="coach-review-card">
+  <div class="section-kicker">COACH TIMELINE</div>
+  <h3 style="margin:0">Letzte Aktivität</h3>
+  <div class="coach-insight-list" id="cwInsightList"></div>
+</div>
+<div class="coach-review-card">
   <div class="section-kicker">WOCHENREVIEW</div>
   <h3 style="margin:0">Dein Coach-Check</h3>
   <div class="coach-review-grid">
@@ -2025,7 +2033,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachRenderInsightTimeline();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2187,6 +2195,17 @@ function coachWeeklyReview(){
  const sesEl=document.getElementById('cwReviewSessions'),daysEl=document.getElementById('cwReviewDays'),ciEl=document.getElementById('cwReviewCheckins');
  if(goodEl)goodEl.textContent=good;if(focusEl)focusEl.textContent=focus;
  if(sesEl)sesEl.textContent=sessionWeek.length;if(daysEl)daysEl.textContent=completed;if(ciEl)ciEl.textContent=checkins.length;
+}
+
+/* V126 COACH INSIGHT TIMELINE ENGINE */
+function coachRenderInsightTimeline(){
+ const host=document.getElementById('cwInsightList'); if(!host)return;
+ const state=coachWayLoad(),sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const items=[];
+ sessions.slice(-4).reverse().forEach(x=>{const d=new Date(x.date);items.push({date:Number.isNaN(d.getTime())?'–':d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),title:'Training · '+(x.plan||'Plan'),meta:(x.completed||0)+' / '+(x.total||0)+' dokumentiert',status:(x.total&&x.completed/x.total>=.9)?'sauber':'teilweise'});});
+ Object.entries(state.checkins||{}).slice(-3).reverse().forEach(([date,val])=>{items.push({date:new Date(date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),title:'Check-in',meta:val==='easy'?'Leicht':val==='hard'?'Anspruchsvoll':'Passend',status:'gespeichert'});});
+ items.sort((a,b)=>a.date.localeCompare(b.date)).reverse();
+ host.innerHTML=items.slice(0,6).map(x=>'<div class="coach-insight-row '+(x.status==='teilweise'?'muted':'')+'"><small>'+x.date+'</small><b>'+x.title+'<br><span class="muted">'+x.meta+'</span></b><strong>'+x.status+'</strong></div>').join('')||'<div class="empty">Noch keine Aktivitäten gespeichert.</div>';
 }
 </body>
 </html>
