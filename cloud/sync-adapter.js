@@ -22,7 +22,7 @@
   }
   async function syncSnapshot(snapshot){
     const payload={schemaVersion:1,deviceId:deviceId(),updatedAt:new Date().toISOString(),data:snapshot};
-    if(!config().enabled){const q=queue();q.push({type:'snapshot',payload,queuedAt:Date.now()});saveQueue(q);return {status:'queued-local',cloudEnabled:false}}
+    if(!config().enabled){return {status:'disabled',cloudEnabled:false,queued:false}}
     return request('/v1/sync',{method:'PUT',body:JSON.stringify(payload)});
   }
   async function pullSnapshot(){if(!config().enabled)return {status:'disabled',cloudEnabled:false,snapshot:null};return request('/v1/sync')}
