@@ -33,6 +33,7 @@ jobs:
           test -f api/health.js
           test -f api/README.md
           test -f api/_lib/sync.js
+          test -f api/_lib/persistence.js
           test -f api/v1/sync.js
           test -f api/v1/sync/changes.js
           test -f apple/integration.json
@@ -88,6 +89,7 @@ jobs:
           node --check sw.js
           node --check api/health.js
           node --check api/_lib/sync.js
+          node --check api/_lib/persistence.js
           node --check api/v1/sync.js
           node --check api/v1/sync/changes.js
 
@@ -114,4 +116,7 @@ jobs:
           grep -q "FITNESS_AUTH_ISSUER" api/_lib/sync.js
           grep -q "FITNESS_AUTH_AUDIENCE" api/_lib/sync.js
           grep -q "FITNESS_JWT_PUBLIC_KEY" api/_lib/sync.js
+          grep -q "FITNESS_DATABASE_URL" api/_lib/persistence.js
+          grep -q "fitness_snapshots" api/_lib/persistence.js
+          grep -q "revision-conflict" api/_lib/persistence.js
           grep -q "payload.sub" api/_lib/sync.js
