@@ -426,6 +426,17 @@ body.coach-way-active{padding-left:0!important}
 \n/* V120 EXERCISE MEDIA */\n.exercise-media{display:grid;grid-template-columns:170px 1fr;gap:14px;align-items:center;margin-top:14px;padding:12px;background:#0d151a;border:1px solid #29363e;border-radius:15px}.exercise-media img{width:170px;height:110px;object-fit:cover;border-radius:11px;background:#172128}.exercise-media-info{display:flex;flex-direction:column;gap:8px}.exercise-media-title{font-weight:800}.exercise-media-actions{display:flex;gap:8px;flex-wrap:wrap}.exercise-media-btn{border:1px solid #344049;background:#172128;border-radius:10px;padding:8px 11px;cursor:pointer}.exercise-media-btn:hover{border-color:var(--green)}@media(max-width:600px){.exercise-media{grid-template-columns:1fr}.exercise-media img{width:100%;height:150px}}\n
 .exercise-detail-hero{display:grid;grid-template-columns:260px 1fr;gap:20px;background:#0d151a;border:1px solid #29363e;border-radius:18px;padding:14px}.exercise-detail-hero img{width:100%;height:190px;object-fit:cover;border-radius:13px}.exercise-detail-label{font-size:11px;letter-spacing:.12em;color:#7f9099;font-weight:800}.exercise-detail-muscles{font-size:20px;font-weight:800;margin-top:6px}.exercise-cues{display:grid;gap:8px;margin-top:9px}.exercise-cues div{display:flex;gap:10px;align-items:center;padding:9px 10px;background:#172128;border:1px solid #2d3941;border-radius:10px}.exercise-cues b{color:var(--green);font-size:12px}.exercise-detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.exercise-detail-actions button{flex:1;min-width:190px}.exercise-detail-actions .secondary{color:#fff}
 @media(max-width:650px){.exercise-detail-hero{grid-template-columns:1fr}.exercise-detail-hero img{height:180px}.exercise-detail-muscles{font-size:18px}}
+
+/* V125 COACH WEEKLY REVIEW */
+.coach-review-card{margin-top:12px;padding:16px;border:1px solid #29363e;border-radius:16px;background:linear-gradient(145deg,#101a20,#0b1318)}
+.coach-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.coach-review-item{padding:12px;border:1px solid #27343b;border-radius:12px;background:#0d151a}
+.coach-review-item span{display:block;color:#7f8d96;font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;margin-bottom:5px}
+.coach-review-item b{font-size:14px;line-height:1.35}
+.coach-review-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.coach-review-chip{padding:7px 10px;border-radius:999px;background:#151f25;border:1px solid #29363e;color:#b8c4ca;font-size:12px}
+.coach-review-chip strong{color:#63f59a}
+@media(max-width:600px){.coach-review-grid{grid-template-columns:1fr}}
 </style></style></style>
 <style>.goal-segmented{display:grid!important;grid-template-columns:repeat(2,1fr);gap:8px!important}.goal-segmented button{min-height:44px}@media(max-width:600px){.goal-segmented{grid-template-columns:1fr!important}}</style><style>
 /* V100 PREMIUM MODULE SYSTEM */
@@ -1756,6 +1767,19 @@ document.addEventListener('input',e=>{
   <div class="coach-adaptive-note" id="cwAdaptiveNote">Dein nächster Schritt basiert auf deinen aktuellen Aktivitäten.</div>
   <div class="coach-adaptive-stat" id="cwAdaptiveStat">0 / 0 geplante Tage</div>
 </div>
+<div class="coach-review-card">
+  <div class="section-kicker">WOCHENREVIEW</div>
+  <h3 style="margin:0">Dein Coach-Check</h3>
+  <div class="coach-review-grid">
+    <div class="coach-review-item"><span>Was lief</span><b id="cwReviewGood">–</b></div>
+    <div class="coach-review-item"><span>Nächster Fokus</span><b id="cwReviewFocus">–</b></div>
+  </div>
+  <div class="coach-review-stats">
+    <div class="coach-review-chip">Einheiten <strong id="cwReviewSessions">0</strong></div>
+    <div class="coach-review-chip">Tage <strong id="cwReviewDays">0</strong></div>
+    <div class="coach-review-chip">Check-ins <strong id="cwReviewCheckins">0</strong></div>
+  </div>
+</div>
 <div class="coach-today">
           <div class="section-kicker">HEUTE IM DETAIL</div>
           <div class="coach-way-card" style="padding:15px;background:#0d151a">
@@ -2001,7 +2025,7 @@ function openCoachPlan(){
  document.body.classList.add('module-open','coach-way-active');
  cw.classList.add('show');
  cw.style.cssText='display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483000!important;overflow:auto!important;';
- coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachSetMode('overview');
+ coachRenderWeek();coachRenderAdaptive();coachRenderNextAdaptive();coachWeeklyReview();coachSetMode('overview');
  const first=cw.querySelector('.coach-side-btn');if(first)first.classList.add('active');
  const s=JSON.parse(localStorage.getItem('fitness_coach_setup')||'null')||{};
  const g=document.getElementById('cwSideGoal');if(g)g.textContent=coachGoalLabel(s.goal);
@@ -2133,5 +2157,36 @@ function coachSessionMessage(){
  return 'Letzte Einheit nur teilweise dokumentiert. Fokus: ruhig starten und die Einheit sauber festhalten.';
 }
 </script>
+
+/* V125 COACH WEEKLY REVIEW ENGINE */
+function coachWeeklyReview(){
+ const state=coachWayLoad();
+ const sessions=JSON.parse(localStorage.getItem('fitness_v85_sessions')||'[]')||[];
+ const week=coachBuildWeek();
+ const now=new Date(); now.setHours(0,0,0,0);
+ const start=new Date(now); start.setDate(start.getDate()-6);
+ const inRange=(iso)=>{if(!iso)return false;const d=new Date(iso);if(Number.isNaN(d.getTime()))return false;d.setHours(0,0,0,0);return d>=start&&d<=now;};
+ const sessionWeek=sessions.filter(x=>inRange(x.date));
+ const doneDays=Object.keys(state.done||{}).filter(inRange).length;
+ const checkins=Object.entries(state.checkins||{}).filter(([d])=>inRange(d));
+ const planned=week.filter(x=>x.type!=='Recovery').length;
+ const completed=Math.min(doneDays,7);
+ let good='Noch keine Woche mit genügend Daten.';
+ let focus='Erst einige Einheiten und Check-ins sammeln.';
+ if(sessionWeek.length||completed||checkins.length){
+   if(completed>=Math.max(1,Math.ceil(planned*.7))) good='Die geplanten Tage werden bereits regelmäßig dokumentiert.';
+   else if(sessionWeek.length>=2) good='Mehrere Einheiten sind dokumentiert – die Routine wird sichtbar.';
+   else if(checkins.length) good='Deine Check-ins geben dem Coach erste Rückmeldungen.';
+   else good='Die ersten Aktivitäten sind dokumentiert.';
+   const hard=checkins.some(x=>x[1]==='hard');
+   if(hard) focus='Regeneration und saubere Technik priorisieren.';
+   else if(completed>=Math.max(1,Math.ceil(planned*.7))) focus='Konstanz halten und Qualität der Einheiten beibehalten.';
+   else focus='Die wichtigsten geplanten Einheiten zuerst vollständig dokumentieren.';
+ }
+ const goodEl=document.getElementById('cwReviewGood'),focusEl=document.getElementById('cwReviewFocus');
+ const sesEl=document.getElementById('cwReviewSessions'),daysEl=document.getElementById('cwReviewDays'),ciEl=document.getElementById('cwReviewCheckins');
+ if(goodEl)goodEl.textContent=good;if(focusEl)focusEl.textContent=focus;
+ if(sesEl)sesEl.textContent=sessionWeek.length;if(daysEl)daysEl.textContent=completed;if(ciEl)ciEl.textContent=checkins.length;
+}
 </body>
 </html>
