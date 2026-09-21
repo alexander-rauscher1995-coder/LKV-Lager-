@@ -1,4 +1,4 @@
-/* Fitness Coach Pro — Progress PRO layer */
+/* Fitness Coach Pro — Progress PRO layer v2 */
 (function(){
 'use strict';
 const KEY='fitness_progress_pro_v1';
@@ -11,10 +11,10 @@ function stats(){
  const s=sessions(), d=data(), names=Object.keys(d);
  const weights=[];
  names.forEach(n=>(Array.isArray(d[n])?d[n]:[]).forEach(v=>{const w=Number(String(v?.weight??'').replace(',','.'));if(Number.isFinite(w)&&w>0)weights.push({name:n,w,date:dateOf(v)})}));
- const dates=[...new Set(s.map(dateOf).filter(Boolean))].sort().slice(-12);
+ const dates=[...new Set(s.map(dateOf).filter(Boolean))].sort().slice(-28);
  const weekly=dates.map(dt=>({dt,count:s.filter(x=>dateOf(x)===dt).length}));
  const best=weights.sort((a,b)=>b.w-a.w)[0];
- return {s,d,weights,dates,weekly,best,names};
+ const now=new Date(); now.setHours(0,0,0,0); const cutoff=new Date(now); cutoff.setDate(cutoff.getDate()-6); const prevCutoff=new Date(now); prevCutoff.setDate(prevCutoff.getDate()-13); const current7=s.filter(v=>{const dt=new Date(dateOf(v));return dt>=cutoff&&dt<=now}).length; const previous7=s.filter(v=>{const dt=new Date(dateOf(v));return dt>=prevCutoff&&dt<cutoff}).length; const delta=current7-previous7; const prs=names.reduce((n,name)=>{const vals=Array.isArray(d[name])?d[name]:[]; const nums=vals.map(v=>Number(String(v?.weight??'').replace(',','.'))).filter(Number.isFinite); return n+(nums.length>1&&nums.at(-1)>=Math.max(...nums.slice(0,-1))?1:0)},0); return {s,d,weights,dates,weekly,best,names,current7,previous7,delta,prs};
 }
 function inject(){
  if(document.getElementById('progressPro'))return;
@@ -30,7 +30,7 @@ function render(){
  const recent=x.s.slice().sort((a,b)=>dateOf(b).localeCompare(dateOf(a))).slice(0,6);
  const bars=x.weekly.length?x.weekly.map(v=>'<div class="pp-bar-wrap"><span>'+esc(v.dt.slice(5))+'</span><i style="height:'+Math.max(8,Math.min(100,v.count*28))+'%"></i><b>'+v.count+'</b></div>').join(''):'<div class="pp-empty">Noch keine Trainingshistorie gespeichert.</div>';
  const top=Object.entries(x.d).map(([name,vals])=>{const a=Array.isArray(vals)?vals:[];const ws=a.map(v=>Number(String(v?.weight??'').replace(',','.'))).filter(Number.isFinite);return {name,max:ws.length?Math.max(...ws):0,last:ws.at(-1)??0,n:ws.length}}).filter(v=>v.max>0).sort((a,b)=>b.max-a.max).slice(0,8);
- el.innerHTML='<div class="pp-kpis"><div><small>Einheiten</small><b>'+count+'</b></div><div><small>Übungen</small><b>'+exercises+'</b></div><div><small>Top-Gewicht</small><b>'+ (best?best.toLocaleString('de-DE')+' kg':'–')+'</b></div><div><small>Dokumentation</small><b>'+x.weights.length+'</b></div></div>'+
+ el.innerHTML='<div class="pp-kpis"><div><small>Einheiten</small><b>'+count+'</b></div><div><small>Übungen</small><b>'+exercises+'</b></div><div><small>Top-Gewicht</small><b>'+ (best?best.toLocaleString('de-DE')+' kg':'–')+'</b></div><div><small>Dokumentation</small><b>'+x.weights.length+'</b></div><div><small>7-Tage-Trend</small><b>'+ (x.delta>0?'+'+x.delta:x.delta)+'</b></div><div><small>Neue Bestwerte</small><b>'+x.prs+'</b></div></div>'+
  '<div class="pp-grid"><section class="pp-card"><div class="pp-title">Trainingsaktivität</div><div class="pp-chart">'+bars+'</div><small>Gespeicherte Einheiten pro Trainingstag</small></section>'+
  '<section class="pp-card"><div class="pp-title">Übungsentwicklung</div><div class="pp-exercises">'+(top.length?top.map(v=>'<div class="pp-ex"><span>'+esc(v.name)+'</span><b>'+v.max.toLocaleString('de-DE')+' kg</b><small>'+v.n+' Werte</small></div>').join(''):'<div class="pp-empty">Noch keine Gewichte dokumentiert.</div>')+'</div></section></div>'+
  '<section class="pp-card"><div class="pp-title">Letzte Einheiten</div><div class="pp-history">'+(recent.length?recent.map(v=>'<div><span>'+esc(dateOf(v)||'Ohne Datum')+'</span><b>'+esc(v.name||v.plan||v.title||'Training')+'</b></div>').join(''):'<div class="pp-empty">Noch keine Einheiten gespeichert.</div>')+'</div></section>';
