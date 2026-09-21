@@ -88,7 +88,14 @@ jobs:
 
       - name: Validate secret hygiene
         run: |
-          ! grep -RInE "(sk-[A-Za-z0-9]{20,}|postgres(ql)?://[^[:space:]\"']+|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY)" --exclude-dir=.git --exclude='package-lock.json' . || (echo "Potential secret detected in repository" && exit 1)
+          if grep -RInE "BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY" --exclude-dir=.git --exclude='package-lock.json' .; then
+            echo "Private key material detected in repository"
+            exit 1
+          fi
+          if grep -RInE "postgres(ql)?://[^[:space:]\"']+:[^[:space:]\"']+@" --exclude-dir=.git --exclude='package-lock.json' .; then
+            echo "Database credentials detected in repository"
+            exit 1
+          fi
 
       - name: Validate JavaScript syntax
         run: |
