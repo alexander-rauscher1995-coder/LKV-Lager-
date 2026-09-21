@@ -1,0 +1,63 @@
+name: Validate Fitness Coach
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files
+        run: |
+          test -f index.html
+          test -f manifest.json
+          test -f sw.js
+          test -f icon.svg
+          test -f ios/FitnessCoachApp.swift
+          test -f ios/HealthKitManager.swift
+          test -f ios/WatchConnectivityManager.swift
+          test -f watchOS/FitnessCoachWatchApp.swift
+          test -f watchOS/FitnessCoachWorkoutManager.swift
+          test -f watchOS/FitnessCoachWatchConnectivity.swift
+
+      - name: Validate HTML structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s = Path("index.html").read_text(encoding="utf-8")
+          checks = {
+              "<html": "<html" in s.lower(),
+              "</html>": "</html>" in s.lower(),
+              "<script>": s.lower().count("<script"),
+              "</script>": s.lower().count("</script>"),
+              "<style>": s.lower().count("<style"),
+              "</style>": s.lower().count("</style>"),
+              "V146": "V146" in s,
+              "release audit": "runReleaseAudit" in s,
+              "backup schema": "validateBackupPayload" in s,
+          }
+          assert checks["<html"] and checks["</html>"]
+          assert checks["<script>"] == checks["</script>"]
+          assert checks["<style>"] == checks["</style>"]
+          assert checks["V146"]
+          assert checks["release audit"]
+          assert checks["backup schema"]
+          print(checks)
+          PY
+
+      - name: Validate native integration markers
+        run: |
+          grep -q "HealthKit" ios/HealthKitManager.swift
+          grep -q "WCSession" ios/WatchConnectivityManager.swift
+          grep -q "HKWorkoutSession" watchOS/FitnessCoachWorkoutManager.swift
+          grep -q "incomingCommand" watchOS/FitnessCoachWatchConnectivity.swift
