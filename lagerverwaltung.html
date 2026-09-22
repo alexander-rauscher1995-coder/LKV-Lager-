@@ -54,4 +54,24 @@ function lkvSettings(){openLkvx("Einstellungen",'<div class="lkvxgrid"><div clas
 function exportLkv(){let blob=new Blob([JSON.stringify({articles:data,state:lkvState},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="lkv-lager-export.json";a.click();URL.revokeObjectURL(a.href)}
 function wireLkvNav(){document.querySelectorAll("aside .nav button").forEach(b=>{let t=b.textContent.trim();if(t==="Lagerbewegungen")b.onclick=lkvMovement;else if(t==="Bestellung Material")b.onclick=lkvOrders;else if(t==="Standorte")b.onclick=lkvLocations;else if(t==="Protokoll")b.onclick=lkvLog;else if(t==="Werkstatt (LKV)")b.onclick=lkvWorkshop;else if(t==="Inventur")b.onclick=lkvInventory;else if(t==="Einstellungen")b.onclick=lkvSettings;else if(t==="Artikel")b.onclick=()=>closeLkvx();})}
 wireLkvNav();
+const LKV_USERS_KEY="lkv_users_v1";
+let lkvUsers=JSON.parse(localStorage.getItem(LKV_USERS_KEY)||"null")||[
+ {name:"Max Mustermann",user:"max.mustermann",role:"Administrator",status:"Aktiv"},
+ {name:"Werkstatt Benutzer",user:"werkstatt",role:"Werkstatt",status:"Aktiv"}
+];
+function saveUsers(){localStorage.setItem(LKV_USERS_KEY,JSON.stringify(lkvUsers))}
+function lkvUsersView(){
+ let rows=lkvUsers.map((u,i)=>"<tr><td><b>"+u.name+"</b><br><span class='lkvxmuted'>"+u.user+"</span></td><td>"+u.role+"</td><td><span class='status ok'>"+u.status+"</span></td><td><button class='btn btn-light' onclick='editLkvUser("+i+")'>Bearbeiten</button> <button class='btn btn-orange' onclick='deleteLkvUser("+i+")'>Löschen</button></td></tr>").join("");
+ openLkvx("Benutzerverwaltung",'<div class="lkvxactions"><button class="btn btn-blue" onclick="openLkvx(\\'Neuer Benutzer\\',userForm())">＋ Benutzer anlegen</button></div><table class="lkvxlist"><thead><tr><th>Benutzer</th><th>Rolle</th><th>Status</th><th>Aktion</th></tr></thead><tbody>'+rows+"</tbody></table>");
+}
+function userForm(i){
+ let u=i!=null?lkvUsers[i]:{name:"",user:"",role:"Lager",status:"Aktiv"};
+ return '<div class="lkvxgrid"><div><label class="lkvxmuted">Name</label><input class="lkvxinput" id="uName" value="'+u.name+'"></div><div><label class="lkvxmuted">Benutzername</label><input class="lkvxinput" id="uUser" value="'+u.user+'"></div><div><label class="lkvxmuted">Rolle</label><select class="lkvxinput" id="uRole"><option '+(u.role==="Administrator"?"selected":"")+'>Administrator</option><option '+(u.role==="Lager"?"selected":"")+'>Lager</option><option '+(u.role==="Werkstatt"?"selected":"")+'>Werkstatt</option><option '+(u.role==="Lesen"?"selected":"")+'>Lesen</option></select></div></div><button class="btn btn-blue" style="margin-top:12px" onclick="saveUser('+(i==null?-1:i)+')">Speichern</button>';
+}
+function saveUser(i){let n=document.getElementById("uName").value.trim(),un=document.getElementById("uUser").value.trim(),role=document.getElementById("uRole").value;if(!n||!un){alert("Name und Benutzername eingeben.");return}let u={name:n,user:un,role,status:"Aktiv"};if(i<0)lkvUsers.push(u);else lkvUsers[i]=u;saveUsers();lkvUsersView()}
+function editLkvUser(i){openLkvx("Benutzer bearbeiten",userForm(i))}
+function deleteLkvUser(i){if(lkvUsers.length<=1){alert("Mindestens ein Benutzer muss vorhanden bleiben.");return}if(confirm("Benutzer wirklich löschen?")){lkvUsers.splice(i,1);saveUsers();lkvUsersView()}}
+function wireUserNav(){document.querySelectorAll("aside .nav button").forEach(b=>{if(b.textContent.trim().toLowerCase().includes("benutzer"))b.onclick=lkvUsersView})}
+wireUserNav();
+
 </script></body></html>
