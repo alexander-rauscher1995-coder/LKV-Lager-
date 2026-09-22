@@ -6,7 +6,6 @@
 <title>LKV Lagerverwaltung</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#17324b}
-.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#062f57,#0878e8)}
 .card{width:min(410px,100%);background:#fff;border-radius:18px;padding:32px;box-shadow:0 20px 60px #001b3340}
 .logo{font-size:42px;font-weight:800;color:#07345d}.sub{color:#718298;margin:5px 0 28px}
 label{display:block;font-weight:700;font-size:13px;margin:15px 0 7px}input,select{width:100%;padding:13px;border:1px solid #ccd8e4;border-radius:9px;font-size:16px}
@@ -58,16 +57,6 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;bor
 import {createClient} from "https://esm.sh/@neondatabase/neon-js@latest";
 const neon=createClient({auth:{url:"https://ep-square-glade-b1udz8df.neonauth.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/auth"},dataApi:{url:"https://ep-square-glade-b1udz8df.apirest.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/rest/v1"}});
 const $=id=>document.getElementById(id); let profile=null,products=[],cart={}; const locations=[["Ansbach",1],["Wertingen",2],["Pfaffenhofen",3],["Passau / Regen",4],["Traunstein",5],["Weilheim",6],["Miesbach",7],["Landshut",8]];
-async function login(){
-  try{
-    const email=$("email").value.trim(),password=$("password").value;
-    if(!email||!password) throw Error("E-Mail-Adresse und Passwort eingeben.");
-    const r=await neon.auth.signIn.email({email,password});
-    if(r?.error) throw r.error;
-    location.reload();
-  }catch(e){$("msg").textContent=e.message||"Anmeldung fehlgeschlagen."}
-}
-window.login=login;
 async function boot(){
  try{
   const s=await neon.auth.getSession();
@@ -116,7 +105,7 @@ window.addToCart=id=>{cart[id]=(cart[id]||0)+1;renderCart()};
 window.removeFromCart=id=>{if(cart[id]>1)cart[id]--;else delete cart[id];renderCart()};
 function renderCart(){const ids=Object.keys(cart);$("cartRows").innerHTML=ids.length?ids.map(id=>{const p=products.find(x=>x.id==id);return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #d9e2ec"><span><b>${p.name}</b><br><span class="muted">${p.article_no}</span></span><span><button class="ghost" onclick="removeFromCart(${id})">−</button> <b>${cart[id]}</b> <button class="ghost" onclick="addToCart(${id})">+</button></span></div>`}).join(""):`<div class="muted">Noch keine Artikel ausgewählt.</div>`}
 window.sendOrder=async()=>{try{const ids=Object.keys(cart);if(!ids.length)throw Error("Bitte mindestens einen Artikel auswählen.");const items=ids.map(id=>({product_id:Number(id),quantity:cart[id]}));const r=await neon.rpc("create_order",{p_location_id:profile.location_id,p_priority:$("priority").value,p_note:$("note").value,p_items:items});if(r.error)throw r.error;alert("Bestellung wurde an das Zentrallager München gesendet.");cart={};$("note").value="";closeOrder();await load();show("dashboard")}catch(e){alert(e.message||"Bestellung konnte nicht gesendet werden.")}};
-window.logout=async()=>{await neon.auth.signOut();location.reload()};
+
 boot();
 </script>
 </body></html>
