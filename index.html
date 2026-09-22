@@ -197,7 +197,15 @@ button,input{font:inherit}button{cursor:pointer}
 <div class="module-card"><h3>Genauigkeit</h3><p>Ohne Körperfettanteil wird Mifflin-St Jeor verwendet. Mit Körperfettanteil nutzt FITLIFE Katch-McArdle und berechnet die fettfreie Masse. Beide Verfahren bleiben Schätzungen.</p></div>
 </div></div></section>
 
-<section id="goals" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">PERSÖNLICHER BEREICH</div><h1>Ziele</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid"><div class="module-card"><h3>Training &amp; Leistung</h3><p>Setze konkrete Trainings- und Gewohnheitsziele.</p><button onclick="toast('Ziel angelegt')">Ziel hinzufügen</button></div><div class="module-card"><h3>Wohlbefinden</h3><p>Schlaf, Erholung und Alltag als Teil deines Gesamtbilds.</p><button onclick="toast('Wohlbefinden geöffnet')">Öffnen</button></div></div></div></section>
+<section id="goals" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">PERSÖNLICHER BEREICH</div><h1>Ziele</h1></div><button class="back" onclick="showView('home')">← Home</button></div>
+<div class="panel" id="profileCard" style="margin-bottom:12px"><div class="panel-head"><h3>👤 Mein Profil</h3><span style="font-size:11px;color:#8b91a0">Einmal speichern</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<label style="font-size:11px;color:#7d8495">Name<input id="profileName" placeholder="Alexander" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Alter<input id="profileAge" type="number" min="18" max="100" placeholder="31" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Gewicht (kg)<input id="profileWeight" type="number" step="0.1" placeholder="80,0" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+<label style="font-size:11px;color:#7d8495">Größe (cm)<input id="profileHeight" type="number" placeholder="180" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;margin-top:5px"></label>
+</div>
+<button style="margin-top:10px" onclick="saveProfile()">Profil speichern</button><span id="profileStatus" style="font-size:11px;color:#8b91a0;margin-left:10px"></span></div><div class="module-grid"><div class="module-card"><h3>Training &amp; Leistung</h3><p>Setze konkrete Trainings- und Gewohnheitsziele.</p><button onclick="toast('Ziel angelegt')">Ziel hinzufügen</button></div><div class="module-card"><h3>Wohlbefinden</h3><p>Schlaf, Erholung und Alltag als Teil deines Gesamtbilds.</p><button onclick="toast('Wohlbefinden geöffnet')">Öffnen</button></div></div></div></section>
 
 <section id="community" class="view"><div class="module"><div class="module-head"><div><div class="eyebrow">COMMUNITY</div><h1>Community</h1></div><button class="back" onclick="showView('home')">← Home</button></div><div class="module-grid"><div class="module-card"><h3>Feed</h3><p>Teile Fortschritte, Routinen und Erfahrungen.</p><button onclick="toast('Feed geöffnet')">Feed öffnen</button></div><div class="module-card"><h3>Gruppen</h3><p>Finde Menschen mit ähnlichen Trainingsinteressen.</p><button onclick="toast('Gruppen geöffnet')">Gruppen</button></div></div></div></section>
 
@@ -217,7 +225,7 @@ button,input{font:inherit}button{cursor:pointer}
 <div id="toast" style="position:fixed;left:50%;bottom:25px;transform:translate(-50%,15px);opacity:0;z-index:100;background:#171827;color:#fff;padding:11px 16px;border-radius:11px;font-size:12px;transition:.2s"></div>
 <script>
 const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,kfa:'',history:[],workouts:[],measurements:[],plans:[],macros:{},sets:[]};
-function save(){localStorage.setItem('fitlife_state',JSON.stringify(state));render();}
+function saveProfile(){state.profile=state.profile||{};state.profile.name=document.getElementById("profileName").value.trim();state.profile.age=Number(document.getElementById("profileAge").value||0);state.profile.weight=Number(document.getElementById("profileWeight").value||0);state.profile.height=Number(document.getElementById("profileHeight").value||0);if(state.profile.weight)state.weight=state.profile.weight;save();document.getElementById("profileStatus").textContent="Gespeichert";toast("Profil gespeichert")}\nfunction loadProfile(){const p=state.profile||{};["Name","Age","Weight","Height"].forEach(k=>{const el=document.getElementById("profile"+k);if(el)el.value=p[k.toLowerCase()]||""})}\nfunction save(){localStorage.setItem('fitlife_state',JSON.stringify(state));render();}
 function showView(id){
  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
  document.querySelectorAll('.nav button,.mobile-nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
@@ -521,7 +529,7 @@ function setupSearch(){
  const input=document.querySelector('.search input');if(!input)return;
  input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();document.querySelectorAll('.module-card').forEach(card=>{card.style.display=!q||card.textContent.toLowerCase().includes(q)?'':'none'});});
 }
-initDate();render();setupSearch();\nif("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+initDate();render();setupSearch();loadProfile();\nif("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 renderPRs();renderProgressTable();renderWeeklyGoals();renderWeekPlanner();renderActivityStreak();drawRest();renderWorkoutHistory();renderVolumeChart();renderExerciseProgress();renderTrainingFeedback();renderSession();renderExerciseTemplates();renderSavedTemplates();</script>
 <div id="installHint" style="display:none;position:fixed;left:12px;right:12px;bottom:84px;z-index:40;background:#171827;color:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 14px 35px rgba(0,0,0,.2);font-size:12px"><b>FITLIFE installieren</b><div style="opacity:.75;margin-top:3px">Füge die App über „Zum Home-Bildschirm“ hinzu.</div><button onclick="document.getElementById('installHint').style.display='none'" style="margin-top:8px;background:#7047e8;color:#fff;border:0;border-radius:8px;padding:7px 10px">OK</button></div>
 <script>if(/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!window.navigator.standalone&&!localStorage.getItem("fitlife_install_hint")){setTimeout(()=>{const x=document.getElementById("installHint");if(x)x.style.display="block";localStorage.setItem("fitlife_install_hint","1")},2500)}</script></body>
