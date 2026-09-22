@@ -18,10 +18,9 @@
 <h1>LKV Lagerverwaltung</h1><p>Zentrallager München · Online-Bestellportal</p>
 <label>E-Mail<input id="email" type="email" placeholder="name@beispiel.de"></label>
 <label>Passwort<input id="password" type="password" placeholder="Passwort"></label>
-<label>Standort bei neuer Registrierung<select id="location"></select></label>
 <button class="btn blue" onclick="signin()">Anmelden</button>
-<button class="btn ghost" style="width:100%;margin-top:8px" onclick="signup()">Neues Konto für eine Außenstelle anlegen</button>
-<div class="hint">Neue Konten starten als Außenstelle. Die Zuordnung zu Lager/München und Administrator-Rechten wird anschließend intern vergeben.</div>
+<button class="btn ghost" style="width:100%;margin-top:8px" onclick="signup()">Neues Konto anlegen</button>
+<div class="hint">Neue Konten werden zunächst ohne Standort angelegt. Ein Administrator weist anschließend Außenstelle und Rolle zu.</div>
 <div id="loginMsg" style="margin-top:10px;font-size:11px"></div>
 </div></div>
 
@@ -47,6 +46,11 @@
 <div class="stats"><div class="stat"><small>Offene Bestellungen</small><b id="wOpen">0</b></div><div class="stat"><small>Heute</small><b id="wToday">0</b></div><div class="stat"><small>Gesamtartikel</small><b>1.248</b></div><div class="stat"><small>Unter Mindestbestand</small><b style="color:var(--red)">23</b></div></div>
 <div class="panel"><h2>Eingehende Bestellungen</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Bestell-Nr.</th><th>Standort</th><th>Datum</th><th>Positionen</th><th>Status</th><th>Aktion</th></tr></thead><tbody id="warehouseOrders"></tbody></table></div></div>
 </section>
+<section id="admin" class="page">
+<div class="title"><div><h1>Benutzerverwaltung</h1><p>Benutzer, Rollen und Außenstellen verwalten</p></div><button class="btn green" onclick="claimAdmin()">Erste Administration aktivieren</button></div>
+<div class="notice"><b>Rollen:</b> Außenstelle kann eigene Bestellungen aufgeben; Zentrallager bearbeitet alle Bestellungen; Administrator verwaltet Benutzer und Berechtigungen.</div>
+<div class="panel"><h2>Benutzer</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Name</th><th>E-Mail</th><th>Rolle</th><th>Außenstelle</th><th>Aktion</th></tr></thead><tbody id="users"></tbody></table></div></div>
+</section>
 </main></div>
 
 <div class="modal" id="orderModal"><div class="modalbox"><div class="modalhead"><div><h2>Neue Bestellung</h2><p style="color:var(--muted);font-size:12px">Zentrallager München</p></div><button class="btn ghost" onclick="closeOrder()">✕</button></div><div class="filters" style="margin-top:14px"><input id="modalSearch" placeholder="Artikel suchen…" oninput="renderModalProducts()"></div><div id="modalProducts"></div><h3 style="font-size:14px;margin-top:18px">Warenkorb</h3><div id="cart"></div><div class="formgrid" style="margin-top:12px"><label>Priorität<select id="priority"><option>Normal</option><option>Dringend</option></select></label><label>Bemerkung<input id="note" placeholder="Optional"></label></div><button class="btn blue" style="width:100%;margin-top:15px" onclick="sendOrder()">Bestellung absenden</button></div></div>
@@ -63,19 +67,18 @@ const $=id=>document.getElementById(id);
 let profile=null,products=[],cart={};
 
 const locations=["Ansbach","Wertingen","Pfaffenhofen","Passau / Regen","Traunstein","Weilheim","Miesbach","Landshut"];
-$("location").innerHTML=locations.map(x=>`<option>${x}</option>`).join("");
 
 async function boot(){
  try{
   const {data:session}=await neon.auth.getSession();
   if(!session){return}
-  const {data:p,error}=await neon.from("profiles").select("user_id,role,location_id,locations(name)").eq("user_id",session.user.id).maybeSingle();
+  const {data:p,error}=await neon.from("profiles").select("user_id,role,location_id,email,display_name,locations(name)").eq("user_id",session.user.id).maybeSingle();
   if(error) throw error;
   if(!p){showProfileSetup(session.user)} else {profile=p;showApp(session.user)}
  }catch(e){console.error(e);$("loginMsg").textContent="Noch nicht angemeldet."}
 }
 window.signin=async()=>{try{const email=$("email").value.trim(),password=$("password").value; if(!email||!password)throw Error("E-Mail und Passwort eingeben."); await neon.auth.signIn.email({email,password}); location.reload()}catch(e){$("loginMsg").textContent=e.message||"Anmeldung fehlgeschlagen."}};
-window.signup=async()=>{try{const email=$("email").value.trim(),password=$("password").value,loc=$("location").value;if(password.length<8)throw Error("Passwort muss mindestens 8 Zeichen haben."); const r=await neon.auth.signUp.email({email,password,name:loc}); if(r.error)throw r.error; const {data:l}=await neon.from("locations").select("id,name").eq("name",loc).single(); await neon.from("profiles").insert({user_id:r.data.user.id,location_id:l.id,role:"site"}); $("loginMsg").textContent="Konto erstellt. Du kannst dich jetzt anmelden."}catch(e){$("loginMsg").textContent=e.message||"Registrierung fehlgeschlagen."}};
+window.signup=async()=>{try{const email=$("email").value.trim(),password=$("password").value;if(!email||!password)throw Error("E-Mail und Passwort eingeben.");if(password.length<8)throw Error("Passwort muss mindestens 8 Zeichen haben."); const r=await neon.auth.signUp.email({email,password,name:email.split("@")[0]}); if(r.error)throw r.error; await neon.from("profiles").insert({user_id:r.data.user.id,email,display_name:email.split("@")[0],location_id:null,role:"site"}); $("loginMsg").textContent="Konto erstellt. Ein Administrator muss jetzt Standort und Rolle zuweisen."}catch(e){$("loginMsg").textContent=e.message||"Registrierung fehlgeschlagen."}};
 window.logout=async()=>{await neon.auth.signOut();location.reload()};
 function showProfileSetup(user){$("login").style.display="flex";$("loginMsg").textContent="Konto vorhanden, aber noch keiner Außenstelle zugeordnet."}
 function showApp(user){
@@ -84,17 +87,17 @@ function showApp(user){
  $("roleText").textContent=profile.role==="site"?"Außenstelle":"Zentrallager München";
  const siteName=profile.locations?.name||"Außenstelle";
  $("siteTitle").textContent=siteName+" · Bestellungen an Zentrallager München";
- if(profile.role==="site"){$("nav").innerHTML='<button class="active" onclick="go(\'site\')">⌂ Meine Übersicht</button><button onclick="go(\'catalog\')">▣ Artikel bestellen</button><button onclick="go(\'site\')">🛒 Meine Bestellungen</button>'}else{$("nav").innerHTML='<button class="active" onclick="go(\'warehouse\')">⌂ Zentrallager München</button><button onclick="go(\'warehouse\')">🛒 Bestellungen</button><button onclick="go(\'warehouse\')">▣ Bestand</button>'}
+ if(profile.role==="site"){$("nav").innerHTML='<button class="active" onclick="go(\'site\')">⌂ Meine Übersicht</button><button onclick="go(\'catalog\')">▣ Artikel bestellen</button><button onclick="go(\'site\')">🛒 Meine Bestellungen</button>'}else{$("nav").innerHTML='<button class="active" onclick="go(\'warehouse\')">⌂ Zentrallager München</button><button onclick="go(\'warehouse\')">🛒 Bestellungen</button><button onclick="go(\'warehouse\')">▣ Bestand</button>'}if(profile.role==="admin")$("nav").innerHTML+='<button onclick="go(\'admin\')">⚙ Benutzerverwaltung</button>';
  load();
 }
 window.go=id=>{document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");load()};
-async function load(){products=(await neon.from("products").select("id,article_no,name,category,unit,stock,price_cents").eq("active",true).order("article_no")).data||[];renderProducts();await renderOrders();renderWarehouse()}
+async function load(){products=(await neon.from("products").select("id,article_no,name,category,unit,stock,price_cents").eq("active",true).order("article_no")).data||[];renderProducts();await renderOrders();renderWarehouse();await renderAdmin()}
 function renderProducts(){const q=($("search")?.value||"").toLowerCase(),c=$("cat")?.value||"Alle Kategorien";$("products").innerHTML=products.filter(p=>(p.article_no+" "+p.name+" "+(p.category||"")).toLowerCase().includes(q)&&(c==="Alle Kategorien"||p.category===c)).map(p=>`<tr><td>${p.article_no}</td><td><b>${p.name}</b></td><td>${p.category||""}</td><td>${p.stock}</td><td><button class="btn blue" style="padding:6px 10px;font-size:10px" onclick="add(${p.id})">+ Bestellen</button></td></tr>`).join("")}
 function renderModalProducts(){const q=($("modalSearch")?.value||"").toLowerCase();$("modalProducts").innerHTML=products.filter(p=>(p.article_no+" "+p.name).toLowerCase().includes(q)).map(p=>`<div class="product"><div><b>${p.name}</b><br><small>${p.article_no} · Bestand ${p.stock} ${p.unit}</small></div><button class="btn blue" style="padding:6px 9px" onclick="add(${p.id})">+ Hinzufügen</button></div>`).join("")}
 window.add=id=>{cart[id]=(cart[id]||0)+1;renderCart();$("cartCount").textContent=Object.values(cart).reduce((a,b)=>a+b,0);if($("orderModal").classList.contains("open"))renderModalProducts()}
 window.change=(id,d)=>{cart[id]=Math.max(0,(cart[id]||0)+d);if(!cart[id])delete cart[id];renderCart()}
 function renderCart(){if(!$("cart"))return;const ids=Object.keys(cart);$("cart").innerHTML=ids.length?ids.map(id=>{const p=products.find(x=>x.id==id);return `<div class="cartrow"><span><b>${p.name}</b><br><small>${p.article_no}</small></span><span><button class="btn ghost" style="padding:4px 8px" onclick="change(${id},-1)">−</button> <b>${cart[id]}</b> <button class="btn ghost" style="padding:4px 8px" onclick="change(${id},1)">+</button></span></div>`}).join(""):'<div class="empty">Noch keine Artikel ausgewählt.</div>'}
-window.openOrder=()=>{$("orderModal").classList.add("open");renderModalProducts();renderCart()}
+window.openOrder=()=>{if(profile.role==="site"&&!profile.location_id){alert("Dein Konto ist noch keiner Außenstelle zugeordnet.");return;}$("orderModal").classList.add("open");renderModalProducts();renderCart()}
 window.closeOrder=()=>$("orderModal").classList.remove("open");
 window.sendOrder=async()=>{
  try{
@@ -109,10 +112,25 @@ window.sendOrder=async()=>{
 }
 async function renderOrders(){
  if(profile.role!=="site")return;
+ if(!profile.location_id){$("openCount").textContent="0";$("allCount").textContent="0";$("myOrders").innerHTML='<tr><td colspan="5" class="empty">Der Administrator muss diesem Konto zuerst eine Außenstelle zuweisen.</td></tr>';return;}
  const {data}=await neon.from("orders").select("id,order_no,status,priority,created_at,order_items(quantity)").order("created_at",{ascending:false});
  const rows=data||[];$("openCount").textContent=rows.filter(x=>x.status!=="Erledigt").length;$("allCount").textContent=rows.length;
  $("myOrders").innerHTML=rows.length?rows.map(o=>`<tr><td><b>${o.order_no}</b></td><td>${new Date(o.created_at).toLocaleDateString("de-DE")}</td><td>${o.order_items?.length||0}</td><td><span class="badge ${o.status==="Offen"?"wait":o.status==="Erledigt"?"ok":"info"}">${o.status}</span></td><td>${o.priority||""}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">Noch keine Bestellungen.</td></tr>'
 }
+window.claimAdmin=async()=>{try{const r=await neon.rpc("claim_first_admin",{});if(r.error)throw r.error;if(!r.data)throw Error("Die erste Administration ist bereits vergeben.");alert("Administration aktiviert. Seite wird neu geladen.");location.reload()}catch(e){alert(e.message||"Konnte Administration nicht aktivieren.")}};
+async function renderAdmin(){
+ if(profile.role!=="admin")return;
+ const r=await neon.from("profiles").select("user_id,email,display_name,role,location_id,locations(name)").order("created_at",{ascending:false});
+ if(r.error){$("users").innerHTML="<tr><td colspan=\"5\">"+r.error.message+"</td></tr>";return}
+ const users=r.data||[];const locs=(await neon.from("locations").select("id,name").order("name")).data||[];
+ $("users").innerHTML=users.map(u=>{
+  const roleOptions=["site","warehouse","admin"].map(x=>"<option value=\""+x+"\" "+(u.role===x?"selected":"")+">"+x+"</option>").join("");
+  const locOptions="<option value=\"\">— kein Standort —</option>"+locs.map(l=>"<option value=\""+l.id+"\" "+(u.location_id==l.id?"selected":"")+">"+l.name+"</option>").join("");
+  return "<tr><td>"+(u.display_name||"—")+"</td><td>"+(u.email||"—")+"</td><td><select id=\"role-"+u.user_id+"\" style=\"padding:6px\">"+roleOptions+"</select></td><td><select id=\"loc-"+u.user_id+"\" style=\"padding:6px\">"+locOptions+"</select></td><td><button class=\"btn blue\" style=\"padding:6px 9px;font-size:10px\" onclick=\"saveUser(\'"+u.user_id+"\')\">Speichern</button></td></tr>";
+ }).join("");
+}
+window.saveUser=async(userId)=>{try{const role=$("role-"+userId).value;const locVal=$("loc-"+userId).value;const location_id=locVal?Number(locVal):null;if(role==="site"&&!location_id)throw Error("Für eine Außenstelle muss ein Standort ausgewählt werden.");const r=await neon.from("profiles").update({role,location_id}).eq("user_id",userId);if(r.error)throw r.error;await renderAdmin();alert("Benutzer aktualisiert.");}catch(e){alert(e.message||"Änderung fehlgeschlagen.")}};
+
 async function renderWarehouse(){
  if(profile.role==="site")return;
  const {data}=await neon.from("orders").select("id,order_no,status,created_at,priority,locations(name),order_items(quantity)").order("created_at",{ascending:false});
