@@ -13,9 +13,8 @@
 @media(max-width:700px){.side{position:static;width:100%}.main{margin:0;width:100%;padding:12px}.top{display:none}.title{align-items:flex-start;flex-direction:column;gap:10px}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}}
 </style></head><body><div class="login" id="login"><div class="loginbox">
 <div class="logoLogin">LKV</div><div class="sub">Lagerverwaltung · Zentrallager München</div>
-<label>Benutzername</label><input id="email" type="text" placeholder="Benutzername" autocomplete="username">
-<label>Passwort</label><input id="password" type="password" placeholder="Passwort" autocomplete="current-password">
-<button class="btn blue" onclick="signin()">Anmelden</button>
+<label>E-Mail-Adresse</label><input id="email" type="email" value="alexander-rauscher1995@hotmail.com" placeholder="E-Mail-Adresse" autocomplete="email">
+<button class="btn blue" onclick="sendMagicLink()">Anmeldelink per E-Mail senden</button>
 <div id="loginMsg" class="loginMsg"></div>
 </div></div>
 
@@ -72,8 +71,7 @@ async function boot(){
   if(!p){showProfileSetup(session.user)} else {profile=p;showApp(session.user)}
  }catch(e){console.error(e);$("loginMsg").textContent="Noch nicht angemeldet."}
 }
-window.signin=async()=>{try{const username=$("email").value.trim(),password=$("password").value;if(!username||!password)throw Error("Benutzername und Passwort eingeben.");if(password.length<8)throw Error("Passwort muss mindestens 8 Zeichen haben.");const email=username.toLowerCase().replace(/[^a-z0-9._-]/g,"")+"@example.com";let r=await neon.auth.signIn.email({email,password});if(r.error){const s=await neon.auth.signUp.email({email,password,name:username});if(s.error)throw r.error;const l=await neon.auth.signIn.email({email,password});if(l.error)throw l.error;const a=await neon.rpc("bootstrap_admin",{p_email:email,p_display_name:username});if(a.error)throw a.error;}location.reload()}catch(e){$("loginMsg").textContent=e.message||"Anmeldung fehlgeschlagen."}};
-
+window.sendMagicLink=async()=>{try{const email=$("email").value.trim();if(!email)throw Error("E-Mail-Adresse eingeben.");const callbackURL=location.origin+location.pathname;const r=await neon.auth.signIn.magicLink({email,name:"RauscherA",callbackURL,newUserCallbackURL:callbackURL,errorCallbackURL:callbackURL});if(r?.error)throw r.error;$("loginMsg").style.color="#087b55";$("loginMsg").textContent="Anmeldelink wurde per E-Mail gesendet. Bitte Posteingang öffnen und den Link anklicken."}catch(e){$("loginMsg").style.color="#c53333";$("loginMsg").textContent=e.message||"Anmeldelink konnte nicht gesendet werden."}};
 window.bootstrapAdmin=async()=>{try{const username=$("email").value.trim(),password=$("password").value;if(!username||!password)throw Error("Benutzername und Passwort eingeben.");const email=username.toLowerCase().replace(/[^a-z0-9._-]/g,"")+"@example.com";const s=await neon.auth.signUp.email({email,password,name:username});if(s.error){const l=await neon.auth.signIn.email({email,password});if(l.error)throw l.error}else{await neon.auth.signIn.email({email,password})}const r=await neon.rpc("bootstrap_admin",{p_email:email,p_display_name:username});if(r.error)throw r.error;location.reload()}catch(e){$("loginMsg").textContent=e.message||"Einrichtung fehlgeschlagen."}};
 
 window.signup=async()=>{try{const email=$("email").value.trim(),password=$("password").value,token=new URLSearchParams(location.search).get("invite");if(!email||!password)throw Error("E-Mail und Passwort eingeben.");if(password.length<8)throw Error("Passwort muss mindestens 8 Zeichen haben.");if(!token)throw Error("Für die Registrierung wird ein Einladung-Link benötigt.");const r=await neon.auth.signUp.email({email,password,name:email.split("@")[0]});if(r.error)throw r.error;await new Promise(x=>setTimeout(x,700));const sr=await neon.auth.signIn.email({email,password});if(sr.error)throw sr.error;const cr=await neon.rpc("complete_invitation",{p_token:token});if(cr.error)throw cr.error;$("loginMsg").textContent="Konto erstellt und Einladung übernommen. Du wirst angemeldet …";location.href=location.origin+location.pathname}catch(e){$("loginMsg").textContent=e.message||"Registrierung fehlgeschlagen."}};
