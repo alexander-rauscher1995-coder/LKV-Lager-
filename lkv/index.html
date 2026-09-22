@@ -25,10 +25,10 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;bor
 <div id="app" class="app">
 <aside class="side"><div class="brand">LKV<small>Zentrallager München</small></div><div id="nav" class="nav"></div></aside>
 <main class="main">
-<div class="top"><b id="user"></b><button class="ghost" onclick="logout()">Abmelden</button></div>
+<div class="top"><b id="user"></b><div style="display:flex;gap:8px;align-items:center"><label style="margin:0;font-size:12px">Standort</label><select id="locationSelect" onchange="changeLocation()" style="width:auto;padding:8px"></select></div></div>
 
 <section id="dashboard" class="page active">
-<div class="title"><div><h1>Übersicht</h1><div id="location" class="muted"></div></div><button class="blue" onclick="newOrder()">+ Neue Bestellung</button></div>
+<div class="title"><div><h1>Übersicht</h1><div id="location" class="muted">Bitte Außenstelle auswählen</div></div><button class="blue" onclick="newOrder()">+ Neue Bestellung</button></div>
 <div class="stats">
 <div class="stat"><small>Offene Bestellungen</small><b id="open">0</b></div>
 <div class="stat"><small>Bestellungen gesamt</small><b id="total">0</b></div>
@@ -57,7 +57,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;bor
 <script type="module">
 import {createClient} from "https://esm.sh/@neondatabase/neon-js@latest";
 const neon=createClient({auth:{url:"https://ep-square-glade-b1udz8df.neonauth.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/auth"},dataApi:{url:"https://ep-square-glade-b1udz8df.apirest.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/rest/v1"}});
-const $=id=>document.getElementById(id); let profile=null,products=[],cart={};
+const $=id=>document.getElementById(id); let profile=null,products=[],cart={}; const locations=[["Ansbach",1],["Wertingen",2],["Pfaffenhofen",3],["Passau / Regen",4],["Traunstein",5],["Weilheim",6],["Miesbach",7],["Landshut",8]];
 async function login(){
   try{
     const email=$("email").value.trim(),password=$("password").value;
@@ -71,16 +71,16 @@ window.login=login;
 async function boot(){
  try{
   const s=await neon.auth.getSession();
-  if(!s?.data?.session){$("user").textContent="Gastmodus";profile={role:"site",location_id:1,email:"Gast"};buildNav();await load();return;}
+  if(!s?.data?.session){$("user").textContent="Bestellung Außenstelle";profile={role:"site",location_id:null,email:"Gast"};buildNav();renderLocations();return;}
   const p=await neon.from("profiles").select("user_id,role,location_id,email,display_name,locations(name)").eq("user_id",s.data.session.user.id).maybeSingle();
   if(p.error)throw p.error;if(!p.data){$("msg").textContent="Konto ist noch nicht eingerichtet.";return}
   profile=p.data;$("login").style.display="none";$("app").style.display="block";
   $("user").textContent=(profile.display_name||profile.email)+" · "+profile.role;
   $("location").textContent=profile.locations?.name||"Zentrallager München";
-  buildNav();await load();
+  buildNav();renderLocations();await load();
  }catch(e){$("msg").textContent="Verbindung zur Lagerverwaltung fehlgeschlagen."}
 }
-function buildNav(){
+function renderLocations(){const el=$("locationSelect");el.innerHTML="<option value=\"\">Außenstelle auswählen</option>"+locations.map(x=>`<option value="${x[1]}" ${profile.location_id==x[1]?"selected":""}>${x[0]}</option>`).join("");$("location").textContent=locations.find(x=>x[1]==profile.location_id)?.[0]||"Bitte Außenstelle auswählen";}\nwindow.changeLocation=()=>{profile.location_id=Number($("locationSelect").value)||null; $("location").textContent=locations.find(x=>x[1]==profile.location_id)?.[0]||"Bitte Außenstelle auswählen"; if(profile.location_id)load();};\nfunction buildNav(){
  let n=profile.role==="site"
  ?'<button class="active" onclick="show(\'dashboard\')">Übersicht</button><button onclick="show(\'catalog\')">Artikel bestellen</button>'
  :'<button class="active" onclick="show(\'warehouse\')">Zentrallager</button>';
@@ -109,7 +109,7 @@ async function loadAdmin(){
  const r=await neon.from("profiles").select("display_name,email,role,locations(name)").order("created_at",{ascending:false});
  $("users").innerHTML=(r.data||[]).map(x=>'<tr><td>'+(x.display_name||"")+'</td><td>'+x.email+'</td><td>'+x.role+'</td><td>'+(x.locations?.name||"")+'</td></tr>').join("");
 }
-window.newOrder=()=>{if(profile.role!=="site")return;if(!profile.location_id){alert("Deinem Konto ist noch keine Außenstelle zugeordnet.");return;}$("orderModal").style.display="flex";renderOrderProducts();renderCart()};
+window.newOrder=()=>{if(profile.role!=="site")return;if(!profile.location_id){alert("Bitte zuerst eine Außenstelle auswählen.");return;}$("orderModal").style.display="flex";renderOrderProducts();renderCart()};
 window.closeOrder=()=>{$("orderModal").style.display="none"};
 function renderOrderProducts(){$("orderProducts").innerHTML=products.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #d9e2ec"><div><b>${p.name}</b><div class="muted">${p.article_no} · Bestand ${p.stock} ${p.unit||""}</div></div><button class="blue" style="padding:7px 10px" onclick="addToCart(${p.id})">+ Hinzufügen</button></div>`).join("")}
 window.addToCart=id=>{cart[id]=(cart[id]||0)+1;renderCart()};
