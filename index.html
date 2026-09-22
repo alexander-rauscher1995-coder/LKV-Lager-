@@ -51,7 +51,7 @@ button,input{font:inherit}button{cursor:pointer}
     <button data-view="knowledge" onclick="showView('knowledge')"><i>▤</i>Wissen</button>
     <button data-view="settings" onclick="showView('settings')"><i>⚙</i>Einstellungen</button>
   </nav>
-  <div class="user"><div class="avatar">A</div><div><b>Alexander</b><small>Keep Going</small></div><span>›</span></div>
+  <div class="user"><div class="avatar profile-avatar">A</div><div><b class="profile-name">Dein Profil</b><small>Keep Going</small></div><span>›</span></div>
 </aside>
 
 <main class="main">
@@ -59,7 +59,7 @@ button,input{font:inherit}button{cursor:pointer}
 <section id="home" class="view active">
   <header class="topbar">
     <div class="search"><span>⌕</span><input placeholder="Suche nach Übungen, Lebensmitteln, ..." aria-label="Suche"></div>
-    <div class="head-right"><button class="notify" onclick="toast('Keine neuen Benachrichtigungen')">♧</button><div class="today"><b>Heute</b><small id="date"></small></div><div class="top-avatar">A</div></div>
+    <div class="head-right"><button class="notify" onclick="toast('Keine neuen Benachrichtigungen')">♧</button><div class="today"><b>Heute</b><small id="date"></small></div><div class="top-avatar profile-avatar">A</div></div>
   </header>
   <section class="hero">
     <div class="hero-copy"><span>BESSERE</span><span>GEWOHNHEITEN</span><strong>EIN STÄRKERES ICH</strong><p>„Konstanz schlägt Motivation.“</p><button onclick="showView('training')">Los geht’s&nbsp; →</button></div>
@@ -226,7 +226,8 @@ button,input{font:inherit}button{cursor:pointer}
 <script>
 const state=JSON.parse(localStorage.getItem('fitlife_state')||'null')||{weight:'',steps:0,meals:0,calories:0,sleep:0,kfa:'',history:[],workouts:[],measurements:[],plans:[],macros:{},sets:[]};
 function fillCalculatorFromProfile(){const p=state.profile||{};const age=document.getElementById("calcAge"),weight=document.getElementById("calcWeight"),height=document.getElementById("calcHeight");if(age&&p.age)age.value=p.age;if(weight&&p.weight)weight.value=p.weight;if(height&&p.height)height.value=p.height}
-function saveProfile(){state.profile=state.profile||{};state.profile.name=document.getElementById("profileName").value.trim();state.profile.age=Number(document.getElementById("profileAge").value||0);state.profile.weight=Number(document.getElementById("profileWeight").value||0);state.profile.height=Number(document.getElementById("profileHeight").value||0);if(state.profile.weight)state.weight=state.profile.weight;save();fillCalculatorFromProfile();document.getElementById("profileStatus").textContent="Gespeichert";toast("Profil gespeichert")}
+function renderProfileUI(){const p=state.profile||{};const name=p.name||"Dein Profil";document.querySelectorAll(".profile-name").forEach(el=>el.textContent=name);document.querySelectorAll(".profile-avatar").forEach(el=>el.textContent=name.trim()?name.trim().charAt(0).toUpperCase():"A");const info=document.getElementById("profileSummary");if(info){const parts=[];if(p.age)parts.push(p.age+" Jahre");if(p.weight)parts.push(Number(p.weight).toLocaleString("de-DE")+" kg");if(p.height)parts.push(p.height+" cm");info.textContent=parts.length?parts.join(" · "):"Noch keine Basisdaten gespeichert";}}
+function saveProfile(){state.profile=state.profile||{};state.profile.name=document.getElementById("profileName").value.trim();state.profile.age=Number(document.getElementById("profileAge").value||0);state.profile.weight=Number(document.getElementById("profileWeight").value||0);state.profile.height=Number(document.getElementById("profileHeight").value||0);if(state.profile.weight)state.weight=state.profile.weight;save();fillCalculatorFromProfile();renderProfileUI();document.getElementById("profileStatus").textContent="Gespeichert";toast("Profil gespeichert")}
 function save(){localStorage.setItem('fitlife_state',JSON.stringify(state));render();}
 function showView(id){
  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
@@ -531,7 +532,7 @@ function setupSearch(){
  const input=document.querySelector('.search input');if(!input)return;
  input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();document.querySelectorAll('.module-card').forEach(card=>{card.style.display=!q||card.textContent.toLowerCase().includes(q)?'':'none'});});
 }
-initDate();render();setupSearch();loadProfile();fillCalculatorFromProfile();\nif("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+initDate();render();setupSearch();loadProfile();fillCalculatorFromProfile();renderProfileUI();\nif("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 renderPRs();renderProgressTable();renderWeeklyGoals();renderWeekPlanner();renderActivityStreak();drawRest();renderWorkoutHistory();renderVolumeChart();renderExerciseProgress();renderTrainingFeedback();renderSession();renderExerciseTemplates();renderSavedTemplates();</script>
 <div id="installHint" style="display:none;position:fixed;left:12px;right:12px;bottom:84px;z-index:40;background:#171827;color:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 14px 35px rgba(0,0,0,.2);font-size:12px"><b>FITLIFE installieren</b><div style="opacity:.75;margin-top:3px">Füge die App über „Zum Home-Bildschirm“ hinzu.</div><button onclick="document.getElementById('installHint').style.display='none'" style="margin-top:8px;background:#7047e8;color:#fff;border:0;border-radius:8px;padding:7px 10px">OK</button></div>
 <script>if(/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!window.navigator.standalone&&!localStorage.getItem("fitlife_install_hint")){setTimeout(()=>{const x=document.getElementById("installHint");if(x)x.style.display="block";localStorage.setItem("fitlife_install_hint","1")},2500)}</script></body>
