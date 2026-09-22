@@ -63,11 +63,11 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;bor
 <div class="panel"><table><thead><tr><th>Name</th><th>E-Mail</th><th>Rolle</th><th>Standort</th></tr></thead><tbody id="users"></tbody></table></div>
 </section>
 </main></div>
-
+<div id="orderModal" style="display:none;position:fixed;inset:0;background:#001b3388;align-items:center;justify-content:center;padding:15px;z-index:20"><div class="card" style="width:min(700px,100%);max-height:90vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center"><div><h2 style="margin:0">Neue Bestellung</h2><div class="muted">Zentrallager München</div></div><button class="ghost" onclick="closeOrder()">Schließen</button></div><div id="orderProducts" style="margin-top:15px"></div><h3>Warenkorb</h3><div id="cartRows"></div><label>Priorität</label><select id="priority"><option>Normal</option><option>Dringend</option></select><label>Bemerkung</label><input id="note" placeholder="Optional"><button class="primary" onclick="sendOrder()">Bestellung absenden</button></div></div>
 <script type="module">
 import {createClient} from "https://esm.sh/@neondatabase/neon-js@latest";
 const neon=createClient({auth:{url:"https://ep-square-glade-b1udz8df.neonauth.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/auth"},dataApi:{url:"https://ep-square-glade-b1udz8df.apirest.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/rest/v1"}});
-const $=id=>document.getElementById(id); let profile=null,products=[];
+const $=id=>document.getElementById(id); let profile=null,products=[],cart={};
 async function login(){
   try{
     const email=$("email").value.trim(),password=$("password").value;
@@ -119,7 +119,13 @@ async function loadAdmin(){
  const r=await neon.from("profiles").select("display_name,email,role,locations(name)").order("created_at",{ascending:false});
  $("users").innerHTML=(r.data||[]).map(x=>'<tr><td>'+(x.display_name||"")+'</td><td>'+x.email+'</td><td>'+x.role+'</td><td>'+(x.locations?.name||"")+'</td></tr>').join("");
 }
-window.newOrder=()=>alert("Bestellfenster wird als nächster Schritt ergänzt. Die Artikeldaten sind bereits mit dem Zentrallager verbunden.");
+window.newOrder=()=>{if(profile.role!=="site")return;if(!profile.location_id){alert("Deinem Konto ist noch keine Außenstelle zugeordnet.");return;}$("orderModal").style.display="flex";renderOrderProducts();renderCart()};
+window.closeOrder=()=>{$("orderModal").style.display="none"};
+function renderOrderProducts(){$("orderProducts").innerHTML=products.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #d9e2ec"><div><b>${p.name}</b><div class="muted">${p.article_no} · Bestand ${p.stock} ${p.unit||""}</div></div><button class="blue" style="padding:7px 10px" onclick="addToCart(${p.id})">+ Hinzufügen</button></div>`).join("")}
+window.addToCart=id=>{cart[id]=(cart[id]||0)+1;renderCart()};
+window.removeFromCart=id=>{if(cart[id]>1)cart[id]--;else delete cart[id];renderCart()};
+function renderCart(){const ids=Object.keys(cart);$("cartRows").innerHTML=ids.length?ids.map(id=>{const p=products.find(x=>x.id==id);return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #d9e2ec"><span><b>${p.name}</b><br><span class="muted">${p.article_no}</span></span><span><button class="ghost" onclick="removeFromCart(${id})">−</button> <b>${cart[id]}</b> <button class="ghost" onclick="addToCart(${id})">+</button></span></div>`}).join(""):`<div class="muted">Noch keine Artikel ausgewählt.</div>`}
+window.sendOrder=async()=>{try{const ids=Object.keys(cart);if(!ids.length)throw Error("Bitte mindestens einen Artikel auswählen.");const items=ids.map(id=>({product_id:Number(id),quantity:cart[id]}));const r=await neon.rpc("create_order",{p_location_id:profile.location_id,p_priority:$("priority").value,p_note:$("note").value,p_items:items});if(r.error)throw r.error;alert("Bestellung wurde an das Zentrallager München gesendet.");cart={};$("note").value="";closeOrder();await load();show("dashboard")}catch(e){alert(e.message||"Bestellung konnte nicht gesendet werden.")}};
 window.logout=async()=>{await neon.auth.signOut();location.reload()};
 boot();
 </script>
