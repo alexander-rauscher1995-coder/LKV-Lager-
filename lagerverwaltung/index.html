@@ -99,17 +99,17 @@ window.closeOrder=()=>$("orderModal").classList.remove("open");
 window.sendOrder=async()=>{
  try{
   const ids=Object.keys(cart);if(!ids.length)throw Error("Bitte Artikel auswählen.");
-  const locId=profile.location_id;const no="BE-"+new Date().getFullYear()+"-"+Date.now().toString().slice(-6);
-  const ins=await neon.from("orders").insert({order_no:no,location_id:locId,status:"Offen",priority:$("priority").value,note:$("note").value}).select("id").single();
-  if(ins.error)throw ins.error;
-  const rows=ids.map(id=>{const p=products.find(x=>x.id==id);return {order_id:ins.data.id,product_id:+id,quantity:cart[id],unit_price_cents:p.price_cents}});
-  const ir=await neon.from("order_items").insert(rows);if(ir.error)throw ir.error;
-  cart={};closeOrder();alert("Bestellung "+no+" wurde an das Zentrallager München gesendet.");await load();go("site")
+  const locId=profile.location_id;
+  const items=ids.map(id=>({product_id:+id,quantity:cart[id]}));
+  const r=await neon.rpc("create_order",{p_location_id:locId,p_priority:$("priority").value,p_note:$("note").value,p_items:items});
+  if(r.error)throw r.error;
+  const orderId=r.data;
+  cart={};closeOrder();alert("Bestellung wurde an das Zentrallager München gesendet.");await load();go("site")
  }catch(e){alert(e.message||"Bestellung konnte nicht gesendet werden.")}
 }
 async function renderOrders(){
  if(profile.role!=="site")return;
- const {data}=await neon.from("orders").select("id,order_no,status,created_at,order_items(quantity)").order("created_at",{ascending:false});
+ const {data}=await neon.from("orders").select("id,order_no,status,priority,created_at,order_items(quantity)").order("created_at",{ascending:false});
  const rows=data||[];$("openCount").textContent=rows.filter(x=>x.status!=="Erledigt").length;$("allCount").textContent=rows.length;
  $("myOrders").innerHTML=rows.length?rows.map(o=>`<tr><td><b>${o.order_no}</b></td><td>${new Date(o.created_at).toLocaleDateString("de-DE")}</td><td>${o.order_items?.length||0}</td><td><span class="badge ${o.status==="Offen"?"wait":o.status==="Erledigt"?"ok":"info"}">${o.status}</span></td><td>${o.priority||""}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">Noch keine Bestellungen.</td></tr>'
 }
