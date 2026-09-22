@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LKV Lagerverwaltung</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#17324b}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#062f57,#0878e8)}
+.card{width:min(410px,100%);background:#fff;border-radius:18px;padding:32px;box-shadow:0 20px 60px #001b3340}
+.logo{font-size:42px;font-weight:800;color:#07345d}.sub{color:#718298;margin:5px 0 28px}
+label{display:block;font-weight:700;font-size:13px;margin:15px 0 7px}input,select{width:100%;padding:13px;border:1px solid #ccd8e4;border-radius:9px;font-size:16px}
+button{border:0;border-radius:9px;padding:13px 16px;font-weight:700;cursor:pointer}.primary{width:100%;margin-top:20px;background:#0878e8;color:white}.msg{min-height:20px;margin-top:12px;font-size:13px}
+.app{display:none;min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:245px;background:#062f57;color:#fff;padding:18px}.brand{font-size:24px;font-weight:800;margin-bottom:25px}.brand small{display:block;font-size:11px;opacity:.7;margin-top:4px}
+.nav button{width:100%;text-align:left;background:none;color:#dceafa;margin:3px 0}.nav button.active,.nav button:hover{background:#0878e8;color:#fff}
+.main{margin-left:245px;padding:22px}.top{background:#fff;padding:12px 16px;border:1px solid #d9e2ec;border-radius:9px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.page{display:none}.page.active{display:block}.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.title h1{margin:0}.muted{color:#718298;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat,.panel{background:#fff;border:1px solid #d9e2ec;border-radius:10px}.stat{padding:16px}.stat small{color:#718298}.stat b{display:block;font-size:25px;margin-top:5px}.panel{padding:16px;margin-top:15px;overflow:auto}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #edf1f5;font-size:13px}th{color:#718298;font-size:11px}
+.blue{background:#0878e8;color:#fff}.ghost{background:#fff;color:#17324b;border:1px solid #d9e2ec}.danger{color:#b22}
+@media(max-width:700px){.side{position:static;width:100%}.main{margin:0;padding:12px}.top{display:none}.stats{grid-template-columns:1fr 1fr}.title{align-items:flex-start;gap:10px;flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="login" class="login"><div class="card">
+<div class="logo">LKV</div><div class="sub">Lagerverwaltung · Zentrallager München</div>
+<label>E-Mail-Adresse</label>
+<input id="email" type="email" autocomplete="email" placeholder="E-Mail-Adresse">
+<label>Passwort</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Passwort">
+<button class="primary" onclick="login()">Anmelden</button>
+<div id="msg" class="msg"></div>
+</div></div>
+
+<div id="app" class="app">
+<aside class="side"><div class="brand">LKV<small>Zentrallager München</small></div><div id="nav" class="nav"></div></aside>
+<main class="main">
+<div class="top"><b id="user"></b><button class="ghost" onclick="logout()">Abmelden</button></div>
+
+<section id="dashboard" class="page active">
+<div class="title"><div><h1>Übersicht</h1><div id="location" class="muted"></div></div><button class="blue" onclick="newOrder()">+ Neue Bestellung</button></div>
+<div class="stats">
+<div class="stat"><small>Offene Bestellungen</small><b id="open">0</b></div>
+<div class="stat"><small>Bestellungen gesamt</small><b id="total">0</b></div>
+<div class="stat"><small>Artikel im Lager</small><b id="productsCount">0</b></div>
+<div class="stat"><small>Status</small><b>Online</b></div>
+</div>
+<div class="panel"><h3>Meine Bestellungen</h3><table><thead><tr><th>Bestell-Nr.</th><th>Datum</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></div>
+</section>
+
+<section id="catalog" class="page">
+<div class="title"><div><h1>Artikel</h1><div class="muted">Artikel aus dem Zentrallager München</div></div><button class="blue" onclick="newOrder()">Bestellung</button></div>
+<div class="panel"><table><thead><tr><th>Art.-Nr.</th><th>Bezeichnung</th><th>Kategorie</th><th>Bestand</th><th></th></tr></thead><tbody id="catalogRows"></tbody></table></div>
+</section>
+
+<section id="warehouse" class="page">
+<div class="title"><div><h1>Zentrallager München</h1><div class="muted">Eingehende Bestellungen bearbeiten</div></div></div>
+<div class="panel"><table><thead><tr><th>Bestell-Nr.</th><th>Standort</th><th>Datum</th><th>Status</th><th></th></tr></thead><tbody id="warehouseRows"></tbody></table></div>
+</section>
+
+<section id="admin" class="page">
+<div class="title"><div><h1>Benutzerverwaltung</h1><div class="muted">Benutzer und Berechtigungen</div></div></div>
+<div class="panel"><table><thead><tr><th>Name</th><th>E-Mail</th><th>Rolle</th><th>Standort</th></tr></thead><tbody id="users"></tbody></table></div>
+</section>
+</main></div>
+
+<script type="module">
+import {createClient} from "https://esm.sh/@neondatabase/neon-js@latest";
+const neon=createClient({auth:{url:"https://ep-square-glade-b1udz8df.neonauth.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/auth"},dataApi:{url:"https://ep-square-glade-b1udz8df.apirest.c-5.eu-central-1.aws.neon.tech/lagerverwaltung/rest/v1"}});
+const $=id=>document.getElementById(id); let profile=null,products=[];
+async function login(){
+  try{
+    const email=$("email").value.trim(),password=$("password").value;
+    if(!email||!password) throw Error("E-Mail-Adresse und Passwort eingeben.");
+    const r=await neon.auth.signIn.email({email,password});
+    if(r?.error) throw r.error;
+    location.reload();
+  }catch(e){$("msg").textContent=e.message||"Anmeldung fehlgeschlagen."}
+}
+window.login=login;
+async function boot(){
+ try{
+  const s=await neon.auth.getSession();
+  if(!s?.data?.session)return;
+  const p=await neon.from("profiles").select("user_id,role,location_id,email,display_name,locations(name)").eq("user_id",s.data.session.user.id).maybeSingle();
+  if(p.error)throw p.error;if(!p.data){$("msg").textContent="Konto ist noch nicht eingerichtet.";return}
+  profile=p.data;$("login").style.display="none";$("app").style.display="block";
+  $("user").textContent=(profile.display_name||profile.email)+" · "+profile.role;
+  $("location").textContent=profile.locations?.name||"Zentrallager München";
+  buildNav();await load();
+ }catch(e){$("msg").textContent="Verbindung zur Lagerverwaltung fehlgeschlagen."}
+}
+function buildNav(){
+ let n=profile.role==="site"
+ ?'<button class="active" onclick="show(\'dashboard\')">Übersicht</button><button onclick="show(\'catalog\')">Artikel bestellen</button>'
+ :'<button class="active" onclick="show(\'warehouse\')">Zentrallager</button>';
+ if(profile.role==="admin")n+='<button onclick="show(\'admin\')">Benutzerverwaltung</button>';
+ $("nav").innerHTML=n;
+}
+window.show=id=>{document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");load()};
+async function load(){
+ products=(await neon.from("products").select("id,article_no,name,category,unit,stock").eq("active",true).order("article_no")).data||[];
+ $("productsCount").textContent=products.length;
+ $("catalogRows").innerHTML=products.map(p=>'<tr><td>'+p.article_no+'</td><td><b>'+p.name+'</b></td><td>'+(p.category||"")+'</td><td>'+p.stock+'</td><td><button class="blue" style="padding:7px 10px" onclick="newOrder()">Bestellen</button></td></tr>').join("");
+ if(profile.role==="site")await loadSite();else await loadWarehouse();
+ if(profile.role==="admin")await loadAdmin();
+}
+async function loadSite(){
+ const r=await neon.from("orders").select("order_no,status,created_at").order("created_at",{ascending:false});
+ const rows=r.data||[];$("open").textContent=rows.filter(x=>x.status!=="Erledigt").length;$("total").textContent=rows.length;
+ $("orders").innerHTML=rows.length?rows.map(x=>'<tr><td>'+x.order_no+'</td><td>'+new Date(x.created_at).toLocaleDateString("de-DE")+'</td><td>'+x.status+'</td></tr>').join(""):'<tr><td colspan="3">Noch keine Bestellungen.</td></tr>';
+}
+async function loadWarehouse(){
+ const r=await neon.from("orders").select("id,order_no,status,created_at,locations(name)").order("created_at",{ascending:false});const rows=r.data||[];
+ $("warehouseRows").innerHTML=rows.map(x=>'<tr><td>'+x.order_no+'</td><td>'+(x.locations?.name||"")+'</td><td>'+new Date(x.created_at).toLocaleDateString("de-DE")+'</td><td>'+x.status+'</td><td><button class="blue" style="padding:7px 10px" onclick="nextStatus('+x.id+',\''+x.status+'\')">Weiter</button></td></tr>').join("");
+}
+window.nextStatus=async(id,status)=>{const next=status==="Offen"?"In Bearbeitung":status==="In Bearbeitung"?"Versendet":status==="Versendet"?"Erledigt":"Erledigt";await neon.from("orders").update({status:next,updated_at:new Date().toISOString()}).eq("id",id);load()};
+async function loadAdmin(){
+ const r=await neon.from("profiles").select("display_name,email,role,locations(name)").order("created_at",{ascending:false});
+ $("users").innerHTML=(r.data||[]).map(x=>'<tr><td>'+(x.display_name||"")+'</td><td>'+x.email+'</td><td>'+x.role+'</td><td>'+(x.locations?.name||"")+'</td></tr>').join("");
+}
+window.newOrder=()=>alert("Bestellfenster wird als nächster Schritt ergänzt. Die Artikeldaten sind bereits mit dem Zentrallager verbunden.");
+window.logout=async()=>{await neon.auth.signOut();location.reload()};
+boot();
+</script>
+</body></html>
