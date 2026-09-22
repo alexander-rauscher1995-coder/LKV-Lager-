@@ -59,18 +59,14 @@ const neon=createClient({auth:{url:"https://ep-square-glade-b1udz8df.neonauth.c-
 const $=id=>document.getElementById(id); let profile=null,products=[],cart={}; const locations=[["Ansbach",1],["Wertingen",2],["Pfaffenhofen",3],["Passau / Regen",4],["Traunstein",5],["Weilheim",6],["Miesbach",7],["Landshut",8]];
 async function boot(){
  try{
-  const s=await neon.auth.getSession();
-  if(!s?.data?.session){$("user").textContent="Bestellung Außenstelle";profile={role:"site",location_id:null,email:"Gast"};buildNav();renderLocations();await load();return;}
-  const p=await neon.from("profiles").select("user_id,role,location_id,email,display_name,locations(name)").eq("user_id",s.data.session.user.id).maybeSingle();
-  if(p.error)throw p.error;if(!p.data){$("user").textContent="Gastmodus";profile={role:"site",location_id:null,email:"Gast"};buildNav();renderLocations();await load();return}
-  profile=p.data;
-  $("user").textContent=(profile.display_name||profile.email)+" · "+profile.role;
-  $("location").textContent=profile.locations?.name||"Zentrallager München";
+  profile={role:"site",location_id:null,email:"Gast"};
+  $("user").textContent="Bestellung Außenstelle";
   buildNav();renderLocations();await load();
  }catch(e){$("user").textContent="LKV Lagerverwaltung";console.error(e)}
 }
 function renderLocations(){const el=$("locationSelect");el.innerHTML="<option value=\"\">Außenstelle auswählen</option>"+locations.map(x=>`<option value="${x[1]}" ${profile.location_id==x[1]?"selected":""}>${x[0]}</option>`).join("");$("location").textContent=locations.find(x=>x[1]==profile.location_id)?.[0]||"Bitte Außenstelle auswählen";}
-window.changeLocation=()=>{profile.location_id=Number($("locationSelect").value)||null; $("location").textContent=locations.find(x=>x[1]==profile.location_id)?.[0]||"Bitte Außenstelle auswählen"; if(profile.location_id)load();};\nfunction buildNav(){
+window.changeLocation=()=>{profile.location_id=Number($("locationSelect").value)||null; $("location").textContent=locations.find(x=>x[1]==profile.location_id)?.[0]||"Bitte Außenstelle auswählen"; if(profile.location_id)load();};
+function buildNav(){
  let n=profile.role==="site"
  ?'<button class="active" onclick="show(\'dashboard\')">Übersicht</button><button onclick="show(\'catalog\')">Artikel bestellen</button>'
  :'<button class="active" onclick="show(\'warehouse\')">Zentrallager</button>';
@@ -82,7 +78,7 @@ async function load(){
  products=(await neon.from("products").select("id,article_no,name,category,unit,stock").eq("active",true).order("article_no")).data||[];
  $("productsCount").textContent=products.length;
  $("catalogRows").innerHTML=products.map(p=>'<tr><td>'+p.article_no+'</td><td><b>'+p.name+'</b></td><td>'+(p.category||"")+'</td><td>'+p.stock+'</td><td><button class="blue" style="padding:7px 10px" onclick="newOrder()">Bestellen</button></td></tr>').join("");
- if(profile.role==="site")await loadSite();else await loadWarehouse();
+ if(profile.role==="site" && profile.location_id)await loadSite();else if(profile.role!=="site")await loadWarehouse();
  if(profile.role==="admin")await loadAdmin();
 }
 async function loadSite(){
