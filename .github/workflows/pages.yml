@@ -1,4 +1,4 @@
-name: Deploy Fitness App to GitHub Pages
+name: Deploy FITLIFE to GitHub Pages
 
 on:
   push:
