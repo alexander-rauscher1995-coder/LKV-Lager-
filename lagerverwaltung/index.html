@@ -19,6 +19,7 @@
 <label>Benutzername<input id="email" type="text" value="RauscherA" placeholder="Benutzername" autocomplete="username"></label>
 <label>Passwort<input id="password" type="password" placeholder="Passwort (mind. 8 Zeichen)" autocomplete="new-password"></label>
 <button class="btn blue" onclick="signin()">Anmelden</button>
+<button class="btn orange" style="width:100%;margin-top:8px" onclick="demoLogin()">Demo starten</button>
 <button class="btn ghost" style="width:100%;margin-top:8px" onclick="signup()">Mit Einladung registrieren</button><button class="btn green" style="width:100%;margin-top:8px" onclick="bootstrapAdmin()">RauscherA als Administrator einrichten</button>
 <div class="hint"><b>Erster Start:</b> Benutzername <b>RauscherA</b> eintragen, eigenes Passwort mit mindestens 8 Zeichen wählen und „Ersten Administrator einrichten“ drücken. Danach kannst du dich direkt mit <b>RauscherA</b> und diesem Passwort anmelden.<br><br>Für dich ist beim Login keine E-Mail-Adresse erforderlich.</div>
 <div id="loginMsg" style="margin-top:10px;font-size:11px"></div>
@@ -76,6 +77,26 @@ async function boot(){
   if(error) throw error;
   if(!p){showProfileSetup(session.user)} else {profile=p;showApp(session.user)}
  }catch(e){console.error(e);$("loginMsg").textContent="Noch nicht angemeldet."}
+}
+window.demoLogin=()=>{ $("email").value="Demo"; $("password").value="Demo12345!"; showDemoApp(); };
+function showDemoApp(){
+ profile={role:"admin",location_id:null,display_name:"Demo",email:"demo@example.com",locations:{name:"Zentrallager München"}};
+ $("login").style.display="none"; $("app").style.display="flex";
+ $("userText").innerHTML="Demo<br><span style='font-weight:400;color:#7b8da0'>Demo-Administrator</span>";
+ $("roleText").textContent="Zentrallager München · DEMO";
+ $("site").classList.remove("active"); $("warehouse").classList.add("active");
+ $("nav").innerHTML='<button class="active" onclick="go(\'warehouse\')">⌂ Zentrallager München</button><button onclick="go(\'warehouse\')">🛒 Bestellungen</button><button onclick="go(\'catalog\')">▣ Bestand</button><button onclick="go(\'admin\')">⚙ Benutzerverwaltung</button>';
+ products=[
+ {id:1,article_no:"10025",name:"Schraube M8",category:"Befestigung",unit:"Stk.",stock:25},
+ {id:2,article_no:"10027",name:"Lager 6205",category:"Lagertechnik",unit:"Stk.",stock:12},
+ {id:3,article_no:"10030",name:"Kabel 5m",category:"Elektro",unit:"Stk.",stock:20},
+ {id:4,article_no:"10029",name:"Ventil",category:"Hydraulik",unit:"Stk.",stock:6},
+ {id:5,article_no:"10033",name:"Schlauch 10m",category:"Schlauch",unit:"Stk.",stock:15}
+ ];
+ renderProducts();
+ $("wOpen").textContent="3"; $("wToday").textContent="2";
+ $("warehouseOrders").innerHTML='<tr><td><b>DEMO-1001</b></td><td>Ansbach</td><td>22.09.2026</td><td>3</td><td><span class="badge wait">Offen</span></td><td>Demo</td></tr><tr><td><b>DEMO-1002</b></td><td>Wertingen</td><td>22.09.2026</td><td>2</td><td><span class="badge info">In Bearbeitung</span></td><td>Demo</td></tr>';
+ $("users").innerHTML='<tr><td>Demo</td><td>demo@example.com</td><td>admin</td><td>Zentrallager München</td><td>Demo</td></tr>';
 }
 window.signin=async()=>{try{const username=$("email").value.trim()||"RauscherA",password=$("password").value; if(!username||!password)throw Error("Benutzername und Passwort eingeben."); const email=username.toLowerCase().replace(/[^a-z0-9._-]/g,"")+"@example.com"; await neon.auth.signIn.email({email,password}); location.reload()}catch(e){$("loginMsg").textContent=e.message||"Anmeldung fehlgeschlagen."}};
 
