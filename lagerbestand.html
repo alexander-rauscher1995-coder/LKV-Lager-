@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hauptlager München – Lagerbestand</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6f8;color:#17212b}header{background:#123b5d;color:#fff;padding:28px}h1{margin:0}main{max-width:1200px;margin:30px auto;padding:0 20px}.bar{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:20px}input{padding:12px;border:1px solid #ccd6df;border-radius:8px;min-width:280px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}.card,.table{background:#fff;border:1px solid #dde4ea;border-radius:12px;padding:20px}.card b{font-size:28px;display:block;margin-top:6px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:14px 10px;border-bottom:1px solid #edf0f2}th{font-size:12px;color:#687884;text-transform:uppercase}.ok,.low{padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}.ok{background:#e5f6ec;color:#177345}.low{background:#fff0d8;color:#9a5b00}@media(max-width:700px){.cards{grid-template-columns:1fr}.bar{flex-direction:column;align-items:stretch}input{min-width:0}}
+</style></head><body>
+<header><h1>HAUPTLAGER MÜNCHEN</h1><div>Lagerbestand</div></header>
+<main><div class="bar"><h2>Aktueller Lagerbestand</h2><input id="q" placeholder="Artikel suchen..." oninput="suchen()"></div>
+<div class="cards"><div class="card">Artikel gesamt<b>6</b></div><div class="card">Artikel mit Bestand<b>6</b></div><div class="card">Niedriger Bestand<b>2</b></div></div>
+<div class="table"><table id="t"><thead><tr><th>Artikel-Nr.</th><th>Artikel</th><th>Kategorie</th><th>Lagerplatz</th><th>Bestand</th><th>Mindestbestand</th><th>Status</th></tr></thead><tbody>
+<tr><td>10001</td><td>Hydraulikschlauch 1/2"</td><td>Hydraulik</td><td>A-01-01</td><td>42</td><td>20</td><td><span class="ok">OK</span></td></tr>
+<tr><td>10002</td><td>Schraube M8 x 30</td><td>Schrauben</td><td>A-02-03</td><td>18</td><td>25</td><td><span class="low">Niedrig</span></td></tr>
+<tr><td>10003</td><td>Mutter M8</td><td>Schrauben</td><td>A-02-04</td><td>120</td><td>50</td><td><span class="ok">OK</span></td></tr>
+<tr><td>10004</td><td>Dichtung 42 mm</td><td>Dichtungen</td><td>B-01-02</td><td>61</td><td>30</td><td><span class="ok">OK</span></td></tr>
+<tr><td>10005</td><td>Kabelbinder 200 mm</td><td>Verbrauchsmaterial</td><td>B-03-01</td><td>15</td><td>30</td><td><span class="low">Niedrig</span></td></tr>
+<tr><td>10006</td><td>Schmierfett 400 g</td><td>Verbrauchsmaterial</td><td>C-01-05</td><td>35</td><td>15</td><td><span class="ok">OK</span></td></tr>
+</tbody></table></div></main>
+<script>function suchen(){let q=document.getElementById('q').value.toLowerCase();document.querySelectorAll('#t tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(q)?'':'none')}</script>
+</body></html>
