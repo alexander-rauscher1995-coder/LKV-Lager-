@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f4f5fa">
-<title>FITLIFE – Stronger Together</title>
+<meta name="theme-color" content="#7047e8">\n<link rel="manifest" href="manifest.json">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="default">\n<meta name="apple-mobile-web-app-title" content="FITLIFE">
+<title>FITLIFE – Dein Fitness Coach</title>
 <style>
 :root{
   --bg:#f4f5fa;--surface:#fff;--surface2:#f8f9fc;--line:#e7e9f0;
@@ -521,7 +521,8 @@ function setupSearch(){
  const input=document.querySelector('.search input');if(!input)return;
  input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();document.querySelectorAll('.module-card').forEach(card=>{card.style.display=!q||card.textContent.toLowerCase().includes(q)?'':'none'});});
 }
-initDate();render();setupSearch();
+initDate();render();setupSearch();\nif("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
 renderPRs();renderProgressTable();renderWeeklyGoals();renderWeekPlanner();renderActivityStreak();drawRest();renderWorkoutHistory();renderVolumeChart();renderExerciseProgress();renderTrainingFeedback();renderSession();renderExerciseTemplates();renderSavedTemplates();</script>
-</body>
+<div id="installHint" style="display:none;position:fixed;left:12px;right:12px;bottom:84px;z-index:40;background:#171827;color:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 14px 35px rgba(0,0,0,.2);font-size:12px"><b>FITLIFE installieren</b><div style="opacity:.75;margin-top:3px">Füge die App über „Zum Home-Bildschirm“ hinzu.</div><button onclick="document.getElementById('installHint').style.display='none'" style="margin-top:8px;background:#7047e8;color:#fff;border:0;border-radius:8px;padding:7px 10px">OK</button></div>
+<script>if(/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!window.navigator.standalone&&!localStorage.getItem("fitlife_install_hint")){setTimeout(()=>{const x=document.getElementById("installHint");if(x)x.style.display="block";localStorage.setItem("fitlife_install_hint","1")},2500)}</script></body>
 </html>
