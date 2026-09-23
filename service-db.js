@@ -74,11 +74,21 @@ function addRepair(prefillSn=''){
   let date=prompt('Datum (TT.MM.JJJJ)',new Date().toLocaleDateString('de-DE'))||new Date().toLocaleDateString('de-DE');
   let err=prompt('Fehler')||'';
   let act=prompt('Durchgeführte Reparatur / Maßnahme')||'';
-  let parts=prompt('Verwendete Ersatzteile')||'';
+  let parts=prompt('Verwendete Ersatzteile (Artikelnummern, z.B. 1107:1; 1204:2)')||'';
   let tech=prompt('Techniker','Rauscher')||'Rauscher';
   let state=prompt('Status: Offen / In Arbeit / Erledigt','Offen')||'Offen';
   let note=prompt('Notiz')||'';
-  db.repairs.push({id:Date.now(),date,rep,sn,type:'Reparatur',error:err,action:act,parts,tech,state,note});
+  const stockUsage=[];
+  parts.split(';').map(x=>x.trim()).filter(Boolean).forEach(entry=>{
+    const m=entry.match(/^([^:]+):\\s*(\\d+)$/); if(!m)return;
+    const art=m[1].trim(), qty=Number(m[2]); const item=db.items.find(i=>i.art===art);
+    if(!item||qty<=0)return;
+    const location=d?.loc||'Lager', before=Number(item.stock[location]||0);
+    item.stock[location]=Math.max(0,before-qty);
+    stockUsage.push(art+' x'+qty+' ('+location+')');
+  });
+  const partsText=stockUsage.length?stockUsage.join('; '):parts;
+  db.repairs.push({id:Date.now(),date,rep,sn,type:'Reparatur',error:err,action:act,parts:partsText,tech,state,note});
   if(d&&state!=='Erledigt')d.status='Reparatur';
   save()
 }
