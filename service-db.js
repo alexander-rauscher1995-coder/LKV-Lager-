@@ -13,7 +13,7 @@ let db=JSON.parse(localStorage.getItem(K)||'null')||{devices:[
 function save(){localStorage.setItem(K,JSON.stringify(db));render()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
 function view(id,b){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');render()}
-function tag(s){let c=s==='OK'||s==='Erledigt'?'ok':s==='Reparatur'||s==='Offen'||s==='Außer Betrieb'?'bad':s==='Prüfung'||s==='In Arbeit'?'warn':'ok';return '<span class="tag '+c+'">'+esc(s)+'</span>'}
+function tag(s){let c=s==='OK'||s==='Erledigt'||s==='Bestanden'?'ok':s==='Reparatur'||s==='Offen'||s==='Außer Betrieb'||s==='Nicht bestanden'?'bad':s==='Prüfung'||s==='In Arbeit'||s==='Wassertest'?'warn':'ok';return '<span class="tag '+c+'">'+esc(s)+'</span>'}
 function empty(x){return '<div class="empty">'+x+'</div>'}
 
 let currentDeviceSn='';
@@ -29,7 +29,7 @@ function openDeviceDetail(sn){
   const rs=db.repairs.filter(x=>x.sn===sn).slice().reverse();
   const last=rs[0];
   document.getElementById('deviceLastStatus').innerHTML=last?'<p><b>'+tag(last.state)+'</b></p><p>'+esc(last.date)+' · '+esc(last.error)+'</p><p>'+esc(last.action)+'</p>':'<p>Noch keine Reparatur vorhanden.</p>';
-  document.getElementById('deviceHistory').innerHTML=rs.length?'<table class="table"><tr><th>Datum</th><th>Rep.</th><th>Fehler</th><th>Maßnahme</th><th>Ersatzteile</th><th>Techniker</th><th>Status</th><th>Aktion</th></tr>'+rs.map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.rep)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.parts||'')+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td><td><button class="btn" onclick="editRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Bearbeiten</button> <button class="btn" onclick="deleteRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Löschen</button></td></tr>').join('')+'</table>':empty('Für dieses Gerät ist noch keine Reparatur eingetragen.');
+  document.getElementById('deviceHistory').innerHTML=rs.length?'<table class="table"><tr><th>Datum</th><th>Typ</th><th>Rep.</th><th>Fehler</th><th>Maßnahme</th><th>Ersatzteile</th><th>Techniker</th><th>Status</th><th>Aktion</th></tr>'+rs.map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.type)+'</td><td>'+esc(x.rep)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.parts||'')+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td><td><button class="btn" onclick="editRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Bearbeiten</button> <button class="btn" onclick="deleteRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Löschen</button></td></tr>').join('')+'</table>':empty('Für dieses Gerät ist noch keine Reparatur eingetragen.');
 }
 
 function showDeviceRepairs(sn){
@@ -47,6 +47,16 @@ function addDevice(){
   db.devices.push({id:Date.now(),rep:rep,sn:sn,loc:l,status:st,tech:'Rauscher',note:''});save()
 }
 
+function addWaterTest(sn){
+  const d=db.devices.find(x=>x.sn===sn);if(!d)return;
+  const date=prompt('Wassertest Datum (TT.MM.JJJJ)',new Date().toLocaleDateString('de-DE'))||new Date().toLocaleDateString('de-DE');
+  const result=prompt('Wassertest Ergebnis: Bestanden / Nicht bestanden','Bestanden')||'Bestanden';
+  const note=prompt('Wassertest Notiz / Messwerte')||'';
+  db.repairs.push({id:Date.now(),date,rep:d.rep,sn,type:'Wassertest',error:'',action:'Wassertest durchgeführt',parts:'',tech:d.tech||'Rauscher',state:result,note});
+  d.status=result==='Bestanden'?'OK':'Prüfung';
+  save();
+  openDeviceDetail(sn);
+}
 function addRepair(prefillSn=''){
   if(!db.devices.length)return alert('Bitte zuerst ein Gerät anlegen.');
   let sn=prefillSn||prompt('Seriennummer',db.devices[0].sn);if(!sn)return;
