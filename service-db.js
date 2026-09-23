@@ -16,22 +16,22 @@ function view(id,b){document.querySelectorAll('.view').forEach(x=>x.classList.re
 function tag(s){let c=s==='OK'||s==='Erledigt'?'ok':s==='Reparatur'||s==='Offen'||s==='Außer Betrieb'?'bad':s==='Prüfung'||s==='In Arbeit'?'warn':'ok';return '<span class="tag '+c+'">'+esc(s)+'</span>'}
 function empty(x){return '<div class="empty">'+x+'</div>'}
 
-function closeDeviceDetails(){document.getElementById('deviceModal')?.remove()}
-function showDeviceDetails(sn){
-  const d=db.devices.find(x=>x.sn===sn);if(!d)return;
+let currentDeviceSn='';
+function openDeviceDetail(sn){
+  currentDeviceSn=sn;
+  const d=db.devices.find(x=>x.sn===sn); if(!d)return;
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('deviceDetail').classList.add('active');
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById('detailTitle').textContent='Lactocorder SN '+d.sn;
+  document.getElementById('detailSubtitle').textContent='Rep.-Nr. '+d.rep+' · '+d.loc;
+  document.getElementById('deviceInfo').innerHTML='<p><b>Seriennummer:</b> '+esc(d.sn)+'</p><p><b>Rep.-Nr.:</b> '+esc(d.rep)+'</p><p><b>Standort:</b> '+esc(d.loc)+'</p><p><b>Status:</b> '+tag(d.status)+'</p><p><b>Techniker:</b> '+esc(d.tech)+'</p><p><b>Notiz:</b> '+esc(d.note||'')+'</p>';
   const rs=db.repairs.filter(x=>x.sn===sn).slice().reverse();
-  closeDeviceDetails();
-  const modal=document.createElement('div');modal.id='deviceModal';
-  modal.style='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;padding:24px;overflow:auto';
-  modal.innerHTML='<div style="max-width:1100px;margin:30px auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)">'+
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px"><div><h2 style="margin:0 0 6px">Lactocorder SN '+esc(d.sn)+'</h2><div class="muted">Rep.-Nr. '+esc(d.rep)+' · '+esc(d.loc)+' · '+tag(d.status)+'</div><div class="muted" style="margin-top:6px">Techniker: '+esc(d.tech)+' · '+esc(d.note)+'</div></div>'+
-    '<div><button class="btn primary" onclick="addRepair(\''+esc(d.sn).replace(/'/g,"\\'")+'\');showDeviceDetails(\''+esc(d.sn).replace(/'/g,"\\'")+'\')">+ Reparatur eintragen</button> <button class="btn" onclick="closeDeviceDetails()">Schließen</button></div></div>'+
-    '<hr style="border:0;border-top:1px solid #edf0f3;margin:20px 0"><h3>Reparaturhistorie</h3>'+
-    (rs.length?'<div class="scroll"><table class="table"><tr><th>Datum</th><th>Rep.</th><th>Fehler</th><th>Maßnahme / Ergebnis</th><th>Ersatzteile</th><th>Techniker</th><th>Status</th><th>Aktion</th></tr>'+
-    rs.map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.rep)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.parts||'')+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td><td><button class="btn" onclick="editRepair('+x.id+');showDeviceDetails(\''+esc(d.sn).replace(/'/g,"\\'")+'\')">Bearbeiten</button> <button class="btn" onclick="deleteRepair('+x.id+');showDeviceDetails(\''+esc(d.sn).replace(/'/g,"\\'")+'\')">Löschen</button></td></tr>').join('')+'</table></div>':empty('Für dieses Gerät ist noch keine Reparatur eingetragen.'))+
-    '</div>';
-  document.body.appendChild(modal);
+  const last=rs[0];
+  document.getElementById('deviceLastStatus').innerHTML=last?'<p><b>'+tag(last.state)+'</b></p><p>'+esc(last.date)+' · '+esc(last.error)+'</p><p>'+esc(last.action)+'</p>':'<p>Noch keine Reparatur vorhanden.</p>';
+  document.getElementById('deviceHistory').innerHTML=rs.length?'<table class="table"><tr><th>Datum</th><th>Rep.</th><th>Fehler</th><th>Maßnahme</th><th>Ersatzteile</th><th>Techniker</th><th>Status</th><th>Aktion</th></tr>'+rs.map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.rep)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.parts||'')+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td><td><button class="btn" onclick="editRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Bearbeiten</button> <button class="btn" onclick="deleteRepair('+x.id+');openDeviceDetail(\''+esc(sn).replace(/'/g,"\\'")+'\')">Löschen</button></td></tr>').join('')+'</table>':empty('Für dieses Gerät ist noch keine Reparatur eingetragen.');
 }
+
 function showDeviceRepairs(sn){
   view('repairs');
   const input=document.getElementById('rs');
