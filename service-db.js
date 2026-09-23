@@ -17,6 +17,14 @@ function tag(s){let c=s==='OK'||s==='Erledigt'||s==='Bestanden'?'ok':s==='Repara
 function empty(x){return '<div class="empty">'+x+'</div>'}
 
 let currentDeviceSn='';
+const TEST_INTERVAL_DAYS=365;
+function dateDEToTime(s){const p=String(s||'').split('.');return p.length===3?new Date(+p[2],+p[1]-1,+p[0]).getTime():NaN}
+function testDue(sn){
+  const tests=db.repairs.filter(x=>x.sn===sn&&x.type==='Wassertest').slice().reverse();
+  if(!tests.length)return {label:'Wassertest fehlt',cls:'bad'};
+  const t=dateDEToTime(tests[0].date), due=isNaN(t)?true:(Date.now()-t>TEST_INTERVAL_DAYS*86400000);
+  return due?{label:'Wassertest fällig',cls:'bad'}:{label:'Wassertest aktuell',cls:'ok'};
+}
 function openDeviceDetail(sn){
   currentDeviceSn=sn;
   const d=db.devices.find(x=>x.sn===sn); if(!d)return;
@@ -25,7 +33,8 @@ function openDeviceDetail(sn){
   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
   document.getElementById('detailTitle').textContent='Lactocorder SN '+d.sn;
   document.getElementById('detailSubtitle').textContent='Rep.-Nr. '+d.rep+' · '+d.loc;
-  const tests=db.repairs.filter(x=>x.sn===sn&&x.type==='Wassertest').slice().reverse(); const lastTest=tests[0]; const released=lastTest?.state==='Bestanden'; document.getElementById('deviceInfo').innerHTML='<p><b>Seriennummer:</b> '+esc(d.sn)+'</p><p><b>Rep.-Nr.:</b> '+esc(d.rep)+'</p><p><b>Standort:</b> '+esc(d.loc)+'</p><p><b>Status:</b> '+tag(d.status)+'</p><p><b>Freigabe:</b> '+(released?'<span class="tag ok">Freigegeben</span>':'<span class="tag warn">Noch nicht freigegeben</span>')+'</p><p><b>Letzter Wassertest:</b> '+(lastTest?esc(lastTest.date)+' · '+tag(lastTest.state):'Noch keiner')+'</p><p><b>Techniker:</b> '+esc(d.tech)+'</p><p><b>Notiz:</b> '+esc(d.note||'')+'</p>';
+  const tests=db.repairs.filter(x=>x.sn===sn&&x.type==='Wassertest').slice().reverse(); const lastTest=tests[0]; const released=lastTest?.state==='Bestanden'; const dueInfo=testDue(sn);
+  document.getElementById('deviceInfo').innerHTML='<p><b>Seriennummer:</b> '+esc(d.sn)+'</p><p><b>Rep.-Nr.:</b> '+esc(d.rep)+'</p><p><b>Standort:</b> '+esc(d.loc)+'</p><p><b>Status:</b> '+tag(d.status)+'</p><p><b>Freigabe:</b> '+(released?'<span class="tag ok">Freigegeben</span>':'<span class="tag warn">Noch nicht freigegeben</span>')+'</p><p><b>Letzter Wassertest:</b> '+(lastTest?esc(lastTest.date)+' · '+tag(lastTest.state):'Noch keiner')+'</p><p><b>Techniker:</b> '+esc(d.tech)+'</p><p><b>Notiz:</b> '+esc(d.note||'')+'</p>';
   const rs=db.repairs.filter(x=>x.sn===sn).slice().reverse();
   const last=rs[0];
   document.getElementById('deviceLastStatus').innerHTML=last?'<p><b>'+tag(last.state)+'</b></p><p>'+esc(last.date)+' · '+esc(last.error)+'</p><p>'+esc(last.action)+'</p>'+(last.type==='Wassertest'&&last.state==='Bestanden'?'<p><span class="tag ok">Gerät freigegeben</span></p>':''): '<p>Noch kein Vorgang vorhanden.</p>';
@@ -111,7 +120,7 @@ function render(){
   '<table class="table"><tr><th>Rep.-Nr.</th><th>SN</th><th>Standort</th><th>Status</th><th>Techniker</th><th>Notiz</th><th>Reparaturen</th></tr>'+
   ds.map(x=>{
     const count=db.repairs.filter(r=>r.sn===x.sn).length;
-    return '<tr><td><b>'+esc(x.rep)+'</b></td><td>'+esc(x.sn)+'</td><td>'+esc(x.loc)+'</td><td>'+tag(x.status)+'</td><td>'+esc(x.tech)+'</td><td class="muted">'+esc(x.note)+'</td><td><button class="btn" onclick="showDeviceRepairs(\''+esc(x.sn).replace(/'/g,"\\'")+'\')">🔧 '+count+' anzeigen</button></td></tr>'
+    return '<tr><td><b>'+esc(x.rep)+'</b></td><td>'+esc(x.sn)+'</td><td>'+esc(x.loc)+'</td><td>'+tag(x.status)+'</td><td>'+esc(x.tech)+'</td><td class="muted">'+esc(x.note)+'</td><td><button class="btn primary" onclick="openDeviceDetail(\''+esc(x.sn).replace(/'/g,"\\'")+'\')">Gerät öffnen</button> <button class="btn" onclick="showDeviceRepairs(\''+esc(x.sn).replace(/'/g,"\\'")+'\')">🔧 '+count+' Reparaturen</button></td></tr>'
   }).join('')+'</table>':empty('Keine Geräte.');
 
   q=(document.getElementById('rs')?.value||'').toLowerCase();
