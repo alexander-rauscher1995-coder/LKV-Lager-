@@ -31,18 +31,36 @@ function addDevice(){
   db.devices.push({id:Date.now(),rep:rep,sn:sn,loc:l,status:st,tech:'Rauscher',note:''});save()
 }
 
-function addRepair(){
+function addRepair(prefillSn=''){
   if(!db.devices.length)return alert('Bitte zuerst ein Gerät anlegen.');
-  let sn=prompt('Seriennummer',db.devices[0].sn);if(!sn)return;
+  let sn=prefillSn||prompt('Seriennummer',db.devices[0].sn);if(!sn)return;
   let d=db.devices.find(x=>x.sn===sn);
-  let err=prompt('Fehler');
-  let act=prompt('Maßnahme / Ergebnis');
+  let rep=prompt('Rep.-Nr.',d?.rep||'')||d?.rep||'';
+  let date=prompt('Datum (TT.MM.JJJJ)',new Date().toLocaleDateString('de-DE'))||new Date().toLocaleDateString('de-DE');
+  let err=prompt('Fehler')||'';
+  let act=prompt('Durchgeführte Reparatur / Maßnahme')||'';
+  let parts=prompt('Verwendete Ersatzteile')||'';
+  let tech=prompt('Techniker','Rauscher')||'Rauscher';
   let state=prompt('Status: Offen / In Arbeit / Erledigt','Offen')||'Offen';
-  db.repairs.push({date:new Date().toLocaleDateString('de-DE'),rep:d?.rep||'',sn:sn,type:'Reparatur',error:err||'',action:act||'',tech:'Rauscher',state:state});
+  let note=prompt('Notiz')||'';
+  db.repairs.push({id:Date.now(),date,rep,sn,type:'Reparatur',error:err,action:act,parts,tech,state,note});
   if(d&&state!=='Erledigt')d.status='Reparatur';
   save()
 }
-
+function editRepair(id){
+  let r=db.repairs.find(x=>x.id===id);if(!r)return;
+  r.error=prompt('Fehler',r.error)||r.error;
+  r.action=prompt('Durchgeführte Reparatur / Maßnahme',r.action)||r.action;
+  r.parts=prompt('Verwendete Ersatzteile',r.parts||'')||r.parts||'';
+  r.tech=prompt('Techniker',r.tech||'Rauscher')||r.tech;
+  r.state=prompt('Status: Offen / In Arbeit / Erledigt',r.state)||r.state;
+  r.note=prompt('Notiz',r.note||'')||r.note||'';
+  save()
+}
+function deleteRepair(id){
+  if(!confirm('Diese Reparatur wirklich löschen?'))return;
+  db.repairs=db.repairs.filter(x=>x.id!==id);save()
+}
 function addItem(){
   let art=prompt('Artikelnummer');if(!art)return;
   let name=prompt('Bezeichnung');if(!name)return;
@@ -73,8 +91,8 @@ function render(){
   q=(document.getElementById('rs')?.value||'').toLowerCase();
   let rr=db.repairs.filter(x=>!q||JSON.stringify(x).toLowerCase().includes(q));
   document.getElementById('repairsTable').innerHTML=rr.length?
-  '<table class="table"><tr><th>Datum</th><th>Rep.</th><th>SN</th><th>Art</th><th>Fehler</th><th>Maßnahme / Ergebnis</th><th>Techniker</th><th>Status</th></tr>'+
-  rr.slice().reverse().map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.rep)+'</td><td><b>'+esc(x.sn)+'</b></td><td>'+esc(x.type)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td></tr>').join('')+'</table>':empty('Keine Vorgänge.');
+  '<table class="table"><tr><th>Datum</th><th>Rep.</th><th>SN</th><th>Art</th><th>Fehler</th><th>Maßnahme / Ergebnis</th><th>Ersatzteile</th><th>Techniker</th><th>Status</th><th>Aktion</th></tr>'+
+  rr.slice().reverse().map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.rep)+'</td><td><b>'+esc(x.sn)+'</b></td><td>'+esc(x.type)+'</td><td>'+esc(x.error)+'</td><td>'+esc(x.action)+'</td><td>'+esc(x.parts||'')+'</td><td>'+esc(x.tech)+'</td><td>'+tag(x.state)+'</td><td><button class="btn" onclick="editRepair('+x.id+')">Bearbeiten</button> <button class="btn" onclick="deleteRepair('+x.id+')">Löschen</button></td></tr>').join('')+'</table>':empty('Keine Vorgänge.');
 
   q=(document.getElementById('is')?.value||'').toLowerCase();let lf=document.getElementById('lf')?.value||'';
   let ii=db.items.filter(x=>!q||(x.art+' '+x.name).toLowerCase().includes(q));
